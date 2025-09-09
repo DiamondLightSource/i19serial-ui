@@ -1,0 +1,19 @@
+# Changes here will be overwritten by Copier
+_commit: 4.2.0
+_src_path: https://github.com/DiamondLightSource/python-copier-template.git
+author_email: noemi.frisina@diamond.ac.uk
+author_name: Noemi Frisina
+component_lifecycle: experimental
+component_owner: group:default/daq
+component_type: user-interface
+description: A PyQt UI to run ssx collections with Bluesky on I19
+distribution_name: i19serial-ui
+docker: false
+docs_type: sphinx
+git_platform: github.com
+github_org: DiamondLightSource
+package_name: i19serial_ui
+pypi: false
+repo_name: i19serial-ui
+strict_typing: true
+type_checker: pyright

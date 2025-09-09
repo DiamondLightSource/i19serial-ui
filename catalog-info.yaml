@@ -1,0 +1,10 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: i19serial-ui
+  title: i19serial-ui
+  description: A PyQt UI to run ssx collections with Bluesky on I19
+spec:
+  type: user-interface
+  lifecycle: experimental
+  owner: group:default/daq
