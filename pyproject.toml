@@ -12,7 +12,13 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 description = "A PyQt UI to run ssx collections with Bluesky on I19"
-dependencies = [] # Add project dependencies here, e.g. ["click", "numpy"]
+dependencies = [
+    "numpy",
+    "pyqt6",
+    "requests",
+    "pydantic",
+    "aiohttp",
+] # Add project dependencies here, e.g. ["click", "numpy"]
 dynamic = ["version"]
 license.file = "LICENSE"
 readme = "README.md"
