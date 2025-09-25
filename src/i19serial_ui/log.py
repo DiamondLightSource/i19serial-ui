@@ -11,6 +11,7 @@ LOGGER.setLevel(logging.DEBUG)
 
 class GuiWindowLogHandler(logging.Handler, QObject):
     signalLog = pyqtSignal(str)  # noqa: N815
+    flushOnClose = True  # noqa: N815
 
     def __init__(self):
         super().__init__()
