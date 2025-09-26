@@ -4,6 +4,7 @@ import sys
 from PyQt6 import QtCore, QtWidgets
 from PyQt6.QtGui import QFont
 
+from i19serial_ui.gui.log_box import LogBox
 from i19serial_ui.log import GuiWindowLogHandler, tidy_up_logging
 
 WINDOW_SIZE = (700, 1200)
@@ -34,7 +35,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.setStyleSheet(BG_COLOUR)
 
         centralWidget = QtWidgets.QWidget(self)  # noqa: N806
-        self._log_output_box(centralWidget)
 
         # Create boxes with layouts
         # Title
@@ -48,7 +48,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         # Run buttons
         self._create_collection_buttons_group()
         # Log window
-        self._create_bottom_group()
+        self._create_bottom_group(centralWidget)
 
         # General layout
         self.general_layout = self.create_main_layout()
@@ -71,19 +71,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         # for logger in LOG_HANDLERS:
         #     logger.addHandler(self.LogHandler)
 
-    def _log_output_box(
-        self,
-        centralWidget: QtWidgets.QWidget,  # noqa: N803
-    ):
-        self.log_output_box = QtWidgets.QPlainTextEdit(centralWidget)
-        self.log_output_box.appendPlainText(
-            "Hello crystallographer, let's do some science."
-        )
-        # if g.DEV_MODE:
-        #     self.log_output_box.appendPlainText("RUNNING IN DEV MODE")
-        self.log_output_box.setReadOnly(True)
-        self.LogHandler.signalLog.connect(self.log_output_box.appendPlainText)  # type: ignore
-
     def _create_toolbar(self):
         pass
 
@@ -105,12 +92,11 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
     def _create_collection_buttons_group(self):
         pass
 
-    def _create_bottom_group(self):
+    def _create_bottom_group(self, centralWidget: QtWidgets.QWidget):  # noqa: N803
         # log panel view
         self.bottom_group = QtWidgets.QGroupBox()
-        bottom_layout = QtWidgets.QVBoxLayout()
-        bottom_layout.addWidget(self.log_output_box)
-        self.bottom_group.setLayout(bottom_layout)
+        self.log_widget = LogBox(centralWidget, self.LogHandler)
+        self.bottom_group.setLayout(self.log_widget.log_layout)
 
     def create_main_layout(self):
         title_layout = QtWidgets.QHBoxLayout()
@@ -119,6 +105,9 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         main_layout.addLayout(title_layout, 0, 0)
         main_layout.addWidget(self.bottom_group, 5, 0)
         return main_layout
+
+    def appendOutput(self, msg: str, level: str = "INFO"):  # noqa: N802
+        self.gui_logger.log(getattr(logging, level.upper()), f"{msg}")
 
 
 def start_eh2_ui():
