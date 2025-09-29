@@ -44,7 +44,7 @@ dev = [
 ]
 
 [project.scripts]
-i19serial-ui = "i19serial_ui.__main__:main"
+serial-ui = "i19serial_ui.__main__:main"
 
 [project.urls]
 GitHub = "https://github.com/DiamondLightSource/i19serial-ui"
