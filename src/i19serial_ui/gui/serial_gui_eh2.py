@@ -65,6 +65,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         pass
 
     def closeEvent(self, a0):  # type: ignore # noqa: N802
+        self.gui_logger.debug("CLOSING UI")
         tidy_up_logging([self.gui_logger])  #  *LOGGERS])
         return super().closeEvent(a0)
 
@@ -97,8 +98,8 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
     def _create_collection_buttons_group(self):
         self.run_btns_group = QtWidgets.QGroupBox()
         btn_layout = QtWidgets.QHBoxLayout()
-        test_btn = QtWidgets.QPushButton("Run")
-        test_btn.clicked.connect(lambda: self.appendOutput("PRINTING"))
+        test_btn = QtWidgets.QPushButton("TEST BUTTON")
+        test_btn.clicked.connect(lambda: self.appendOutput("TEST"))
         btn_layout.addWidget(test_btn)
         self.run_btns_group.setLayout(btn_layout)
 
