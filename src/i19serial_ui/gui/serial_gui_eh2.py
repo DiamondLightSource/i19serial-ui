@@ -1,9 +1,10 @@
 import sys
 
-from PyQt6 import QtCore, QtWidgets
-from PyQt6.QtGui import QFont
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtGui import QFont, QIcon
 
 from i19serial_ui.gui.log_box import LogBox
+from i19serial_ui.gui.ui_utils import image_file_path
 from i19serial_ui.log import (
     LOGGER,
     GuiWindowLogHandler,
@@ -21,6 +22,12 @@ BUTTON_STYLE = """background-colour:(133,194,132);
 border-style:outset; border-width:2px;
 border-radius:10px;
 border-colour:black"""
+
+
+def _create_image_icon(image_path: str) -> QIcon:
+    icon = QIcon()
+    icon.addPixmap(QtGui.QPixmap(image_path))
+    return icon
 
 
 class SerialGuiEH2(QtWidgets.QMainWindow):
@@ -78,12 +85,31 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         #     logger.addHandler(self.LogHandler)
 
     def _create_toolbar(self):
-        pass
+        self.toolbar = QtWidgets.QToolBar(self)
+        self.toolbar.setObjectName("toolbar")
+        # self.toolbar.setIconSize(QtCore.QSize(16, 16))
+        self.addToolBar(QtCore.Qt.ToolBarArea.LeftToolBarArea, self.toolbar)
+        self._create_actions()
+        self.toolbar.addAction(self.select_visit_action)
+        self.toolbar.addAction(self.home_action)
+        self.toolbar.addAction(self.run_action)
+
+    def _create_actions(self):
+        self.select_visit_action = QtGui.QAction(self)
+        self.select_visit_action.setIcon(
+            _create_image_icon(image_file_path("openDir.png"))
+        )
+        self.select_visit_action.triggered.connect(self.select_visit)
+        self.home_action = QtGui.QAction(self)
+        self.home_action.setIcon(_create_image_icon(image_file_path("home.png")))
+        self.run_action = QtGui.QAction(self)
+        self.run_action.setIcon(_create_image_icon(image_file_path("run.png")))
+        self.run_action.triggered.connect(self.run)
 
     def _setup_title(self):
         self.i19_label = QtWidgets.QLabel("I19: Fixed Target Serial Crystallography")
         self.i19_label.setFont(QFont(FONT, 13))
-        self.i19_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.i19_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
 
     def _create_top_group(self):
         # move arrows, phi step, focuse, backlight etc
@@ -108,6 +134,9 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.bottom_group = QtWidgets.QGroupBox()
         self.bottom_group.setLayout(self.log_widget.log_layout)
 
+    def select_visit(self):
+        pass
+
     def create_main_layout(self):
         title_layout = QtWidgets.QHBoxLayout()
         title_layout.addWidget(self.i19_label)
@@ -122,6 +151,9 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
 
     def appendOutput(self, msg: str, level: str = "INFO"):  # noqa: N802
         log_to_gui(self.gui_logger, msg, level)
+
+    def run(self):
+        self.appendOutput("RUN COLLECTION FROM HERE")
 
 
 def start_eh2_ui():
