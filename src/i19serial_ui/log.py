@@ -1,6 +1,7 @@
 # NOTE For actual logs, we'll use the dodal/blueapi logger
 # But we do need something that prints to the UI
 import logging
+from os import environ
 from pathlib import Path
 
 from PyQt6.QtCore import QObject, pyqtSignal
@@ -35,8 +36,7 @@ def log_to_gui(logger: logging.Logger, output_str: str, level: str = "INFO"):
 
 
 def setup_logging():
-    logdir = Path("/tmp/serial-logs")  # TODO add actual choice depending on visit
-    logdir.mkdir(parents=True, exist_ok=True)
+    logdir = _get_logging_path()
 
     logfile = logdir / "i19serial-ui.log"
 
@@ -54,3 +54,15 @@ def tidy_up_logging(loggers: list[logging.Logger]):
         for handler in logger.handlers:
             handler.close()
         logger.handlers.clear()
+
+
+def _get_logging_path() -> Path:
+    beamline = environ.get("BEAMLINE")
+
+    if beamline:
+        logdir = Path("/tmp/")  # TODO add actual choice depending on visit and hutch
+    else:
+        logdir = Path("./tmp/serial-logs")
+
+    logdir.mkdir(parents=True, exist_ok=True)
+    return logdir
