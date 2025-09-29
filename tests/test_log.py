@@ -2,10 +2,20 @@ import logging
 from unittest.mock import MagicMock, patch
 
 from i19serial_ui.log import (
+    GuiWindowLogHandler,
     _get_logging_path,
     log_to_gui,
     tidy_up_logging,
 )
+
+
+def test_gui_log_handler():
+    gui_handler = GuiWindowLogHandler()
+    gui_handler.signalLog = MagicMock()
+    msg = "Hello"
+    gui_handler.emit(logging.LogRecord("Info", logging.INFO, "", 0, msg, None, None))
+
+    gui_handler.signalLog.emit.assert_called_once_with(msg)
 
 
 def test_tidy_up_logging():
