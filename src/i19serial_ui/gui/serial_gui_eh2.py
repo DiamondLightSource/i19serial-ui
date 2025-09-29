@@ -1,11 +1,15 @@
-import logging
 import sys
 
 from PyQt6 import QtCore, QtWidgets
 from PyQt6.QtGui import QFont
 
 from i19serial_ui.gui.log_box import LogBox
-from i19serial_ui.log import LOGGER, GuiWindowLogHandler, tidy_up_logging
+from i19serial_ui.log import (
+    LOGGER,
+    GuiWindowLogHandler,
+    log_to_gui,
+    tidy_up_logging,
+)
 
 WINDOW_SIZE = (700, 1200)
 LOG_HANDLERS = []
@@ -17,10 +21,6 @@ BUTTON_STYLE = """background-colour:(133,194,132);
 border-style:outset; border-width:2px;
 border-radius:10px;
 border-colour:black"""
-
-
-gui_logger = logging.getLogger("i19serial_ui.gui.eh2")
-LOGGERS = [gui_logger]
 
 
 class SerialGuiEH2(QtWidgets.QMainWindow):
@@ -65,15 +65,16 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         pass
 
     def closeEvent(self, a0):  # type: ignore # noqa: N802
-        tidy_up_logging([self.gui_logger, *LOGGERS])
+        tidy_up_logging([self.gui_logger])  #  *LOGGERS])
         return super().closeEvent(a0)
 
     def _setup_logger(self):
+        # setup_logging()
         self.gui_logger = LOGGER
         self.LogHandler = GuiWindowLogHandler()
         self.gui_logger.addHandler(self.LogHandler)
-        for logger in LOGGERS:
-            logger.addHandler(self.LogHandler)
+        # for logger in LOGGERS:
+        #     logger.addHandler(self.LogHandler)
 
     def _create_toolbar(self):
         pass
@@ -119,7 +120,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         return main_layout
 
     def appendOutput(self, msg: str, level: str = "INFO"):  # noqa: N802
-        self.gui_logger.log(getattr(logging, level.upper()), f"{msg}")
+        log_to_gui(self.gui_logger, msg, level)
 
 
 def start_eh2_ui():
