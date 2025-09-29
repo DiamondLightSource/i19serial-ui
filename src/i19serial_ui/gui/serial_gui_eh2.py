@@ -118,9 +118,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         main_layout.addWidget(self.bottom_group, 5, 0)
         return main_layout
 
-    # def print_log(self, msg: str, level: str = "INFO"):
-    #     self.log_widget.appendOutput(f"{msg}", level)
-
     def appendOutput(self, msg: str, level: str = "INFO"):  # noqa: N802
         self.gui_logger.log(getattr(logging, level.upper()), f"{msg}")
 
