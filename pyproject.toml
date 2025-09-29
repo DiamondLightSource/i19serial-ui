@@ -59,7 +59,8 @@ version_file = "src/i19serial_ui/_version.py"
 
 [tool.pyright]
 typeCheckingMode = "strict"
-reportMissingImports = false # Ignore missing stubs in imported modules
+reportMissingImports = false    # Ignore missing stubs in imported modules
+reportGeneralTypeIssues = false # Or every connect in pyqt6 will error
 
 [tool.pytest.ini_options]
 # Run pytest with all our checkers, and don't spam us with massive tracebacks on error
@@ -69,7 +70,7 @@ addopts = """
 # https://iscinumpy.gitlab.io/post/bound-version-constraints/#watch-for-warnings
 filterwarnings = "error"
 # Set configuration variable for qt
-qt_api="pyqt6"
+qt_api = "pyqt6"
 # Doctest python code in docs, python code in src docstrings, test functions in tests
 testpaths = "docs src tests"
 

@@ -5,7 +5,7 @@ from PyQt6 import QtCore, QtWidgets
 from PyQt6.QtGui import QFont
 
 from i19serial_ui.gui.log_box import LogBox
-from i19serial_ui.log import tidy_up_logging
+from i19serial_ui.log import LOGGER, GuiWindowLogHandler, tidy_up_logging
 
 WINDOW_SIZE = (700, 1200)
 LOG_HANDLERS = []
@@ -20,6 +20,7 @@ border-colour:black"""
 
 
 gui_logger = logging.getLogger("i19serial_ui.gui.eh2")
+LOGGERS = [gui_logger]
 
 
 class SerialGuiEH2(QtWidgets.QMainWindow):
@@ -35,8 +36,8 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.setStyleSheet(BG_COLOUR)
 
         centralWidget = QtWidgets.QWidget(self)  # noqa: N806
-        # self.log_widget = LogBox(centralWidget, self.LogHandler)
-        self.log_widget = LogBox(centralWidget, self.gui_logger)
+        self.log_widget = LogBox(centralWidget, self.LogHandler)
+        # self.log_widget = LogBox(centralWidget, self.gui_logger)
 
         # Create boxes with layouts
         # Title
@@ -64,14 +65,15 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         pass
 
     def closeEvent(self, a0):  # type: ignore # noqa: N802
+        tidy_up_logging([self.gui_logger, *LOGGERS])
         return super().closeEvent(a0)
 
     def _setup_logger(self):
-        self.gui_logger = gui_logger
-        # self.LogHandler = GuiWindowLogHandler()
-        # self.gui_logger.addHandler(self.LogHandler)
-        # for logger in LOG_HANDLERS:
-        #     logger.addHandler(self.LogHandler)
+        self.gui_logger = LOGGER
+        self.LogHandler = GuiWindowLogHandler()
+        self.gui_logger.addHandler(self.LogHandler)
+        for logger in LOGGERS:
+            logger.addHandler(self.LogHandler)
 
     def _create_toolbar(self):
         pass
@@ -95,7 +97,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.run_btns_group = QtWidgets.QGroupBox()
         btn_layout = QtWidgets.QHBoxLayout()
         test_btn = QtWidgets.QPushButton("Run")
-        test_btn.clicked.connect(lambda: self.print_log("PRINTING"))
+        test_btn.clicked.connect(lambda: self.appendOutput("PRINTING"))
         btn_layout.addWidget(test_btn)
         self.run_btns_group.setLayout(btn_layout)
 
@@ -116,11 +118,11 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         main_layout.addWidget(self.bottom_group, 5, 0)
         return main_layout
 
-    def print_log(self, msg: str, level: str = "INFO"):
-        self.log_widget.appendOutput(f"{msg}", level)
+    # def print_log(self, msg: str, level: str = "INFO"):
+    #     self.log_widget.appendOutput(f"{msg}", level)
 
-    # def appendOutput(self, msg: str, level: str = "INFO"):  # noqa: N802
-    #     self.gui_logger.log(getattr(logging, level.upper()), f"{msg}")
+    def appendOutput(self, msg: str, level: str = "INFO"):  # noqa: N802
+        self.gui_logger.log(getattr(logging, level.upper()), f"{msg}")
 
 
 def start_eh2_ui():
@@ -128,7 +130,6 @@ def start_eh2_ui():
     main_window = SerialGuiEH2()
     main_window.show()
     sys.exit(app.exec())
-    tidy_up_logging([gui_logger])
 
 
 if __name__ == "__main__":

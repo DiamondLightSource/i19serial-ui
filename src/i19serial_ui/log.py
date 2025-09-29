@@ -1,6 +1,5 @@
 # NOTE For actual logs, we'll use the dodal/blueapi logger
 # But we do need something that prints to the UI
-
 import logging
 
 from PyQt6.QtCore import QObject, pyqtSignal
@@ -24,6 +23,9 @@ class GuiWindowLogHandler(logging.Handler, QObject):
     def emit(self, record: logging.LogRecord):
         msg = self.format(record)
         self.signalLog.emit(msg)
+
+    def flush(self):
+        pass
 
 
 def log_to_gui(logger: logging.Logger, output_str: str, level: str = "INFO"):
