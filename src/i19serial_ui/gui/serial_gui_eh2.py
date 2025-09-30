@@ -1,10 +1,10 @@
 import sys
 
 from PyQt6 import QtCore, QtGui, QtWidgets
-from PyQt6.QtGui import QFont, QIcon
 
+from i19serial_ui.gui.input_panel import InputPanel
 from i19serial_ui.gui.log_box import LogBox
-from i19serial_ui.gui.ui_utils import image_file_path
+from i19serial_ui.gui.ui_utils import _create_image_icon, image_file_path
 from i19serial_ui.log import (
     LOGGER,
     GuiWindowLogHandler,
@@ -24,12 +24,6 @@ border-radius:10px;
 border-colour:black"""
 
 
-def _create_image_icon(image_path: str) -> QIcon:
-    icon = QIcon()
-    icon.addPixmap(QtGui.QPixmap(image_path))
-    return icon
-
-
 class SerialGuiEH2(QtWidgets.QMainWindow):
     def __init__(self) -> None:
         super().__init__()
@@ -43,7 +37,10 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.setStyleSheet(BG_COLOUR)
 
         centralWidget = QtWidgets.QWidget(self)  # noqa: N806
+
+        # Custom widgets
         self.log_widget = LogBox(centralWidget, self.LogHandler)
+        self.inputs = InputPanel()
         # self.log_widget = LogBox(centralWidget, self.gui_logger)
 
         # Create boxes with layouts
@@ -108,7 +105,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
 
     def _setup_title(self):
         self.i19_label = QtWidgets.QLabel("I19: Fixed Target Serial Crystallography")
-        self.i19_label.setFont(QFont(FONT, 13))
+        self.i19_label.setFont(QtGui.QFont(FONT, 13))
         self.i19_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
 
     def _create_top_group(self):
@@ -120,12 +117,17 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
 
     def _create_collection_inputs_group(self):
         self.input_group = QtWidgets.QGroupBox("Collection set up")
+        self.input_group.setLayout(self.inputs.inputs_layout)
 
     def _create_collection_buttons_group(self):
         self.run_btns_group = QtWidgets.QGroupBox()
         btn_layout = QtWidgets.QHBoxLayout()
         test_btn = QtWidgets.QPushButton("TEST BUTTON")
-        test_btn.clicked.connect(lambda: self.appendOutput("TEST"))
+        test_btn.clicked.connect(
+            lambda: self.appendOutput(
+                f"TEST {self.inputs.num_images.text()}, {self.inputs.time_image.text()}"
+            )
+        )
         btn_layout.addWidget(test_btn)
         self.run_btns_group.setLayout(btn_layout)
 
