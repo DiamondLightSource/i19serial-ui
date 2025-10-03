@@ -50,6 +50,11 @@ jobs:
           python-version: ${{ inputs.python-version }}
           pip-install: ".[dev]"
 
+      - name: Set Qt platform plugin
+        # Needs to be set explicitly in the environment vefore running tests
+        # This avoid GUI-related crashed in headless envs
+        run: echo "QT_QPA_PLATFORM=offscreen" >> $GITHUB_ENV
+
       - name: Run tests
         run: tox -e tests
 
