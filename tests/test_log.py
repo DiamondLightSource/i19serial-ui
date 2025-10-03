@@ -1,10 +1,12 @@
 import logging
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 from i19serial_ui.log import (
     GuiWindowLogHandler,
     _get_logging_path,
     log_to_gui,
+    setup_logging,
     tidy_up_logging,
 )
 
@@ -55,3 +57,19 @@ def test_logging_path_if_not_on_beamline(
     log_path = _get_logging_path()
     assert log_path.as_posix() == "tmp/serial-logs"
     mock_mkdir.assert_called_once()
+
+
+@patch("i19serial_ui.log._get_logging_path")
+@patch("i19serial_ui.log.logging.FileHandler")
+@patch("i19serial_ui.log.LOGGER")
+def test_setup_logging_adds_a_filehandler(
+    mock_logger: MagicMock, mock_filehandler: MagicMock, fake_path: MagicMock
+):
+    fake_path.return_value = Path("/some/path")
+
+    setup_logging()
+
+    mock_filehandler.assert_called_once_with(
+        Path("/some/path/i19serial-ui.log"), mode="a", encoding="utf-8"
+    )
+    mock_logger.addHandler.assert_called_once_with(mock_filehandler())
