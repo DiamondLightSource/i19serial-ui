@@ -21,6 +21,11 @@ runs:
         echo "PYTHON_VERSION=$PYTHON_VERSION" >> "$GITHUB_ENV"
       shell: bash
 
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: "6.9.*"
+
     - name: Setup python
       uses: actions/setup-python@v5
       with:

@@ -14,7 +14,7 @@ classifiers = [
 description = "A PyQt UI to run ssx collections with Bluesky on I19"
 dependencies = [
     "numpy",
-    "pyqt6",
+    "PyQt6",
     "requests",
     "pydantic",
     "aiohttp",
@@ -34,6 +34,7 @@ dev = [
     "pyright",
     "pytest",
     "pytest-cov",
+    "pytest-qt",
     "ruff",
     "sphinx-autobuild",
     "sphinx-copybutton",
@@ -43,7 +44,7 @@ dev = [
 ]
 
 [project.scripts]
-i19serial-ui = "i19serial_ui.__main__:main"
+serial-ui = "i19serial_ui.__main__:main"
 
 [project.urls]
 GitHub = "https://github.com/DiamondLightSource/i19serial-ui"
@@ -57,7 +58,7 @@ name = "Noemi Frisina"
 version_file = "src/i19serial_ui/_version.py"
 
 [tool.pyright]
-typeCheckingMode = "strict"
+typeCheckingMode = "basic"   # or every connect in pyqt will error
 reportMissingImports = false # Ignore missing stubs in imported modules
 
 [tool.pytest.ini_options]
@@ -67,6 +68,8 @@ addopts = """
     """
 # https://iscinumpy.gitlab.io/post/bound-version-constraints/#watch-for-warnings
 filterwarnings = "error"
+# Set configuration variable for qt
+qt_api = "pyqt6"
 # Doctest python code in docs, python code in src docstrings, test functions in tests
 testpaths = "docs src tests"
 
