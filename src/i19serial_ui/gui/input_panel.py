@@ -26,7 +26,7 @@ class InputPanel(QtWidgets.QWidget):
             (self.transmission, "transmission", 5),
             (self.well_start, "well_start", 1),
             (self.well_end, "well_end", 10),
-            (self.series_length, "self_length", 1),
+            (self.series_length, "series_length", 1),
             (self.two_theta, "two_theta", 0),
         ]
 
