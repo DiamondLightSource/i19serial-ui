@@ -21,13 +21,13 @@ class InputPanel(QtWidgets.QWidget):
         self.various_text_boxes = [
             (self.num_images, "num images", 50),
             (self.time_image, "time images", 0.2),
-            (self.image_width, "image_width", 0.2),
-            (self.det_dist, "det_dist", 117.53),
+            (self.image_width, "image width", 0.2),
+            (self.det_dist, "det dist", 117.53),
             (self.transmission, "transmission", 5),
-            (self.well_start, "well_start", 1),
-            (self.well_end, "well_end", 10),
-            (self.series_length, "series_length", 1),
-            (self.two_theta, "two_theta", 0),
+            (self.well_start, "well start", 1),
+            (self.well_end, "well end", 10),
+            (self.series_length, "series length", 1),
+            (self.two_theta, "two theta", 0),
         ]
 
     def create_input_layout(self):
