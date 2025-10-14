@@ -19,15 +19,15 @@ class InputPanel(QtWidgets.QWidget):
         self.two_theta = QtWidgets.QLineEdit()
 
         self.various_text_boxes = [
-            (self.num_images, "num images", 50),
-            (self.time_image, "time images", 0.2),
-            (self.image_width, "image width", 0.2),
-            (self.det_dist, "det dist", 117.53),
-            (self.transmission, "transmission", 5),
-            (self.well_start, "well start", 1),
-            (self.well_end, "well end", 10),
-            (self.series_length, "series length", 1),
-            (self.two_theta, "two theta", 0),
+            (self.num_images, "No. of images", 50),
+            (self.time_image, "Time images (sec)", 0.2),
+            (self.image_width, "Image width (degrees)", 0.2),
+            (self.det_dist, "Detector distance (mm)", 117.53),
+            (self.transmission, "Transmission (%)", 5),
+            (self.well_start, "Well start", 1),
+            (self.well_end, "Well end", 10),
+            (self.series_length, "Series length", 1),
+            (self.two_theta, "2 theta (degrees)", 0),
         ]
 
     def create_input_layout(self):
