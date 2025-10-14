@@ -24,10 +24,10 @@ class InputPanel(QtWidgets.QWidget):
             (self.image_width, "Image width (degrees)", 0.2),
             (self.det_dist, "Detector distance (mm)", 117.53),
             (self.transmission, "Transmission (%)", 5),
+            (self.two_theta, "2 theta (degrees)", 0),
             (self.well_start, "Well start", 1),
             (self.well_end, "Well end", 10),
             (self.series_length, "Series length", 1),
-            (self.two_theta, "2 theta (degrees)", 0),
         ]
 
     def create_input_layout(self):
