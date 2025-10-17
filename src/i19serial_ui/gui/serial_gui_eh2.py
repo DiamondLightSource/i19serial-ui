@@ -1,4 +1,5 @@
 import sys
+from datetime import datetime
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 
@@ -137,7 +138,15 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.bottom_group.setLayout(self.log_widget.log_layout)
 
     def select_visit(self):
-        pass
+        _year = datetime.now().year
+        base_path = f"/dls/i19-2/data/{_year}"
+        self.current_visit = QtWidgets.QFileDialog.getExistingDirectory(
+            None,
+            caption="Select visit",
+            directory=base_path,
+            # options=QtWidgets.QFileDialog.Option.DontUseNativeDialog,
+            options=QtWidgets.QFileDialog.Option.ShowDirsOnly,
+        )
 
     def create_main_layout(self):
         title_layout = QtWidgets.QHBoxLayout()
