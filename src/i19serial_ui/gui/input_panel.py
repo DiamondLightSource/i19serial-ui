@@ -23,19 +23,14 @@ class InputPanel(QtWidgets.QWidget):
 
     def create_input_layout(self):
         main_layout = QtWidgets.QVBoxLayout()
-        visit_layout = self._create_visit_layout()
+        self.visit_path.setReadOnly(True)
+        visit_layout = self._create_textbox_with_label(self.visit_path, "Visit", "")
         dataset_layout = self._create_dataset_layout()
         params_layout = self._create_params_layout()
         main_layout.addLayout(visit_layout)
         main_layout.addLayout(dataset_layout)
         main_layout.addLayout(params_layout)
         return main_layout
-
-    def _create_visit_layout(self):
-        layout = QtWidgets.QVBoxLayout()
-        self.visit_path.setReadOnly(True)
-        layout.addLayout(self._create_textbox_with_label(self.visit_path, "Visit", ""))
-        return layout
 
     def _create_dataset_layout(self):
         layout = QtWidgets.QHBoxLayout()
