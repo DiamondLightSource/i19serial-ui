@@ -1,3 +1,5 @@
+import re
+
 from PyQt6 import QtCore, QtWidgets
 
 
@@ -35,3 +37,8 @@ class WellsSelectionPanel(QtWidgets.QWidget):
             None, directory="/home", filter="Data File (*.csv)"
         )
         # self.wells_selection.setText()
+
+    def get_selected_wells_list(self) -> list[int]:
+        _wells = self.wells_selection.text()
+        mapped_wells = map(int, re.findall(r"\d+", _wells))
+        return list(mapped_wells)
