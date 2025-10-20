@@ -10,15 +10,36 @@ class InputPanel(QtWidgets.QWidget):
     def init_text_boxes(self):
         self.num_images = QtWidgets.QLineEdit()
         self.time_image = QtWidgets.QLineEdit()
+        self.image_width = QtWidgets.QLineEdit()
+        self.det_dist = QtWidgets.QLineEdit()
+        self.transmission = QtWidgets.QLineEdit()
+        self.well_start = QtWidgets.QLineEdit()
+        self.well_end = QtWidgets.QLineEdit()
+        self.series_length = QtWidgets.QLineEdit()
+        self.two_theta = QtWidgets.QLineEdit()
+
+        self.various_text_boxes = [
+            (self.num_images, "No. of images", 50),
+            (self.time_image, "Time images (sec)", 0.2),
+            (self.image_width, "Image width (deg)", 0.2),
+            (self.det_dist, "Detector distance (mm)", 117.53),
+            (self.transmission, "Transmission (%)", 5),
+            (self.two_theta, "2 theta (degrees)", 0),
+            (self.well_start, "Well start", 1),
+            (self.well_end, "Well end", 10),
+            (self.series_length, "Series length", 1),
+        ]
 
     def create_input_layout(self):
-        layout = QtWidgets.QHBoxLayout()
-        layout.addLayout(
-            self._create_textbox_with_label(self.num_images, "num images", 1)
-        )
-        layout.addLayout(
-            self._create_textbox_with_label(self.time_image, "time/image (s)", 0.2)
-        )
+        layout = QtWidgets.QGridLayout()
+        for i, (text_box, label, default_value) in enumerate(self.various_text_boxes):
+            row = i % 2
+            col = i // 2
+            layout.addLayout(
+                self._create_textbox_with_label(text_box, label, default_value),
+                row,
+                col,
+            )
         return layout
 
     def _create_textbox_with_label(
