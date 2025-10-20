@@ -1,11 +1,14 @@
 import sys
-from datetime import datetime
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 from i19serial_ui.gui.input_panel import InputPanel
 from i19serial_ui.gui.log_box import LogBox
-from i19serial_ui.gui.ui_utils import _create_image_icon, image_file_path
+from i19serial_ui.gui.ui_utils import (
+    _create_image_icon,
+    get_data_main_path,
+    image_file_path,
+)
 from i19serial_ui.log import (
     LOGGER,
     GuiWindowLogHandler,
@@ -138,13 +141,13 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.bottom_group.setLayout(self.log_widget.log_layout)
 
     def select_visit(self):
-        _year = datetime.now().year
-        base_path = f"/dls/i19-2/data/{_year}"
+        base_path = get_data_main_path().as_posix()
+        # NOTE. This works in venv but in dev container the base_path is not mounted
+        # so it won't work.
         self.current_visit = QtWidgets.QFileDialog.getExistingDirectory(
             None,
             caption="Select visit",
             directory=base_path,
-            # options=QtWidgets.QFileDialog.Option.DontUseNativeDialog,
             options=QtWidgets.QFileDialog.Option.ShowDirsOnly,
         )
 
