@@ -4,7 +4,11 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 
 from i19serial_ui.gui.input_panel import InputPanel
 from i19serial_ui.gui.log_box import LogBox
-from i19serial_ui.gui.ui_utils import _create_image_icon, image_file_path
+from i19serial_ui.gui.ui_utils import (
+    _create_image_icon,
+    get_data_main_path,
+    image_file_path,
+)
 from i19serial_ui.log import (
     LOGGER,
     GuiWindowLogHandler,
@@ -137,7 +141,20 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.bottom_group.setLayout(self.log_widget.log_layout)
 
     def select_visit(self):
-        pass
+        base_path = get_data_main_path().as_posix()
+        # NOTE. This works in venv but in dev container the base_path is not mounted
+        # so it won't work.
+        self.current_visit = QtWidgets.QFileDialog.getExistingDirectory(
+            None,
+            caption="Select visit",
+            directory=base_path,
+            options=QtWidgets.QFileDialog.Option.ShowDirsOnly,
+        )
+        if not self.current_visit:
+            self.appendOutput("No visit selected, please try again!")
+        else:
+            self.appendOutput(f"Visit selected: {self.current_visit}")
+            self.inputs.visit_path.setText(self.current_visit)
 
     def create_main_layout(self):
         title_layout = QtWidgets.QHBoxLayout()

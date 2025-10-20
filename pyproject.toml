@@ -27,6 +27,7 @@ requires-python = ">=3.11"
 [project.optional-dependencies]
 dev = [
     "copier",
+    "ipython",
     "myst-parser",
     "pipdeptree",
     "pre-commit",
