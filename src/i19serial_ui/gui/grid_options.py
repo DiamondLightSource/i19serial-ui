@@ -32,7 +32,7 @@ class GridOptions(QtWidgets.QWidget):
         drop_layout = QtWidgets.QVBoxLayout()
         drop_label = QtWidgets.QLabel("Grid options")
         drop_layout.addWidget(drop_label)
-        drop_layout.addWidget(self.gridbox)
+        drop_layout.addWidget(self.grid_box)
         return drop_layout
 
     def _create_text_box_layout(
