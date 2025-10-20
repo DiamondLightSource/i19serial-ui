@@ -47,7 +47,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.log_widget = LogBox(centralWidget, self.LogHandler)
         self.inputs = InputPanel()
         self.wells = WellsSelectionPanel()
-        # self.log_widget = LogBox(centralWidget, self.gui_logger)
 
         # Create boxes with layouts
         # Title
@@ -90,7 +89,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
     def _create_toolbar(self):
         self.toolbar = QtWidgets.QToolBar(self)
         self.toolbar.setObjectName("toolbar")
-        # self.toolbar.setIconSize(QtCore.QSize(16, 16))
         self.addToolBar(QtCore.Qt.ToolBarArea.LeftToolBarArea, self.toolbar)
         self._create_actions()
         self.toolbar.addAction(self.select_visit_action)
@@ -127,7 +125,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         in_layout.addLayout(self.inputs.inputs_layout)
         in_layout.addLayout(self.wells.selection_layout)
         self.input_group.setLayout(in_layout)
-        # self.input_group.setLayout(self.inputs.inputs_layout)
 
     def _create_collection_buttons_group(self):
         self.run_btns_group = QtWidgets.QGroupBox()
