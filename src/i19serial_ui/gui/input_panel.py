@@ -21,7 +21,7 @@ class InputPanel(QtWidgets.QWidget):
         self.various_text_boxes = [
             (self.num_images, "No. of images", 50),
             (self.time_image, "Time images (sec)", 0.2),
-            (self.image_width, "Image width (degrees)", 0.2),
+            (self.image_width, "Image width (deg)", 0.2),
             (self.det_dist, "Detector distance (mm)", 117.53),
             (self.transmission, "Transmission (%)", 5),
             (self.two_theta, "2 theta (degrees)", 0),
