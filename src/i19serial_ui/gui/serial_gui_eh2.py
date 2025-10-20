@@ -150,6 +150,11 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             directory=base_path,
             options=QtWidgets.QFileDialog.Option.ShowDirsOnly,
         )
+        if not self.current_visit:
+            self.appendOutput("No visit selected, please try again!")
+        else:
+            self.appendOutput(f"Visit selected: {self.current_visit}")
+            self.inputs.visit_path.setText(self.current_visit)
 
     def create_main_layout(self):
         title_layout = QtWidgets.QHBoxLayout()

@@ -8,6 +8,9 @@ class InputPanel(QtWidgets.QWidget):
         self.inputs_layout = self.create_input_layout()
 
     def init_text_boxes(self):
+        self.visit_path = QtWidgets.QLineEdit()
+        self.dataset = QtWidgets.QLineEdit()
+        self.prefix = QtWidgets.QLineEdit()
         self.num_images = QtWidgets.QLineEdit()
         self.time_image = QtWidgets.QLineEdit()
         self.image_width = QtWidgets.QLineEdit()
@@ -18,21 +21,42 @@ class InputPanel(QtWidgets.QWidget):
         self.series_length = QtWidgets.QLineEdit()
         self.two_theta = QtWidgets.QLineEdit()
 
-        self.various_text_boxes = [
+    def create_input_layout(self):
+        main_layout = QtWidgets.QVBoxLayout()
+        visit_layout = self._create_visit_layout()
+        dataset_layout = self._create_dataset_layout()
+        params_layout = self._create_params_layout()
+        main_layout.addLayout(visit_layout)
+        main_layout.addLayout(dataset_layout)
+        main_layout.addLayout(params_layout)
+        return main_layout
+
+    def _create_visit_layout(self):
+        layout = QtWidgets.QVBoxLayout()
+        self.visit_path.setReadOnly(True)
+        layout.addLayout(self._create_textbox_with_label(self.visit_path, "Visit", ""))
+        return layout
+
+    def _create_dataset_layout(self):
+        layout = QtWidgets.QHBoxLayout()
+        layout.addLayout(self._create_textbox_with_label(self.dataset, "Dataset", ""))
+        layout.addLayout(self._create_textbox_with_label(self.prefix, "Prefix", ""))
+        return layout
+
+    def _create_params_layout(self):
+        layout = QtWidgets.QGridLayout()
+        text_boxes = [
             (self.num_images, "No. of images", 50),
             (self.time_image, "Time images (sec)", 0.2),
             (self.image_width, "Image width (deg)", 0.2),
-            (self.det_dist, "Detector distance (mm)", 117.53),
+            (self.det_dist, "Det distance (mm)", 117.53),
             (self.transmission, "Transmission (%)", 5),
-            (self.two_theta, "2 theta (degrees)", 0),
+            (self.two_theta, "2 theta (deg)", 0),
             (self.well_start, "Well start", 1),
             (self.well_end, "Well end", 10),
             (self.series_length, "Series length", 1),
         ]
-
-    def create_input_layout(self):
-        layout = QtWidgets.QGridLayout()
-        for i, (text_box, label, default_value) in enumerate(self.various_text_boxes):
+        for i, (text_box, label, default_value) in enumerate(text_boxes):
             row = i % 2
             col = i // 2
             layout.addLayout(
@@ -46,14 +70,12 @@ class InputPanel(QtWidgets.QWidget):
         self,
         text_box: QtWidgets.QLineEdit,
         label: str,
-        default_value: float = 0,
-        size: tuple = (10, 10),
+        default_value: float | str = 0,
     ):
         text_layout = QtWidgets.QVBoxLayout()
         text_label = QtWidgets.QLabel(label)
         text_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
         text_box.setText(str(default_value))
-        text_box.resize(*size)
         text_box.setAlignment(QtCore.Qt.AlignmentFlag.AlignBottom)
         text_layout.addWidget(text_label)
         text_layout.addWidget(text_box)
