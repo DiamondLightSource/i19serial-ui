@@ -9,6 +9,7 @@ from i19serial_ui.gui.ui_utils import (
     get_data_main_path,
     image_file_path,
 )
+from i19serial_ui.gui.wells_selection import WellsSelectionPanel
 from i19serial_ui.log import (
     LOGGER,
     GuiWindowLogHandler,
@@ -45,7 +46,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         # Custom widgets
         self.log_widget = LogBox(centralWidget, self.LogHandler)
         self.inputs = InputPanel()
-        # self.log_widget = LogBox(centralWidget, self.gui_logger)
+        self.wells = WellsSelectionPanel()
 
         # Create boxes with layouts
         # Title
@@ -88,7 +89,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
     def _create_toolbar(self):
         self.toolbar = QtWidgets.QToolBar(self)
         self.toolbar.setObjectName("toolbar")
-        # self.toolbar.setIconSize(QtCore.QSize(16, 16))
         self.addToolBar(QtCore.Qt.ToolBarArea.LeftToolBarArea, self.toolbar)
         self._create_actions()
         self.toolbar.addAction(self.select_visit_action)
@@ -121,7 +121,10 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
 
     def _create_collection_inputs_group(self):
         self.input_group = QtWidgets.QGroupBox("Collection set up")
-        self.input_group.setLayout(self.inputs.inputs_layout)
+        in_layout = QtWidgets.QVBoxLayout()
+        in_layout.addLayout(self.inputs.inputs_layout)
+        in_layout.addLayout(self.wells.selection_layout)
+        self.input_group.setLayout(in_layout)
 
     def _create_collection_buttons_group(self):
         self.run_btns_group = QtWidgets.QGroupBox()
