@@ -34,7 +34,7 @@ def test_grid(
     ],
 )
 def test_get_grid_positions(x: int, z: int, expected_pos: list[float]):
-    test_grid = Grid(size_x=x, size_z=z, grid_type=GridType.POLYMER)
+    test_grid = Grid(x, z, GridType.POLYMER)
 
     res = test_grid.get_grid_positions()
 

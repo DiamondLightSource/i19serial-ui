@@ -1,6 +1,6 @@
 from PyQt6 import QtCore, QtWidgets
 
-from i19serial_ui.log import LOGGER, GuiWindowLogHandler
+from i19serial_ui.log import LOGGER
 from i19serial_ui.parameters.grid import GridType
 
 
@@ -9,7 +9,6 @@ class GridOptions(QtWidgets.QWidget):
         super().__init__()
         self.current_grid = GridType.POLYMER
         self.logger = LOGGER
-        self.logger.addHandler(GuiWindowLogHandler())
         self.init_options()
         self.grid_layout = self.create_layout()
 
