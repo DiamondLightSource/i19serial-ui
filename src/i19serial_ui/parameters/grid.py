@@ -49,5 +49,10 @@ class Grid:
         else:
             bl_pos = self.size_x * (self.size_z - 1) - 1
             br_pos = self.size_x * self.size_z - 1
-        pos_dict = {"posTL": tl_pos, "posTR": tr_pos, "posBL": bl_pos, "posBR": br_pos}
+        pos_dict = {
+            "top_left": tl_pos,
+            "top_right": tr_pos,
+            "bottom_left": bl_pos,
+            "bottom_right": br_pos,
+        }
         return pos_dict
