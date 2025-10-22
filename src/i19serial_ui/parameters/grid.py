@@ -19,25 +19,25 @@ class Grid:
 
     grid_type: GridType = GridType.POLYMER
 
-    dim_xz: tuple[float, float] = (0.120, 0.120)  # "step size"
-
-    def __post_init__(self):
-        if self.grid_type == "polymer":
-            self.dim_xz = (0.120, 0.120)
-        if self.grid_type == "silicon":
-            self.dim_xz = (0.125, 0.125)
-        if self.grid_type == "kapton":
-            self.dim_xz = (0.120, 0.120)
-        if self.grid_type == "film":
-            self.dim_xz = (0.100, 0.100)
+    @property
+    def dim_xz_steps(self) -> tuple[float, float]:
+        match self.grid_type:
+            case GridType.POLYMER:
+                return (0.120, 0.120)
+            case GridType.SILICON:
+                return (0.125, 0.125)
+            case GridType.KAPTON400:
+                return (0.120, 0.120)
+            case GridType.FILM:
+                return (0.100, 0.100)
 
     @property
     def city_block_x(self) -> float:
-        return (self.size_x - 1) * self.dim_xz[0]
+        return (self.size_x - 1) * self.dim_xz_steps[0]
 
     @property
     def city_block_z(self) -> float:
-        return (self.size_z - 1) * self.dim_xz[1]
+        return (self.size_z - 1) * self.dim_xz_steps[1]
 
     def get_grid_positions(self) -> dict[str, float]:
         "Returns index of TL, TR, BL, BR positions in coords list."

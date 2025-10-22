@@ -18,7 +18,7 @@ from i19serial_ui.log import (
     tidy_up_logging,
 )
 
-WINDOW_SIZE = (700, 1200)
+WINDOW_SIZE = (600, 1200)
 LOG_HANDLERS = []
 
 # Some properties

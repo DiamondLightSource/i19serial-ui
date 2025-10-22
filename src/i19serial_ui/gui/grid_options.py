@@ -1,4 +1,4 @@
-from PyQt6 import QtWidgets
+from PyQt6 import QtCore, QtWidgets
 
 from i19serial_ui.log import LOGGER, GuiWindowLogHandler
 from i19serial_ui.parameters.grid import GridType
@@ -26,10 +26,12 @@ class GridOptions(QtWidgets.QWidget):
         layout.addLayout(self._create_dropdown_layout())
         layout.addLayout(self._create_text_box_layout(self.grid_x, "Grid size X"))
         layout.addLayout(self._create_text_box_layout(self.grid_z, "Grid size Z"))
+        layout.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft)
         return layout
 
     def _create_dropdown_layout(self):
         drop_layout = QtWidgets.QVBoxLayout()
+        self.grid_box.setFixedWidth(100)
         drop_label = QtWidgets.QLabel("Grid options")
         drop_layout.addWidget(drop_label)
         drop_layout.addWidget(self.grid_box)
@@ -44,6 +46,7 @@ class GridOptions(QtWidgets.QWidget):
         text_layout = QtWidgets.QVBoxLayout()
         label = QtWidgets.QLabel(label)
         text_box.setText(str(default_value))
+        text_box.setFixedWidth(100)
         text_layout.addWidget(label)
         text_layout.addWidget(text_box)
         return text_layout
