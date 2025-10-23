@@ -2,6 +2,7 @@ import sys
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 
+from i19serial_ui.gui.grid_options import GridOptions
 from i19serial_ui.gui.input_panel import InputPanel
 from i19serial_ui.gui.log_box import LogBox
 from i19serial_ui.gui.ui_utils import (
@@ -17,7 +18,7 @@ from i19serial_ui.log import (
     tidy_up_logging,
 )
 
-WINDOW_SIZE = (700, 1200)
+WINDOW_SIZE = (600, 1200)
 LOG_HANDLERS = []
 
 # Some properties
@@ -47,6 +48,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.log_widget = LogBox(centralWidget, self.LogHandler)
         self.inputs = InputPanel()
         self.wells = WellsSelectionPanel()
+        self.grid = GridOptions()
 
         # Create boxes with layouts
         # Title
@@ -124,6 +126,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         in_layout = QtWidgets.QVBoxLayout()
         in_layout.addLayout(self.inputs.inputs_layout)
         in_layout.addLayout(self.wells.selection_layout)
+        in_layout.addLayout(self.grid.grid_layout)
         self.input_group.setLayout(in_layout)
 
     def _create_collection_buttons_group(self):

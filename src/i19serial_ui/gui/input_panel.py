@@ -1,4 +1,4 @@
-from PyQt6 import QtCore, QtWidgets
+from PyQt6 import QtWidgets
 
 
 class InputPanel(QtWidgets.QWidget):
@@ -69,9 +69,7 @@ class InputPanel(QtWidgets.QWidget):
     ):
         text_layout = QtWidgets.QVBoxLayout()
         text_label = QtWidgets.QLabel(label)
-        text_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
         text_box.setText(str(default_value))
-        text_box.setAlignment(QtCore.Qt.AlignmentFlag.AlignBottom)
         text_layout.addWidget(text_label)
         text_layout.addWidget(text_box)
         return text_layout
