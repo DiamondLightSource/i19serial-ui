@@ -43,10 +43,10 @@ class GridOptions(QtWidgets.QWidget):
         default_value: int = 20,
     ):
         text_layout = QtWidgets.QVBoxLayout()
-        label = QtWidgets.QLabel(label)
+        txt_label = QtWidgets.QLabel(label)
         text_box.setText(str(default_value))
         text_box.setFixedWidth(100)
-        text_layout.addWidget(label)
+        text_layout.addWidget(txt_label)
         text_layout.addWidget(text_box)
         return text_layout
 
