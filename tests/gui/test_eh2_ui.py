@@ -1,4 +1,5 @@
 import pytest
+from PyQt6 import QtWidgets
 
 from i19serial_ui.gui.grid_options import GridOptions
 from i19serial_ui.gui.input_panel import InputPanel
@@ -19,3 +20,10 @@ def test_all_widgets_initialised(mock_eh2_gui):
     assert mock_eh2_gui.inputs and isinstance(mock_eh2_gui.inputs, InputPanel)
     assert mock_eh2_gui.wells and isinstance(mock_eh2_gui.wells, WellsSelectionPanel)
     assert mock_eh2_gui.grid and isinstance(mock_eh2_gui.grid, GridOptions)
+
+
+def test_general_layout(mock_eh2_gui):
+    assert mock_eh2_gui.general_layout is not None
+    assert isinstance(mock_eh2_gui.general_layout, QtWidgets.QGridLayout)
+    title = mock_eh2_gui.general_layout.children()[0]
+    assert isinstance(title, QtWidgets.QHBoxLayout)
