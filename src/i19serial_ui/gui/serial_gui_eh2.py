@@ -1,4 +1,5 @@
 import sys
+from collections.abc import Callable
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 
@@ -129,17 +130,26 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         in_layout.addLayout(self.grid.grid_layout)
         self.input_group.setLayout(in_layout)
 
+    def _create_button(
+        self,
+        name: str,
+        func: Callable,
+    ) -> QtWidgets.QPushButton:
+        button = QtWidgets.QPushButton(name)
+        button.clicked.connect(func)
+        return button
+
     def _create_collection_buttons_group(self):
         self.run_btns_group = QtWidgets.QGroupBox()
         btn_layout = QtWidgets.QHBoxLayout()
 
-        test_btn1 = QtWidgets.QPushButton("Run zebra")
-        test_btn2 = QtWidgets.QPushButton("Run panda")
-        test_btn3 = QtWidgets.QPushButton("Abort")
-
-        test_btn1.clicked.connect(lambda: self.appendOutput("Run with zebra"))
-        test_btn2.clicked.connect(lambda: self.appendOutput("Run with panda"))
-        test_btn3.clicked.connect(lambda: self.appendOutput("Abort"))
+        test_btn1 = self._create_button(
+            "Run zebra", lambda: self.appendOutput("Run with zebra")
+        )
+        test_btn2 = self._create_button(
+            "Run panda", lambda: self.appendOutput("Run with panda")
+        )
+        test_btn3 = self._create_button("Abort", lambda: self.appendOutput("Abort"))
 
         btn_layout.addWidget(test_btn1)
         btn_layout.addWidget(test_btn2)
