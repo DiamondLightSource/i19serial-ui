@@ -132,13 +132,19 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
     def _create_collection_buttons_group(self):
         self.run_btns_group = QtWidgets.QGroupBox()
         btn_layout = QtWidgets.QHBoxLayout()
-        test_btn = QtWidgets.QPushButton("TEST BUTTON")
-        test_btn.clicked.connect(
-            lambda: self.appendOutput(
-                f"TEST {self.inputs.num_images.text()}, {self.inputs.time_image.text()}"
-            )
-        )
-        btn_layout.addWidget(test_btn)
+
+        test_btn1 = QtWidgets.QPushButton("Run zebra")
+        test_btn2 = QtWidgets.QPushButton("Run panda")
+        test_btn3 = QtWidgets.QPushButton("Abort")
+
+        test_btn1.clicked.connect(lambda: self.appendOutput("Run with zebra"))
+        test_btn2.clicked.connect(lambda: self.appendOutput("Run with panda"))
+        test_btn3.clicked.connect(lambda: self.appendOutput("Abort"))
+
+        btn_layout.addWidget(test_btn1)
+        btn_layout.addWidget(test_btn2)
+        btn_layout.addWidget(test_btn3)
+
         self.run_btns_group.setLayout(btn_layout)
 
     def _create_bottom_group(self):
