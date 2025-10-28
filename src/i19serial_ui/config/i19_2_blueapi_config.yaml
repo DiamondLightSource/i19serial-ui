@@ -9,7 +9,7 @@ env:
 stomp:
   enabled: true
   url: tcp://i19-2-control.diamond.ac.uk:61613
-  logging:
-    level: "INFO"
+logging:
+  level: "INFO"
     # graylog:
     #   enabled: True

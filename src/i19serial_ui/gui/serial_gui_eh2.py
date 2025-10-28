@@ -3,11 +3,14 @@ from collections.abc import Callable
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 
+from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
 from i19serial_ui.gui.grid_options import GridOptions
 from i19serial_ui.gui.input_panel import InputPanel
 from i19serial_ui.gui.log_box import LogBox
 from i19serial_ui.gui.ui_utils import (
+    HutchInUse,
     _create_image_icon,
+    config_file_path,
     get_data_main_path,
     image_file_path,
 )
@@ -32,9 +35,12 @@ border-colour:black"""
 
 
 class SerialGuiEH2(QtWidgets.QMainWindow):
+    hutch: HutchInUse = HutchInUse.EH2
+
     def __init__(self) -> None:
         super().__init__()
         self._setup_logger()
+        self._setup_blueapi_client()
         self.init_gui()
 
     def init_gui(self):
@@ -82,12 +88,15 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         return super().closeEvent(a0)
 
     def _setup_logger(self):
-        # setup_logging()
         self.gui_logger = LOGGER
         self.LogHandler = GuiWindowLogHandler()
         self.gui_logger.addHandler(self.LogHandler)
         # for logger in LOGGERS:
         #     logger.addHandler(self.LogHandler)
+
+    def _setup_blueapi_client(self):
+        self._config = config_file_path(self.hutch)
+        self.client = SerialBlueapiClient(self._config)
 
     def _create_toolbar(self):
         self.toolbar = QtWidgets.QToolBar(self)
@@ -177,6 +186,8 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         else:
             self.appendOutput(f"Visit selected: {self.current_visit}")
             self.inputs.visit_path.setText(self.current_visit)
+            _session = self.current_visit.split("/")[-1]
+            self.client.update_session(_session)
 
     def create_main_layout(self):
         title_layout = QtWidgets.QHBoxLayout()
