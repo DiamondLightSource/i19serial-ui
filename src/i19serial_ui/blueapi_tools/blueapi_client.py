@@ -16,6 +16,7 @@ class WrongConfigFileFormatError(Exception):
 class SerialBlueapiClient:
     def __init__(self, config_file: Path, session: str = ""):
         # TODO Needs a callback for logging reasons, probably
+        # See https://github.com/DiamondLightSource/i19serial-ui/issues/22
         self.instrument_session = session
         self.client = self._get_blueapi_client(config_file)
 
