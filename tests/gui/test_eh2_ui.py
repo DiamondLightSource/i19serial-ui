@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 from PyQt6 import QtWidgets
 
@@ -10,9 +12,10 @@ from i19serial_ui.gui.wells_selection import WellsSelectionPanel
 
 @pytest.fixture
 def mock_eh2_gui(qtbot):
-    test_gui = SerialGuiEH2()
-    qtbot.addWidget(test_gui)
-    return test_gui
+    with patch("i19serial_ui.gui.serial_gui_eh2.SerialBlueapiClient"):
+        test_gui = SerialGuiEH2()
+        qtbot.addWidget(test_gui)
+        return test_gui
 
 
 def test_all_widgets_initialised(mock_eh2_gui):

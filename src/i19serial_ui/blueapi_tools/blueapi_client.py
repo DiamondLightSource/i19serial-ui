@@ -46,10 +46,11 @@ class SerialBlueapiClient:
 
     def run_plan(self, plan_name: str, plan_params: dict[str, Any]):
         if not self.instrument_session:
-            err_msg = """
-            Instrument session hasn't been set, please select visit before continuing.
-            """
-            log_to_gui(LOGGER, err_msg, level="ERROR")
+            log_to_gui(
+                LOGGER,
+                "Instrument session hasn't been set, please select visit before continuing.",  # noqa: E501
+                level="ERROR",
+            )
             return
         task = TaskRequest(
             name=plan_name,
