@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pytest
 from PyQt6.QtGui import QIcon
 
 from i19serial_ui.gui.ui_utils import (
@@ -34,3 +35,8 @@ def test_get_image_file_path():
     img_path = image_file_path("image.png", Path("/some/path"))
 
     assert img_path == "/some/path/image.png"
+
+
+def test_get_config_file_path_for_eh1_temporarily_raises_error():
+    with pytest.raises(ValueError):
+        config_file_path(HutchInUse.EH1, Path("/some/path"))
