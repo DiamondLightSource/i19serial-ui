@@ -158,7 +158,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         test_btn2 = self._create_button(
             "Run panda", lambda: self.appendOutput("Run with panda")
         )
-        test_btn3 = self._create_button("Abort", lambda: self.appendOutput("Abort"))
+        test_btn3 = self._create_button("Abort", lambda: self.abort)
 
         btn_layout.addWidget(test_btn1)
         btn_layout.addWidget(test_btn2)
@@ -206,6 +206,10 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
 
     def run(self):
         self.appendOutput("RUN COLLECTION FROM HERE")
+
+    def abort(self):
+        self.client.abort_task()
+        self.appendOutput("Abort")
 
 
 def start_eh2_ui():
