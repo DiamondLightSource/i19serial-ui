@@ -16,15 +16,15 @@ class HutchInUse(StrEnum):
     EH2 = "EH2"
 
 
-def image_file_path(filename: str) -> str:
-    full_path = IMAGES_PATH.joinpath(filename)
+def image_file_path(filename: str, filepath: Path = IMAGES_PATH) -> str:  # type: ignore
+    full_path = filepath.joinpath(filename)
     return full_path.as_posix()  # type: ignore
 
 
-def config_file_path(hutch: HutchInUse) -> Path:
+def config_file_path(hutch: HutchInUse, filepath: Path = CONFIG_PATH) -> Path:  # type: ignore
     match hutch:
         case HutchInUse.EH2:
-            full_path = CONFIG_PATH.joinpath("i19_2_blueapi_config.yaml")
+            full_path = filepath.joinpath("i19_2_blueapi_config.yaml")
             return Path(full_path)  # type: ignore
         case HutchInUse.EH1:
             raise ValueError("No config file for EH1 yet")

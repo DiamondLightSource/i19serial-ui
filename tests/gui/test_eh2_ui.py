@@ -18,6 +18,10 @@ def mock_eh2_gui(qtbot):
         return test_gui
 
 
+def test_correct_hutch_set(mock_eh2_gui):
+    assert mock_eh2_gui.hutch == "EH2"
+
+
 def test_all_widgets_initialised(mock_eh2_gui):
     assert mock_eh2_gui.log_widget and isinstance(mock_eh2_gui.log_widget, LogBox)
     assert mock_eh2_gui.inputs and isinstance(mock_eh2_gui.inputs, InputPanel)
