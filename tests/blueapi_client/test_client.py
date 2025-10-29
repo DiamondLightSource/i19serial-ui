@@ -5,7 +5,10 @@ import pytest
 from blueapi.client.client import BlueapiClient
 from blueapi.config import ApplicationConfig
 
-from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
+from i19serial_ui.blueapi_tools.blueapi_client import (
+    SerialBlueapiClient,
+    WrongConfigFileFormatError,
+)
 
 
 @pytest.fixture
@@ -52,3 +55,8 @@ def test_run_plan(mock_client: SerialBlueapiClient):
     mock_client.run_plan("some_plan", {"param": 1})
 
     mock_client.client.create_and_start_task.assert_called_once()
+
+
+def test_client_error_if_config_file_not_yaml():
+    with pytest.raises(WrongConfigFileFormatError):
+        SerialBlueapiClient(Path("some_file.csv"))
