@@ -45,3 +45,7 @@ def test_select_visit(mock_eh2_gui):
 
         assert mock_eh2_gui.inputs.visit_path.text() == "/path/to/data/cm12345-1"
         mock_eh2_gui.client.update_session.assert_called_once_with("cm12345-1")
+
+
+def test_abort_button(mock_eh2_gui):
+    assert mock_eh2_gui.abort_btn == "Abort"
