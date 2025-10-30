@@ -49,4 +49,4 @@ def test_select_visit(mock_eh2_gui):
 
 def test_abort_button(mock_eh2_gui):
     mock_eh2_gui.abort_btn.click()
-    mock_eh2_gui.client.abort_task.assert_called_once("Abort")
+    mock_eh2_gui.client.abort_task.assert_called_once()
