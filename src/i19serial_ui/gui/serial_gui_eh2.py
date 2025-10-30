@@ -152,17 +152,17 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.run_btns_group = QtWidgets.QGroupBox()
         btn_layout = QtWidgets.QHBoxLayout()
 
-        test_btn1 = self._create_button(
+        self.test_btn1 = self._create_button(
             "Run zebra", lambda: self.appendOutput("Run with zebra")
         )
-        test_btn2 = self._create_button(
+        self.test_btn2 = self._create_button(
             "Run panda", lambda: self.appendOutput("Run with panda")
         )
-        test_btn3 = self._create_button("Abort", lambda: self.appendOutput("Abort"))
+        self.abort_btn = self._create_button("Abort", self.abort)
 
-        btn_layout.addWidget(test_btn1)
-        btn_layout.addWidget(test_btn2)
-        btn_layout.addWidget(test_btn3)
+        btn_layout.addWidget(self.test_btn1)
+        btn_layout.addWidget(self.test_btn2)
+        btn_layout.addWidget(self.abort_btn)
 
         self.run_btns_group.setLayout(btn_layout)
 
@@ -206,6 +206,10 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
 
     def run(self):
         self.appendOutput("RUN COLLECTION FROM HERE")
+
+    def abort(self):
+        self.client.abort_task()
+        self.appendOutput("Abort")
 
 
 def start_eh2_ui():
