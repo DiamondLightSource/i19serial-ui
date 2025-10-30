@@ -158,7 +158,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.test_btn2 = self._create_button(
             "Run panda", lambda: self.appendOutput("Run with panda")
         )
-        self.abort_btn = self._create_button("Abort", lambda: self.abort)
+        self.abort_btn = self._create_button("Abort", self.abort)
 
         btn_layout.addWidget(self.test_btn1)
         btn_layout.addWidget(self.test_btn2)
