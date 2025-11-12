@@ -7,8 +7,8 @@ from i19serial_ui.log import LOGGER
 
 
 class WellsSelectionPanel(QtWidgets.QWidget):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent: QtWidgets.QWidget | None = None):
+        super().__init__(parent)
         self.logger = LOGGER
         self.init_selection()
         self.selection_layout = self.create_layout()

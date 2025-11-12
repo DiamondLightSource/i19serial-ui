@@ -53,9 +53,9 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
 
         # Custom widgets
         self.log_widget = LogBox(centralWidget, self.LogHandler)
-        self.inputs = InputPanel()
-        self.wells = WellsSelectionPanel()
-        self.grid = GridOptions()
+        self.inputs = InputPanel(centralWidget)
+        self.wells = WellsSelectionPanel(centralWidget)
+        self.grid = GridOptions(centralWidget)
 
         # Create boxes with layouts
         # Title

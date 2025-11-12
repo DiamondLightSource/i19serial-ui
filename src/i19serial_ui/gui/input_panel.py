@@ -2,7 +2,7 @@ from PyQt6 import QtWidgets
 
 
 class InputPanel(QtWidgets.QWidget):
-    def __init__(self):
+    def __init__(self, parent: QtWidgets.QWidget | None = None):
         super().__init__()
         self.init_text_boxes()
         self.inputs_layout = self.create_input_layout()
