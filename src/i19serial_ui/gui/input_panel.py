@@ -40,25 +40,62 @@ class InputPanel(QtWidgets.QWidget):
 
     def _create_params_layout(self):
         layout = QtWidgets.QGridLayout()
-        text_boxes = [
-            (self.num_images, "No. of images", 50),
-            (self.time_image, "Time image (s)", 0.2),
-            (self.image_width, "Image width (deg)", 0.2),
-            (self.det_dist, "Det distance (mm)", 117.53),
-            (self.transmission, "Transmission (%)", 5),
-            (self.two_theta, "2 theta (deg)", 0),
-            (self.well_start, "Well start", 1),
-            (self.well_end, "Well end", 10),
-            (self.series_length, "Series length", 1),
-        ]
-        for i, (text_box, label, default_value) in enumerate(text_boxes):
-            row = i % 2
-            col = i // 2
-            layout.addLayout(
-                self._create_textbox_with_label(text_box, label, default_value),
-                row,
-                col,
-            )
+        layout.addLayout(
+            self._create_textbox_with_label(self.num_images, "No. images", 50), 0, 0
+        )
+        layout.addLayout(
+            self._create_textbox_with_label(self.time_image, "Time image (s)", 0.2),
+            0,
+            1,
+        )
+        layout.addLayout(
+            self._create_textbox_with_label(self.image_width, "Image width (deg)", 0.2),
+            0,
+            2,
+        )
+        layout.addLayout(
+            self._create_textbox_with_label(self.det_dist, "Det distance (mm)", 117.53),
+            0,
+            3,
+        )
+        layout.addLayout(
+            self._create_textbox_with_label(self.two_theta, "2 theta (deg)", 0), 0, 4
+        )
+        layout.addLayout(
+            self._create_textbox_with_label(self.well_start, "Well start", 1), 1, 0
+        )
+        layout.addLayout(
+            self._create_textbox_with_label(self.well_end, "Well end", 10), 1, 1
+        )
+        layout.addLayout(
+            self._create_textbox_with_label(self.series_length, "Series length", 1),
+            1,
+            2,
+        )
+        layout.addLayout(
+            self._create_textbox_with_label(self.transmission, "Transmission (%)", 5),
+            1,
+            3,
+        )
+        # text_boxes = [
+        #     (self.num_images, "No. of images", 50),
+        #     (self.time_image, "Time image (s)", 0.2),
+        #     (self.image_width, "Image width (deg)", 0.2),
+        #     (self.det_dist, "Det distance (mm)", 117.53),
+        #     (self.transmission, "Transmission (%)", 5),
+        #     (self.two_theta, "2 theta (deg)", 0),
+        #     (self.well_start, "Well start", 1),
+        #     (self.well_end, "Well end", 10),
+        #     (self.series_length, "Series length", 1),
+        # ]
+        # for i, (text_box, label, default_value) in enumerate(text_boxes):
+        #     row = i % 2
+        #     col = i // 2
+        #     layout.addLayout(
+        #         self._create_textbox_with_label(text_box, label, default_value),
+        #         row,
+        #         col,
+        #     )
         return layout
 
     def _create_textbox_with_label(
