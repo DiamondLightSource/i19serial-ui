@@ -1,9 +1,14 @@
 from PyQt6 import QtWidgets
 
 
+class AxesInputWindow(QtWidgets.QWidget):
+    def __init__(self):
+        super().__init__()
+
+
 class InputPanel(QtWidgets.QWidget):
     def __init__(self, parent: QtWidgets.QWidget | None = None):
-        super().__init__()
+        super().__init__(parent)
         self.init_text_boxes()
         self.inputs_layout = self.create_input_layout()
 
@@ -77,25 +82,6 @@ class InputPanel(QtWidgets.QWidget):
             1,
             3,
         )
-        # text_boxes = [
-        #     (self.num_images, "No. of images", 50),
-        #     (self.time_image, "Time image (s)", 0.2),
-        #     (self.image_width, "Image width (deg)", 0.2),
-        #     (self.det_dist, "Det distance (mm)", 117.53),
-        #     (self.transmission, "Transmission (%)", 5),
-        #     (self.two_theta, "2 theta (deg)", 0),
-        #     (self.well_start, "Well start", 1),
-        #     (self.well_end, "Well end", 10),
-        #     (self.series_length, "Series length", 1),
-        # ]
-        # for i, (text_box, label, default_value) in enumerate(text_boxes):
-        #     row = i % 2
-        #     col = i // 2
-        #     layout.addLayout(
-        #         self._create_textbox_with_label(text_box, label, default_value),
-        #         row,
-        #         col,
-        #     )
         return layout
 
     def _create_textbox_with_label(
@@ -110,3 +96,6 @@ class InputPanel(QtWidgets.QWidget):
         text_layout.addWidget(text_label)
         text_layout.addWidget(text_box)
         return text_layout
+
+    def _open_axes_setup_window(self):
+        pass
