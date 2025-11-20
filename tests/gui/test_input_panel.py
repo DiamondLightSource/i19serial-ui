@@ -52,6 +52,7 @@ def test_input_params_boxes_created_with_defaults(mock_input_panel):
         (mock_input_panel.well_end, "10"),
         (mock_input_panel.series_length, "1"),
         (mock_input_panel.two_theta, "0"),
+        (mock_input_panel.rotation_start, "0"),
     ]
 
     for text_box, default_value in expected_defaults:
@@ -69,6 +70,7 @@ def test_input_params_boxes_can_be_updated(mock_input_panel):
         (mock_input_panel.well_end, "40"),
         (mock_input_panel.series_length, "3"),
         (mock_input_panel.two_theta, "2"),
+        (mock_input_panel.rotation_start, "5"),
     ]
 
     for text_box, updated_value in updated:
