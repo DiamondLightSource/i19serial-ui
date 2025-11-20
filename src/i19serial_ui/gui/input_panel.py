@@ -1,11 +1,6 @@
 from PyQt6 import QtWidgets
 
 
-class AxesInputWindow(QtWidgets.QWidget):
-    def __init__(self):
-        super().__init__()
-
-
 class InputPanel(QtWidgets.QWidget):
     def __init__(self, parent: QtWidgets.QWidget | None = None):
         super().__init__(parent)
@@ -25,6 +20,7 @@ class InputPanel(QtWidgets.QWidget):
         self.well_end = QtWidgets.QLineEdit()
         self.series_length = QtWidgets.QLineEdit()
         self.two_theta = QtWidgets.QLineEdit()
+        self.rotation_start = QtWidgets.QLineEdit()
 
     def create_input_layout(self):
         main_layout = QtWidgets.QVBoxLayout()
@@ -67,20 +63,26 @@ class InputPanel(QtWidgets.QWidget):
             self._create_textbox_with_label(self.two_theta, "2 theta (deg)", 0), 0, 4
         )
         layout.addLayout(
-            self._create_textbox_with_label(self.well_start, "Well start", 1), 1, 0
+            self._create_textbox_with_label(self.rotation_start, "Phi start (deg)", 0),
+            1,
+            0,
+        )  # For now just assumes phi rotation.
+        # TODO see https://github.com/DiamondLightSource/i19serial-ui/issues/25
+        layout.addLayout(
+            self._create_textbox_with_label(self.well_start, "Well start", 1), 1, 1
         )
         layout.addLayout(
-            self._create_textbox_with_label(self.well_end, "Well end", 10), 1, 1
+            self._create_textbox_with_label(self.well_end, "Well end", 10), 1, 2
         )
         layout.addLayout(
             self._create_textbox_with_label(self.series_length, "Series length", 1),
             1,
-            2,
+            3,
         )
         layout.addLayout(
             self._create_textbox_with_label(self.transmission, "Transmission (%)", 5),
             1,
-            3,
+            4,
         )
         return layout
 
@@ -96,6 +98,3 @@ class InputPanel(QtWidgets.QWidget):
         text_layout.addWidget(text_label)
         text_layout.addWidget(text_box)
         return text_layout
-
-    def _open_axes_setup_window(self):
-        pass
