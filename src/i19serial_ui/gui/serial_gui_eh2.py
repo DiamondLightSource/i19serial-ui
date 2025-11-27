@@ -210,11 +210,33 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.appendOutput("Abort")
 
     def run_zebra(self):
-        self.client.run_zebra()
+        self.client.run_plan(
+            "run_zebra_test",
+            {
+                "phi_start": float,
+                "phi_end": float,
+                "phi_steps": int,
+                "exposure_time": float,
+                "gate_width": float,
+                "pulse_width": float,
+                "zebra": str,
+                "diffractometer": str,
+            },
+        )
         self.appendOutput("Run zebra plan")
 
     def run_panda(self):
-        self.client.run_panda()
+        self.client.run_plan(
+            "run_panda_test",
+            {
+                "phi_start": float,
+                "phi_end": float,
+                "phi_steps": int,
+                "exposure_time": float,
+                "diffractometer": str,
+                "panda": str,
+            },
+        )
         self.appendOutput("Run panda plan")
 
 

@@ -7,7 +7,7 @@ from blueapi.config import ApplicationConfig, ConfigLoader
 from blueapi.service.model import TaskRequest
 
 from i19serial_ui.log import LOGGER, log_to_gui
-from i19_bluesky.serial.example_trigger_plan_zebra_vs_panda import run_zebra_test, run_panda_test
+
 
 class WrongConfigFileFormatError(Exception):
     pass
@@ -59,6 +59,3 @@ class SerialBlueapiClient:
             instrument_session=self.instrument_session,
         )
         self.client.create_and_start_task(task)
-
-    def run_zebra(self, plan_name:str, plan_params: dict[str, Any]):
-
