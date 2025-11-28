@@ -5,8 +5,8 @@ from i19serial_ui.parameters.grid import GridType
 
 
 class GridOptions(QtWidgets.QWidget):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent: QtWidgets.QWidget | None = None):
+        super().__init__(parent)
         self.current_grid = GridType.POLYMER
         self.logger = LOGGER
         self.init_options()
