@@ -53,32 +53,35 @@ def test_abort_button(mock_eh2_gui):
 
 
 def test_run_zebra(mock_eh2_gui):
+    mock_rotation_start = 0.0
+    mock_num_images = 50.0
+    mock_rotation_increment = 0.2
+    mock_rotation_end = mock_rotation_start + mock_num_images + mock_rotation_increment
+    mock_time_image = 0.2
+
+    mock_params = {
+        "phi_start": mock_rotation_start,
+        "phi_end": mock_rotation_end,
+        "phi_steps": mock_num_images,
+        "exposure_time": mock_time_image,
+        "gate_width": mock_rotation_end - mock_rotation_start + 0.1,
+        "pulse_width": mock_rotation_increment,
+    }
     mock_eh2_gui.test_btn1.click()
-    mock_eh2_gui.client.run_plan.assert_called_once_with(
-        "run_zebra_test",
-        {
-            "phi_start": 4,
-            "phi_end": 10,
-            "phi_steps": 3,
-            "exposure_time": 4,
-            "gate_width": 3,
-            "pulse_width": 2,
-            "zebra": "zebra",
-            "diffractometer": "diff",
-        },
-    )
+    mock_eh2_gui.client.run_plan.assert_called_once_with("run_zebra_test", mock_params)
 
 
 def test_run_panda(mock_eh2_gui):
+    mock_rotation_start = 0.0
+    mock_num_images = 50.0
+    mock_rotation_increment = 0.2
+    mock_rotation_end = mock_rotation_start + mock_num_images + mock_rotation_increment
+    mock_time_image = 0.2
+    mock_params = {
+        "phi_start": mock_rotation_start,
+        "phi_end": mock_rotation_end,
+        "phi_steps": mock_num_images,
+        "exposure_time": mock_time_image,
+    }
     mock_eh2_gui.test_btn2.click()
-    mock_eh2_gui.client.run_plan.assert_called_once_with(
-        "run_panda_test",
-        {
-            "phi_start": float,
-            "phi_end": float,
-            "phi_steps": int,
-            "exposure_time": float,
-            "diffractometer": str,
-            "panda": str,
-        },
-    )
+    mock_eh2_gui.client.run_plan.assert_called_once_with("run_panda_test", mock_params)
