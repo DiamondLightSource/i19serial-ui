@@ -210,32 +210,36 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.appendOutput("Abort")
 
     def run_zebra(self):
+        rotation_start = float(self.inputs.rotation_start.text())
+        num_images = float(self.inputs.num_images.text())
+        rotation_increment = float(self.inputs.image_width.text())
+        rotation_end = rotation_start + num_images + rotation_increment
         params = {
-            "phi_start": 4,
-            "phi_end": 10,
-            "phi_steps": 3,
-            "exposure_time": 4,
-            "gate_width": 3,
-            "pulse_width": 2,
-            "zebra": "zebra",
-            "diffractometer": "diff",
+            "phi_start": rotation_start,
+            "phi_end": rotation_end,
+            "phi_steps": num_images,
+            "exposure_time": float(self.inputs.time_image.text()),
+            "gate_width": rotation_end - rotation_start + 0.1,
+            "pulse_width": rotation_increment,
         }
         self.client.run_plan("run_zebra_test", params)
         self.appendOutput("Run zebra plan")
+        self.appendOutput(f"With parameters: {params}")
 
     def run_panda(self):
-        self.client.run_plan(
-            "run_panda_test",
-            {
-                "phi_start": float,
-                "phi_end": float,
-                "phi_steps": int,
-                "exposure_time": float,
-                "diffractometer": str,
-                "panda": str,
-            },
-        )
+        rotation_start = float(self.inputs.rotation_start.text())
+        num_images = float(self.inputs.num_images.text())
+        rotation_increment = float(self.inputs.image_width.text())
+        rotation_end = rotation_start + num_images + rotation_increment
+        params = {
+            "phi_start": rotation_start,
+            "phi_end": rotation_end,
+            "phi_steps": num_images,
+            "exposure_time": float(self.inputs.time_image.text()),
+        }
+        self.client.run_plan("run_panda_test", params)
         self.appendOutput("Run panda plan")
+        self.appendOutput(f"With parameters: {params}")
 
 
 def start_eh2_ui():
