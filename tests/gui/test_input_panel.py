@@ -1,7 +1,7 @@
 import pytest
 from PyQt6 import QtWidgets
 
-from i19serial_ui.gui.input_panel import InputPanel
+from i19serial_ui.gui.widgets.input_panel import InputPanel
 
 
 @pytest.fixture

@@ -3,11 +3,13 @@ from unittest.mock import patch
 import pytest
 from PyQt6 import QtWidgets
 
-from i19serial_ui.gui.grid_options import GridOptions
-from i19serial_ui.gui.input_panel import InputPanel
-from i19serial_ui.gui.log_box import LogBox
 from i19serial_ui.gui.serial_gui_eh2 import SerialGuiEH2
-from i19serial_ui.gui.wells_selection import WellsSelectionPanel
+from i19serial_ui.gui.widgets import (
+    GridOptions,
+    InputPanel,
+    LogBox,
+    WellsSelectionPanel,
+)
 
 
 @pytest.fixture
