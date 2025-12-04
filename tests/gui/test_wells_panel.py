@@ -3,7 +3,7 @@ from unittest.mock import patch
 import pytest
 from PyQt6 import QtWidgets
 
-from i19serial_ui.gui.wells_selection import WellsSelectionPanel
+from i19serial_ui.gui.widgets.wells_selection import WellsSelectionPanel
 
 
 @pytest.fixture
@@ -50,7 +50,7 @@ def test_get_list_of_selected_wells_fails_if_checkbox_not_checked(mock_wells_pan
 
 def test_select_csv_updates_text_box(mock_wells_panel):
     with patch(
-        "i19serial_ui.gui.wells_selection.QtWidgets.QFileDialog.getOpenFileName"
+        "i19serial_ui.gui.widgets.wells_selection.QtWidgets.QFileDialog.getOpenFileName"
     ) as patch_csv:
         patch_csv.return_value = ("/path/to/file.csv", "")
         mock_wells_panel.use_csv_btn.click()

@@ -3,7 +3,7 @@ import logging
 import pytest
 from PyQt6 import QtWidgets
 
-from i19serial_ui.gui.log_box import GREETING, LogBox
+from i19serial_ui.gui.widgets.log_box import GREETING, LogBox
 from i19serial_ui.log import GuiWindowLogHandler
 
 

@@ -1,7 +1,7 @@
 import pytest
 from PyQt6 import QtWidgets
 
-from i19serial_ui.gui.grid_options import GridOptions
+from i19serial_ui.gui.widgets.grid_options import GridOptions
 from i19serial_ui.parameters.grid import GridType
 
 

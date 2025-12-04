@@ -4,9 +4,6 @@ from collections.abc import Callable
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
-from i19serial_ui.gui.grid_options import GridOptions
-from i19serial_ui.gui.input_panel import InputPanel
-from i19serial_ui.gui.log_box import LogBox
 from i19serial_ui.gui.ui_utils import (
     HutchInUse,
     _create_image_icon,
@@ -14,7 +11,12 @@ from i19serial_ui.gui.ui_utils import (
     get_data_main_path,
     image_file_path,
 )
-from i19serial_ui.gui.wells_selection import WellsSelectionPanel
+from i19serial_ui.gui.widgets import (
+    GridOptions,
+    InputPanel,
+    LogBox,
+    WellsSelectionPanel,
+)
 from i19serial_ui.log import (
     LOGGER,
     GuiWindowLogHandler,
