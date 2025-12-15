@@ -14,7 +14,7 @@ classifiers = [
 description = "A PyQt UI to run ssx collections with Bluesky on I19"
 dependencies = [
     "numpy",
-    "PyQt6 < 6.10.0",
+    "PyQt6 < 6.11.0",
     "pydantic",
     "aiohttp",
     "blueapi",
