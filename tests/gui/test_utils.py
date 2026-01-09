@@ -5,15 +5,15 @@ from PyQt6.QtGui import QIcon
 
 from i19serial_ui.gui.ui_utils import (
     HutchInUse,
-    _create_image_icon,
     config_file_path,
+    create_image_icon,
     get_data_main_path,
     image_file_path,
 )
 
 
 def test_create_icon():
-    icon = _create_image_icon("")
+    icon = create_image_icon("")
 
     assert isinstance(icon, QIcon)
 
