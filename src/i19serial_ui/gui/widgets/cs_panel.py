@@ -1,6 +1,6 @@
 from collections.abc import Callable
 
-from PyQt6 import QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 
 from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
 from i19serial_ui.gui.ui_utils import image_file_path
@@ -61,18 +61,15 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         self, position: str, icon_path: str, text_boxes: list[QtWidgets.QLineEdit]
     ):
         pos_layout = QtWidgets.QHBoxLayout()
-        pixmap = QtGui.QPixmap(icon_path)
-        pixmap.scaledToWidth(30)
-        pixmap.scaledToHeight(30)
-        icon = QtWidgets.QLabel()
-        icon.setFixedSize(30, 30)
-        icon.setPixmap(pixmap)
-        icon.setScaledContents(True)
+        icon = QtGui.QIcon(icon_path)
+        icon_button = self._create_icon_button(
+            icon, lambda: placeholder_run_btn(f"SET {position.upper()} from icon")
+        )
         btn = self._create_button(
             f"Set {position}", lambda: placeholder_run_btn(f"SET {position.upper()}")
         )
         btn.setFixedWidth(120)
-        pos_layout.addWidget(icon)
+        pos_layout.addWidget(icon_button)
         pos_layout.addWidget(btn)
         pos_layout.addWidget(text_boxes[0])
         pos_layout.addWidget(text_boxes[1])
@@ -127,6 +124,16 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         button = QtWidgets.QPushButton(name)
         button.clicked.connect(func)
         return button
+
+    def _create_icon_button(
+        self, icon: QtGui.QIcon, func: Callable
+    ) -> QtWidgets.QPushButton:
+        icon_button = QtWidgets.QPushButton("")
+        icon_button.setIcon(icon)
+        icon_button.setIconSize(QtCore.QSize(30, 30))
+        icon_button.setFlat(True)
+        icon_button.clicked.connect(func)
+        return icon_button
 
     def _update_xyz(self):
         pass
