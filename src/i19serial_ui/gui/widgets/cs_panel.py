@@ -85,7 +85,10 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         pos_layout = QtWidgets.QHBoxLayout()
         icon = create_image_icon(icon_path)
         icon_button = self._create_icon_button(
-            icon, lambda: placeholder_set_xyz_btn(f"SET {position.upper()} from icon")
+            icon,
+            lambda: placeholder_set_xyz_btn(
+                f"GRID MOVE to {position.upper()} from icon"
+            ),
         )
         btn = self._create_button(
             f"Set {position}",
@@ -224,3 +227,11 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
             box.setText("")
 
         self.init_coordinates()
+
+    def perform_grid_move(self):
+        """Plan will be:
+        def move_grid_to_position([x,y,z], device_to_move) the device can be either
+        newport or beamstop stage - will pass the name of the device here.
+        Chosen from dropdown I guess.
+        """
+        pass
