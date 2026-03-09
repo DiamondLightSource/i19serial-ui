@@ -138,6 +138,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
     def _create_top_group(self):
         # move arrows, phi step, focuse, backlight etc
         self._create_dropdown()
+        self._create_dropdown()
         self.top_group = QtWidgets.QGroupBox()
         top_layout = QtWidgets.QGridLayout()
         self.ddb_label = QtWidgets.QLabel("Select aperture size:")
