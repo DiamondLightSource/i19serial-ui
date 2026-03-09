@@ -126,9 +126,22 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.i19_label.setFont(QtGui.QFont(FONT, 13))
         self.i19_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
 
+    def _create_dropdown(self):
+        # Add labels, do tests.
+        self.aperturedropdown = QtWidgets.QComboBox()
+        self.aperturedropdown.addItems(["20um", "40um", "100um", "3000um"])
+        # self.aperturedropdown.move(10, 10)
+
+    def read_aperture_dropdown(self):
+        return self.aperturedropdown.currentText()
+
     def _create_top_group(self):
         # move arrows, phi step, focuse, backlight etc
+        self._create_dropdown()
         self.top_group = QtWidgets.QGroupBox()
+        top_layout = QtWidgets.QHBoxLayout()
+        top_layout.addWidget(self.aperturedropdown)
+        self.top_group.setLayout(top_layout)
 
     def _create_coordinate_system_group(self):
         self.cs_group = QtWidgets.QGroupBox("Coordinate System")
