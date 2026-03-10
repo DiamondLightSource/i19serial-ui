@@ -77,21 +77,36 @@ class SerialBlueapiClient:
                 LOGGER.exception(e)
         log_to_gui(LOGGER, "Run plan done", level="DEBUG")
 
-    def run_plan_and_get_result(self, plan_name: str, plan_params: dict[str, Any]):
+    def run_plan_and_get_result(
+        self, plan_name: str, plan_params: dict[str, Any]
+    ) -> Any | None:
+        res = None
         if self._check_instrument_session():
             task = self._create_task(plan_name, plan_params)
             try:
-                result = self.client.run_task(task)
+                task_result = self.client.run_task(task)
             except ServiceUnavailableError as e:
-                print("error creating task")
+                log_to_gui(
+                    LOGGER, f"Error creating task for plan {plan_name}", level="ERROR"
+                )
                 LOGGER.exception(e)
             except Exception as e:
-                print(f"Some other issue {e}")
-                LOGGER.exception(e)
-            if result.task_failed:
-                print(
-                    "somethign went wrong when running the plan, look at blueapi logs"
+                log_to_gui(
+                    LOGGER,
+                    f"""Something went wrong running the {plan_name} plan,
+                    check out the logs for more information""",
+                    level="ERROR",
                 )
+                LOGGER.exception(e)
+            if task_result.task_failed:
+                log_to_gui(
+                    LOGGER,
+                    f"Task returns failed while running {plan_name}",
+                    level="ERROR",
+                )
+                if task_result.result:
+                    LOGGER.error(task_result.result.model_dump())
             else:
-                print(result.result)
+                res = task_result.result.result  # type: ignore
         log_to_gui(LOGGER, "Run plan with result done", level="DEBUG")
+        return res
