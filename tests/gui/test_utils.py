@@ -1,3 +1,4 @@
+from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -19,9 +20,10 @@ def test_create_icon():
 
 
 def test_get_data_main_path():
+    year = datetime.now().year
     res = get_data_main_path()
 
-    assert res.as_posix() == "/dls/i19-2/data/2025"
+    assert res.as_posix() == f"/dls/i19-2/data/{year}"
 
 
 def test_get_config_file_path_for_eh2():
