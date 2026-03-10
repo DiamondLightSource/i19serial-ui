@@ -46,10 +46,7 @@ def test_dropdown_update(mock_eh2_gui):
     options = ["20um", "40um", "100um", "3000um"]
     for x in range(0, 3):
         mock_eh2_gui.aperturedropdown.setCurrentIndex(x)
-        assert mock_eh2_gui.aperturedropdown.currentText() == options[x]
-
-
-# def test_top_layout(mock_eh2_gui):
+        assert mock_eh2_gui.read_aperture_dropdown() == options[x]
 
 
 def test_select_visit(mock_eh2_gui):
