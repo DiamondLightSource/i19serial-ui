@@ -127,7 +127,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.i19_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
 
     def _create_dropdown(self):
-        # Add labels, do tests.
         self.aperturedropdown = QtWidgets.QComboBox()
         self.aperturedropdown.addItems(["20um", "40um", "100um", "3000um"])
 
