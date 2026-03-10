@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Any
 
 from blueapi.client.client import BlueapiClient
-from blueapi.client.rest import BlueskyRemoteControlError
+from blueapi.client.rest import BlueskyRemoteControlError, ServiceUnavailableError
 from blueapi.config import ApplicationConfig, ConfigLoader
 from blueapi.service.model import TaskRequest
 
@@ -58,4 +58,15 @@ class SerialBlueapiClient:
             params=plan_params,
             instrument_session=self.instrument_session,
         )
-        self.client.create_and_start_task(task)
+        # self.client.create_and_start_task(task)
+        try:
+            result = self.client.run_task(task)
+        except ServiceUnavailableError:
+            print("error creating task")
+        except Exception as e:
+            print(f"Some other issue {e}")
+
+        if result.task_failed:
+            print("somethign went wrong when running the plan, look at blueapi logs")
+        else:
+            print(result.result)
