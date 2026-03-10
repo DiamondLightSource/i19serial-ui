@@ -130,7 +130,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         # Add labels, do tests.
         self.aperturedropdown = QtWidgets.QComboBox()
         self.aperturedropdown.addItems(["20um", "40um", "100um", "3000um"])
-        # self.aperturedropdown.move(10, 10)
 
     def read_aperture_dropdown(self):
         return self.aperturedropdown.currentText()
@@ -140,6 +139,10 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self._create_dropdown()
         self.top_group = QtWidgets.QGroupBox()
         top_layout = QtWidgets.QHBoxLayout()
+        self.ddb_label = QtWidgets.QLabel("Select aperture size:")
+        self.ddb_label.setFont(QtGui.QFont(FONT, 10))
+        self.ddb_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        top_layout.addWidget(self.ddb_label)
         top_layout.addWidget(self.aperturedropdown)
         self.top_group.setLayout(top_layout)
 
