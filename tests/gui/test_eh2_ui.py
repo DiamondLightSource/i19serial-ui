@@ -42,11 +42,12 @@ def test_general_layout(mock_eh2_gui):
     assert isinstance(mock_eh2_gui.top_group, QtWidgets.QGroupBox)
 
 
-def test_dropdown_update(mock_eh2_gui):
-    options = ["20um", "40um", "100um", "3000um"]
-    for x in range(0, 3):
-        mock_eh2_gui.aperturedropdown.setCurrentIndex(x)
-        assert mock_eh2_gui.read_aperture_dropdown() == options[x]
+@pytest.mark.parametrize(
+    "options,index", [("20um", 0), ("40um", 1), ("100um", 2), ("3000um", 3)]
+)
+def test_dropdown_update(mock_eh2_gui, options, index):
+    mock_eh2_gui.aperturedropdown.setCurrentIndex(index)
+    assert mock_eh2_gui.read_aperture_dropdown() == options
 
 
 def test_select_visit(mock_eh2_gui):
