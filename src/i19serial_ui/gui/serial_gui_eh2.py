@@ -23,6 +23,7 @@ from i19serial_ui.log import (
     log_to_gui,
     tidy_up_logging,
 )
+from i19serial_ui.parameters.general_utils import ApertureOptions
 
 WINDOW_SIZE = (600, 1200)
 LOG_HANDLERS = []
@@ -126,9 +127,27 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.i19_label.setFont(QtGui.QFont(FONT, 13))
         self.i19_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
 
+    def _create_dropdown(self):
+        self.aperturedropdown = QtWidgets.QComboBox()
+        self.aperturedropdown.addItems(list(ApertureOptions))
+        self.selected_aperture = self.read_aperture_dropdown()
+
+    def read_aperture_dropdown(self):
+        return self.aperturedropdown.currentText()
+
     def _create_top_group(self):
         # move arrows, phi step, focuse, backlight etc
+        self._create_dropdown()
         self.top_group = QtWidgets.QGroupBox()
+        top_layout = QtWidgets.QGridLayout()
+        self.ddb_label = QtWidgets.QLabel("Select aperture size:")
+        self.ddb_label.setFont(QtGui.QFont(FONT, 10))
+        self.ddb_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft)
+        top_layout.addWidget(self.ddb_label)
+        top_layout.addWidget(self.aperturedropdown)
+        self.top_group.setLayout(top_layout)
+        self.aperturedropdown.setFixedWidth(150)
+        top_layout.setColumnStretch(2, 1)
 
     def _create_coordinate_system_group(self):
         self.cs_group = QtWidgets.QGroupBox("Coordinate System")
@@ -233,6 +252,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         num_images = float(self.inputs.num_images.text())
         rotation_increment = float(self.inputs.image_width.text())
         rotation_end = rotation_start + num_images + rotation_increment
+
         params = {
             "phi_start": rotation_start,
             "phi_end": rotation_end,

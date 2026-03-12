@@ -29,6 +29,9 @@ def test_all_widgets_initialised(mock_eh2_gui):
     assert mock_eh2_gui.inputs and isinstance(mock_eh2_gui.inputs, InputPanel)
     assert mock_eh2_gui.wells and isinstance(mock_eh2_gui.wells, WellsSelectionPanel)
     assert mock_eh2_gui.grid and isinstance(mock_eh2_gui.grid, GridOptions)
+    assert mock_eh2_gui.aperturedropdown and isinstance(
+        mock_eh2_gui.aperturedropdown, QtWidgets.QComboBox
+    )
 
 
 def test_general_layout(mock_eh2_gui):
@@ -36,6 +39,15 @@ def test_general_layout(mock_eh2_gui):
     assert isinstance(mock_eh2_gui.general_layout, QtWidgets.QGridLayout)
     title = mock_eh2_gui.general_layout.children()[0]
     assert isinstance(title, QtWidgets.QHBoxLayout)
+    assert isinstance(mock_eh2_gui.top_group, QtWidgets.QGroupBox)
+
+
+@pytest.mark.parametrize(
+    "aperture,index", [("20um", 0), ("40um", 1), ("100um", 2), ("3000um", 3)]
+)
+def test_dropdown_update(mock_eh2_gui, aperture, index):
+    mock_eh2_gui.aperturedropdown.setCurrentIndex(index)
+    assert mock_eh2_gui.read_aperture_dropdown() == aperture
 
 
 def test_select_visit(mock_eh2_gui):
