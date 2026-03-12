@@ -68,7 +68,11 @@ addopts = """
     --tb=native -vv --doctest-modules --doctest-glob="*.rst"
     """
 # https://iscinumpy.gitlab.io/post/bound-version-constraints/#watch-for-warnings
-filterwarnings = "error"
+filterwarnings = [
+    "error",
+    # Ignore deprecation warnings from blueapi/pydantic
+    "ignore::pydantic.warnings.PydanticDeprecatedSince20",
+]
 # Set configuration variable for qt
 qt_api = "pyqt6"
 # Doctest python code in docs, python code in src docstrings, test functions in tests
