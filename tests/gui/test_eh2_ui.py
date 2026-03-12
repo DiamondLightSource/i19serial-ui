@@ -43,7 +43,7 @@ def test_general_layout(mock_eh2_gui):
 
 
 @pytest.mark.parametrize(
-    "options,index", [("20um", 0), ("40um", 1), ("100um", 2), ("3000um", 3)]
+    "aperture,index", [("20um", 0), ("40um", 1), ("100um", 2), ("3000um", 3)]
 )
 def test_dropdown_update(mock_eh2_gui, options, index):
     mock_eh2_gui.aperturedropdown.setCurrentIndex(index)
