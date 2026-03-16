@@ -138,13 +138,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
     def _create_top_group(self):
         # move arrows, phi step, focuse, backlight etc
         self._create_dropdown()
-        self._create_dropdown()
         self.top_group = QtWidgets.QGroupBox()
-        top_layout = QtWidgets.QGridLayout()
-        self.ddb_label = QtWidgets.QLabel("Select aperture size:")
-        self.ddb_label.setFont(QtGui.QFont(FONT, 10))
-        self.ddb_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft)
-        top_layout.addWidget(self.ddb_label)
         top_layout = QtWidgets.QGridLayout()
         self.ddb_label = QtWidgets.QLabel("Select aperture size:")
         self.ddb_label.setFont(QtGui.QFont(FONT, 10))
@@ -152,8 +146,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         top_layout.addWidget(self.ddb_label)
         top_layout.addWidget(self.aperturedropdown)
         self.top_group.setLayout(top_layout)
-        self.aperturedropdown.setFixedWidth(150)
-        top_layout.setColumnStretch(2, 1)
         self.aperturedropdown.setFixedWidth(150)
         top_layout.setColumnStretch(2, 1)
 
