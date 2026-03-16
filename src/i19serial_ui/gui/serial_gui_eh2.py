@@ -173,13 +173,10 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.run_btns_group = QtWidgets.QGroupBox()
         btn_layout = QtWidgets.QHBoxLayout()
 
-        self.test_btn1 = self._create_button("Run zebra", self.run_zebra)
-
-        self.test_btn2 = self._create_button("Run panda", self.run_panda)
+        self.test_btn2 = self._create_button("Run Plan", self.run_panda)
 
         self.abort_btn = self._create_button("Abort", self.abort)
 
-        btn_layout.addWidget(self.test_btn1)
         btn_layout.addWidget(self.test_btn2)
         btn_layout.addWidget(self.abort_btn)
 
@@ -230,37 +227,25 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.client.abort_task()
         self.appendOutput("Abort")
 
-    def run_zebra(self):
-        rotation_start = float(self.inputs.rotation_start.text())
-        num_images = float(self.inputs.num_images.text())
-        rotation_increment = float(self.inputs.image_width.text())
-        rotation_end = rotation_start + num_images + rotation_increment
-        params = {
-            "phi_start": rotation_start,
-            "phi_end": rotation_end,
-            "phi_steps": num_images,
-            "exposure_time": float(self.inputs.time_image.text()),
-            "gate_width": rotation_end - rotation_start + 0.1,
-            "pulse_width": rotation_increment,
-        }
-        self.client.run_plan("run_zebra_test", params)
-        self.appendOutput("Run zebra plan")
-        self.appendOutput(f"With parameters: {params}")
-
     def run_panda(self):
         rotation_start = float(self.inputs.rotation_start.text())
         num_images = float(self.inputs.num_images.text())
         rotation_increment = float(self.inputs.image_width.text())
         rotation_end = rotation_start + num_images + rotation_increment
-
+        detector_z = 100
+        detector_two_theta = float(self.inputs.two_theta.text())
+        eh2_aperture = self.read_aperture_dropdown()
         params = {
+            "detector_z": detector_z,
+            "detector_two_theta": detector_two_theta,
             "phi_start": rotation_start,
             "phi_end": rotation_end,
             "phi_steps": num_images,
             "exposure_time": float(self.inputs.time_image.text()),
+            "eh2_aperture": eh2_aperture,
         }
-        self.client.run_plan("run_panda_test", params)
-        self.appendOutput("Run panda plan")
+        self.client.run_plan("main_entry_plan", params)
+        self.appendOutput("Run main_entry_plan")
         self.appendOutput(f"With parameters: {params}")
 
 
