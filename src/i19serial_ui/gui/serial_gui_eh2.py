@@ -232,7 +232,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         num_images = float(self.inputs.num_images.text())
         rotation_increment = float(self.inputs.image_width.text())
         rotation_end = rotation_start + num_images + rotation_increment
-        detector_z = 100
+        detector_z = float(self.inputs.det_dist.text())
         detector_two_theta = float(self.inputs.two_theta.text())
         eh2_aperture = self.read_aperture_dropdown()
         params = {
