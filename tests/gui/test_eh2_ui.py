@@ -67,7 +67,7 @@ def test_abort_button(mock_eh2_gui):
 
 
 def test_run_panda(mock_eh2_gui):
-    mock_detector_z = 100
+    mock_detector_z = 117.53
     mock_eh2_aperture = "20um"  # ApertureOptions.UM_20
     mock_detector_two_theta = 0.0
     mock_rotation_start = 0.0
