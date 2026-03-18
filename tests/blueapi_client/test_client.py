@@ -1,5 +1,5 @@
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, call, patch
 
 import pytest
 from blueapi.client.client import BlueapiClient
@@ -32,11 +32,20 @@ def test_run_plan_exits_with_error_message_if_no_instrument_session(
 ):
     mock_client.run_plan("some_plan", {})
 
-    patch_log.assert_called_once_with(
-        patch_logger,
-        "Instrument session hasn't been set, please select visit before continuing.",
-        level="ERROR",
-    )
+    expected_log_calls = [
+        call(
+            patch_logger,
+            "Instrument session hasn't been set, please select visit before continuing.",  # noqa: E501
+            level="ERROR",
+        ),
+        call(
+            patch_logger,
+            "Run plan done",
+            level="DEBUG",
+        ),
+    ]
+
+    patch_log.assert_has_calls(expected_log_calls)
 
 
 @patch("i19serial_ui.blueapi_tools.blueapi_client.log_to_gui")
