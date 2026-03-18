@@ -48,6 +48,18 @@ def test_run_plan_exits_with_error_message_if_no_instrument_session(
     patch_log.assert_has_calls(expected_log_calls)
 
 
+@pytest.mark.parametrize("session, expected_result", [("", False), ("cm12345-1", True)])
+def test_check_instrument_session(
+    session: str,
+    expected_result: bool,
+    mock_client: SerialBlueapiClient,
+):
+    mock_client.update_session(session)
+    check_result = mock_client._check_instrument_session()
+
+    assert check_result is expected_result
+
+
 @patch("i19serial_ui.blueapi_tools.blueapi_client.log_to_gui")
 def test_client_update_session(patch_log: MagicMock, mock_client: SerialBlueapiClient):
     assert not mock_client.instrument_session
@@ -69,3 +81,7 @@ def test_run_plan(mock_client: SerialBlueapiClient):
 def test_client_error_if_config_file_not_yaml():
     with pytest.raises(WrongConfigFileFormatError):
         SerialBlueapiClient(Path("some_file.csv"))
+
+
+def test_run_plan_and_get_its_result():
+    pass
