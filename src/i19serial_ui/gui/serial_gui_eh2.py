@@ -173,7 +173,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.run_btns_group = QtWidgets.QGroupBox()
         btn_layout = QtWidgets.QHBoxLayout()
 
-        self.test_btn2 = self._create_button("Run Plan", self.run_panda)
+        self.test_btn2 = self._create_button("Run Plan", self.run_btn)
 
         self.abort_btn = self._create_button("Abort", self.abort)
 
@@ -227,7 +227,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.client.abort_task()
         self.appendOutput("Abort")
 
-    def run_panda(self):
+    def run_btn(self):
         rotation_start = float(self.inputs.rotation_start.text())
         num_images = float(self.inputs.num_images.text())
         rotation_increment = float(self.inputs.image_width.text())
@@ -245,7 +245,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             "eh2_aperture": eh2_aperture,
         }
         self.client.run_plan("run_serial_from_panda", params)
-        self.appendOutput("Run serial from panda")
+        self.appendOutput("Start serial collection with the panda")
         self.appendOutput(f"With parameters: {params}")
 
 
