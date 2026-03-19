@@ -85,4 +85,6 @@ def test_run_panda(mock_eh2_gui):
         "eh2_aperture": mock_eh2_aperture,
     }
     mock_eh2_gui.test_btn2.click()
-    mock_eh2_gui.client.run_plan.assert_called_once_with("main_entry_plan", mock_params)
+    mock_eh2_gui.client.run_plan.assert_called_once_with(
+        "run_serial_from_panda", mock_params
+    )
