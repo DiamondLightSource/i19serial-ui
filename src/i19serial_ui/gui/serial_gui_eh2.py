@@ -244,8 +244,8 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             "exposure_time": float(self.inputs.time_image.text()),
             "eh2_aperture": eh2_aperture,
         }
-        self.client.run_plan("main_entry_plan", params)
-        self.appendOutput("Run main_entry_plan")
+        self.client.run_plan("run_serial_from_panda", params)
+        self.appendOutput("Run serial from panda")
         self.appendOutput(f"With parameters: {params}")
 
 
