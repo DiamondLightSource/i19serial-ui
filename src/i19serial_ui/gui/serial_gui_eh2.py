@@ -173,11 +173,11 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.run_btns_group = QtWidgets.QGroupBox()
         btn_layout = QtWidgets.QHBoxLayout()
 
-        self.test_btn2 = self._create_button("Run Plan", self.run_btn)
+        self.run_btn = self._create_button("Run Plan", self.run_serial)
 
         self.abort_btn = self._create_button("Abort", self.abort)
 
-        btn_layout.addWidget(self.test_btn2)
+        btn_layout.addWidget(self.run_btn)
         btn_layout.addWidget(self.abort_btn)
 
         self.run_btns_group.setLayout(btn_layout)
@@ -227,7 +227,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.client.abort_task()
         self.appendOutput("Abort")
 
-    def run_btn(self):
+    def run_serial(self):
         rotation_start = float(self.inputs.rotation_start.text())
         num_images = float(self.inputs.num_images.text())
         rotation_increment = float(self.inputs.image_width.text())
