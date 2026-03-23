@@ -3,7 +3,11 @@ from unittest.mock import MagicMock, call, patch
 
 import pytest
 from blueapi.client.client import BlueapiClient
+
+# from blueapi.client.rest import ServiceUnavailableError
 from blueapi.config import ApplicationConfig
+from blueapi.service.model import TaskRequest
+from blueapi.worker.event import TaskResult, TaskStatus
 
 from i19serial_ui.blueapi_tools.blueapi_client import (
     SerialBlueapiClient,
@@ -83,5 +87,30 @@ def test_client_error_if_config_file_not_yaml():
         SerialBlueapiClient(Path("some_file.csv"))
 
 
-def test_run_plan_and_get_its_result():
-    pass
+@pytest.mark.parametrize(
+    "failure, result, expected_result", [(False, "Hello", "Hello"), (True, "", None)]
+)
+def test_run_plan_and_get_its_result(
+    failure: bool,
+    result: str,
+    expected_result: str | None,
+    mock_client: SerialBlueapiClient,
+):
+    mock_client.client = MagicMock(spec=BlueapiClient)
+    mock_client.client.run_task.return_value = TaskStatus(
+        task_id="abcd",
+        result=TaskResult(outcome="success", result=result, type="string"),
+        task_complete=True,
+        task_failed=failure,
+    )
+
+    mock_client.update_session("cm12345-1")
+    res = mock_client.run_plan_and_get_result("some_plan", {"param": 1})
+
+    mock_client.client.run_task.assert_called_once_with(
+        TaskRequest(
+            name="some_plan", params={"param": 1}, instrument_session="cm12345-1"
+        )
+    )
+
+    assert res == expected_result
