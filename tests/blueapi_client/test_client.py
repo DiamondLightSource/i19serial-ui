@@ -73,6 +73,16 @@ def test_client_update_session(patch_log: MagicMock, mock_client: SerialBlueapiC
     patch_log.assert_called_once()
 
 
+def test_client_create_task(mock_client: SerialBlueapiClient):
+    mock_client.update_session("cm12345-1")
+    task = mock_client._create_task("new_plan", {"x": 10})
+
+    assert isinstance(task, TaskRequest)
+    assert task.name == "new_plan"
+    assert task.params == {"x": 10}
+    assert task.instrument_session == "cm12345-1"
+
+
 def test_run_plan(mock_client: SerialBlueapiClient):
     mock_client.client = MagicMock(spec=BlueapiClient)
 
