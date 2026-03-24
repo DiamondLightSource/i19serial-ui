@@ -24,6 +24,7 @@ from i19serial_ui.log import (
     log_to_gui,
     tidy_up_logging,
 )
+from i19serial_ui.parameters.general_utils import ApertureOptions
 
 WINDOW_SIZE = (600, 1200)
 LOG_HANDLERS = []
@@ -130,9 +131,27 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.i19_label.setFont(QtGui.QFont(FONT, 13))
         self.i19_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
 
+    def _create_dropdown(self):
+        self.aperturedropdown = QtWidgets.QComboBox()
+        self.aperturedropdown.addItems(list(ApertureOptions))
+        self.selected_aperture = self.read_aperture_dropdown()
+
+    def read_aperture_dropdown(self):
+        return self.aperturedropdown.currentText()
+
     def _create_top_group(self):
         # move arrows, phi step, focuse, backlight etc
+        self._create_dropdown()
         self.top_group = QtWidgets.QGroupBox()
+        top_layout = QtWidgets.QGridLayout()
+        self.ddb_label = QtWidgets.QLabel("Select aperture size:")
+        self.ddb_label.setFont(QtGui.QFont(FONT, 10))
+        self.ddb_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft)
+        top_layout.addWidget(self.ddb_label)
+        top_layout.addWidget(self.aperturedropdown)
+        self.top_group.setLayout(top_layout)
+        self.aperturedropdown.setFixedWidth(150)
+        top_layout.setColumnStretch(2, 1)
 
     def _create_coordinate_system_group(self):
         self.cs_group = QtWidgets.QGroupBox("Coordinate System")
@@ -159,14 +178,11 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.run_btns_group = QtWidgets.QGroupBox()
         btn_layout = QtWidgets.QHBoxLayout()
 
-        self.test_btn1 = self._create_button("Run zebra", self.run_zebra)
-
-        self.test_btn2 = self._create_button("Run panda", self.run_panda)
+        self.run_btn = self._create_button("Run Plan", self.run_serial)
 
         self.abort_btn = self._create_button("Abort", self.abort)
 
-        btn_layout.addWidget(self.test_btn1)
-        btn_layout.addWidget(self.test_btn2)
+        btn_layout.addWidget(self.run_btn)
         btn_layout.addWidget(self.abort_btn)
 
         self.run_btns_group.setLayout(btn_layout)
@@ -216,36 +232,25 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.client.abort_task()
         self.appendOutput("Abort")
 
-    def run_zebra(self):
+    def run_serial(self):
         rotation_start = float(self.inputs.rotation_start.text())
         num_images = float(self.inputs.num_images.text())
         rotation_increment = float(self.inputs.image_width.text())
         rotation_end = rotation_start + num_images + rotation_increment
+        detector_z = float(self.inputs.det_dist.text())
+        detector_two_theta = float(self.inputs.two_theta.text())
+        eh2_aperture = self.read_aperture_dropdown()
         params = {
+            "detector_z": detector_z,
+            "detector_two_theta": detector_two_theta,
             "phi_start": rotation_start,
             "phi_end": rotation_end,
             "phi_steps": num_images,
             "exposure_time": float(self.inputs.time_image.text()),
-            "gate_width": rotation_end - rotation_start + 0.1,
-            "pulse_width": rotation_increment,
+            "eh2_aperture": eh2_aperture,
         }
-        self.client.run_plan("run_zebra_test", params)
-        self.appendOutput("Run zebra plan")
-        self.appendOutput(f"With parameters: {params}")
-
-    def run_panda(self):
-        rotation_start = float(self.inputs.rotation_start.text())
-        num_images = float(self.inputs.num_images.text())
-        rotation_increment = float(self.inputs.image_width.text())
-        rotation_end = rotation_start + num_images + rotation_increment
-        params = {
-            "phi_start": rotation_start,
-            "phi_end": rotation_end,
-            "phi_steps": num_images,
-            "exposure_time": float(self.inputs.time_image.text()),
-        }
-        self.client.run_plan("run_panda_test", params)
-        self.appendOutput("Run panda plan")
+        self.client.run_plan("run_serial_from_panda", params)
+        self.appendOutput("Start serial collection with the panda")
         self.appendOutput(f"With parameters: {params}")
 
 
