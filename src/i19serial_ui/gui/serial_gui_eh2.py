@@ -61,7 +61,10 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.wells = WellsSelectionPanel(centralWidget)
         self.grid = GridOptions(centralWidget)
         self.cs_widget = CoordinateSystemPanel(
-            self.client, self.grid.get_grid_size(), centralWidget
+            self.client,
+            self.grid.current_grid,
+            self.grid.get_grid_size(),
+            centralWidget,
         )
 
         # Create boxes with layouts

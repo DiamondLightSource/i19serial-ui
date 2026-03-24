@@ -8,6 +8,9 @@ from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
 from i19serial_ui.gui.ui_utils import create_image_icon, image_file_path
 from i19serial_ui.log import LOGGER
 from i19serial_ui.parameters.coordinates import COORD_FILE_PATH, Coord3D, Coordinates
+from i19serial_ui.parameters.grid import GridType
+
+READ_POSITIONS_PLAN_NAME = "read_current_sample_stage_xyz_position"
 
 
 def placeholder_run_btn(s: str):
@@ -17,8 +20,7 @@ def placeholder_run_btn(s: str):
 def placeholder_set_xyz_btn(s: str):
     LOGGER.info(s)
     LOGGER.info("Call a blueaky plan that returns the xyz values of the diffractometer")
-    # Needs https://github.com/DiamondLightSource/blueapi/pull/1357
-    # This should be set_xyz
+    LOGGER.info("Then set the values in the text fields")
 
 
 def save_coordinates_to_json(filename: Path | str, coordinates: Coordinates):
@@ -33,11 +35,13 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
     def __init__(
         self,
         blueapi_client: SerialBlueapiClient,
+        grid_type: GridType,
         grid_size: tuple[int, int],  # xz
         parent: QtWidgets.QWidget | None = None,
     ):
         super().__init__(parent)
         self.client = blueapi_client
+        self.grid_type = grid_type
         self.grid_size = grid_size
         self.logger = LOGGER
         self.init_coordinates()
@@ -92,7 +96,7 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         )
         btn = self._create_button(
             f"Set {position}",
-            lambda: placeholder_set_xyz_btn(f"SET {position.upper()}"),
+            lambda: self._set_xyz_coordinates_for_fiducial(position, text_boxes),
         )
         btn.setFixedWidth(120)
         pos_layout.addWidget(icon_button)
@@ -101,6 +105,23 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         pos_layout.addWidget(text_boxes[1])
         pos_layout.addWidget(text_boxes[2])
         return pos_layout
+
+    def _set_xyz_coordinates_for_fiducial(
+        self, position: str, text_boxes: list[QtWidgets.QLineEdit]
+    ):
+        LOGGER.info(f"Setting x,y,z for position {position}")
+        stage_positions = self.client.run_plan_and_get_result(
+            READ_POSITIONS_PLAN_NAME, {}
+        )
+        if not stage_positions:
+            LOGGER.error("No positions could be read off the diffractometer")
+            return
+        if self.grid_type is GridType.KAPTON400:
+            LOGGER.warning("NOT IMPLEMENTED YET - NEED TO FIGURE THIS OUT!")
+        else:
+            text_boxes[0].setText(stage_positions[0])
+            text_boxes[1].setText(stage_positions[1])
+            text_boxes[2].setText(stage_positions[2])
 
     def _setup_positions_layout(self):
         layout = QtWidgets.QGridLayout()
