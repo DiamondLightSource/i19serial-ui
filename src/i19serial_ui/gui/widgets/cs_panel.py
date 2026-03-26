@@ -106,9 +106,7 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         icon = create_image_icon(icon_path)
         icon_button = self._create_icon_button(
             icon,
-            lambda: self.perform_grid_move(
-                f"GRID MOVE to {position.value.upper()} from icon"
-            ),
+            lambda: self.perform_grid_move(position),
         )
         btn = self._create_button(
             f"Set {position.value}",
@@ -270,15 +268,37 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
 
         self.init_coordinates()
 
-    def perform_grid_move(self, s: str):
+    def _work_out_fiducial_positions_from_text_input(self):
+        coords = Coord3D(None, None, None)  # type: ignore
+        if not all(coords):
+            raise ValueError("Missing values in the input fields")
+        return (coords.x, coords.y, coords.z)
+
+    # THIS WHOLE LOGIC IS INSANE AND NEEDS RETHINKING.
+    # THERE MUST BE A WAY OF SIMPLIFYING IT
+    def perform_grid_move(self, position: FiducialPosition):
         """Plan will be:
         def move_grid_to_position([x,y,z], device_to_move) the device can be either
         newport or beamstop stage - will pass the name of the device here.
         Chosen from dropdown I guess.
         """
-        LOGGER.info(s)
-        if None not in self.coordinates:
+        LOGGER.info(f"Moving to grid position {position.value}")
+        if not all(self.coordinates):  # all or some Nones
+            LOGGER.info("Coordinate list not yet generated, using values from UI.")
+            try:
+                _x, _y, _z = self._work_out_fiducial_positions_from_text_input()
+                self.client.run_plan(
+                    "move_sample_stage_to_corners", {"corner_coord": (_x, _y, _z)}
+                )
+            except ValueError as err:
+                LOGGER.error(
+                    "Error while reading coordinates, please type in some values!"
+                )
+                LOGGER.exception(err)
+            except Exception as e:
+                LOGGER.error("Something seems to be wrong with the input number format")
+                LOGGER.exception(e)
+        else:
+            LOGGER.info("Move fiducial from set coordinates")
             grid = Grid(*self.grid_size, self.grid_type)
             print(grid)
-        else:
-            pass
