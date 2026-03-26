@@ -1,4 +1,5 @@
 import json
+from enum import StrEnum
 from pathlib import Path
 from typing import NamedTuple
 
@@ -25,3 +26,9 @@ class Coordinates(BaseModel):
         with open(filename) as fh:
             raw_params = json.load(fh)
         return cls(**raw_params)
+
+
+class FiducialPosition(StrEnum):
+    TL = "top left"
+    TR = "top right"
+    BL = "bottom left"

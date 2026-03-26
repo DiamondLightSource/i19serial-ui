@@ -7,20 +7,33 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
 from i19serial_ui.gui.ui_utils import create_image_icon, image_file_path
 from i19serial_ui.log import LOGGER
-from i19serial_ui.parameters.coordinates import COORD_FILE_PATH, Coord3D, Coordinates
-from i19serial_ui.parameters.grid import GridType
+from i19serial_ui.parameters.coordinates import (
+    COORD_FILE_PATH,
+    Coord3D,
+    Coordinates,
+    FiducialPosition,
+)
+from i19serial_ui.parameters.grid import Grid, GridType
 
 READ_POSITIONS_PLAN_NAME = "read_current_sample_stage_xyz_position"
+
+KAPTON_OFFSET = 0.150
+
+
+def _calculate_kapton_xz_positions(
+    xz: tuple[float, float], fiducial_position: FiducialPosition
+) -> tuple[float, float]:
+    match fiducial_position:
+        case FiducialPosition.TL:
+            return (xz[0] + KAPTON_OFFSET, xz[1] - KAPTON_OFFSET)
+        case FiducialPosition.TR:
+            return (xz[0] - KAPTON_OFFSET, xz[1] - KAPTON_OFFSET)
+        case FiducialPosition.BL:
+            return (xz[0] + KAPTON_OFFSET, xz[1] + KAPTON_OFFSET)
 
 
 def placeholder_run_btn(s: str):
     LOGGER.info(s)
-
-
-def placeholder_set_xyz_btn(s: str):
-    LOGGER.info(s)
-    LOGGER.info("Call a blueaky plan that returns the xyz values of the diffractometer")
-    LOGGER.info("Then set the values in the text fields")
 
 
 def save_coordinates_to_json(filename: Path | str, coordinates: Coordinates):
@@ -84,18 +97,21 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         self.bottom_left_z = QtWidgets.QLineEdit()
 
     def _fiducial_layout(
-        self, position: str, icon_path: str, text_boxes: list[QtWidgets.QLineEdit]
+        self,
+        position: FiducialPosition,
+        icon_path: str,
+        text_boxes: list[QtWidgets.QLineEdit],
     ):
         pos_layout = QtWidgets.QHBoxLayout()
         icon = create_image_icon(icon_path)
         icon_button = self._create_icon_button(
             icon,
-            lambda: placeholder_set_xyz_btn(
-                f"GRID MOVE to {position.upper()} from icon"
+            lambda: self.perform_grid_move(
+                f"GRID MOVE to {position.value.upper()} from icon"
             ),
         )
         btn = self._create_button(
-            f"Set {position}",
+            f"Set {position.value}",
             lambda: self._set_xyz_coordinates_for_fiducial(position, text_boxes),
         )
         btn.setFixedWidth(120)
@@ -107,27 +123,32 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         return pos_layout
 
     def _set_xyz_coordinates_for_fiducial(
-        self, position: str, text_boxes: list[QtWidgets.QLineEdit]
+        self, position: FiducialPosition, text_boxes: list[QtWidgets.QLineEdit]
     ):
         LOGGER.info(f"Setting x,y,z for position {position}")
         stage_positions = self.client.run_plan_and_get_result(
             READ_POSITIONS_PLAN_NAME, {}
         )
         if not stage_positions:
-            LOGGER.error("No positions could be read off the diffractometer")
+            LOGGER.error(
+                "No positions could be read off the diffractometer, check blueapi logs"
+            )
             return
         if self.grid_type is GridType.KAPTON400:
-            LOGGER.warning("NOT IMPLEMENTED YET - NEED TO FIGURE THIS OUT!")
+            xz_offset = _calculate_kapton_xz_positions(stage_positions[0:3:2], position)
+            text_boxes[0].setText(str(xz_offset[0]))
+            text_boxes[1].setText(str(stage_positions[1]))
+            text_boxes[2].setText(str(xz_offset[1]))
         else:
-            text_boxes[0].setText(stage_positions[0])
-            text_boxes[1].setText(stage_positions[1])
-            text_boxes[2].setText(stage_positions[2])
+            text_boxes[0].setText(str(stage_positions[0]))
+            text_boxes[1].setText(str(stage_positions[1]))
+            text_boxes[2].setText(str(stage_positions[2]))
 
     def _setup_positions_layout(self):
         layout = QtWidgets.QGridLayout()
         layout.addLayout(
             self._fiducial_layout(
-                "top left",
+                FiducialPosition.TL,
                 image_file_path("TL.png"),
                 [self.top_left_x, self.top_left_y, self.top_left_z],
             ),
@@ -136,7 +157,7 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         )
         layout.addLayout(
             self._fiducial_layout(
-                "top right",
+                FiducialPosition.TR,
                 image_file_path("TR.png"),
                 [self.top_right_x, self.top_right_y, self.top_right_z],
             ),
@@ -145,7 +166,7 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         )
         layout.addLayout(
             self._fiducial_layout(
-                "bottom left",
+                FiducialPosition.BL,
                 image_file_path("BL.png"),
                 [self.bottom_left_x, self.bottom_left_y, self.bottom_left_z],
             ),
@@ -249,10 +270,15 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
 
         self.init_coordinates()
 
-    def perform_grid_move(self):
+    def perform_grid_move(self, s: str):
         """Plan will be:
         def move_grid_to_position([x,y,z], device_to_move) the device can be either
         newport or beamstop stage - will pass the name of the device here.
         Chosen from dropdown I guess.
         """
-        pass
+        LOGGER.info(s)
+        if None not in self.coordinates:
+            grid = Grid(*self.grid_size, self.grid_type)
+            print(grid)
+        else:
+            pass
