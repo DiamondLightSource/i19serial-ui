@@ -76,13 +76,14 @@ def test_run_panda(mock_eh2_gui):
     mock_rotation_end = mock_rotation_start + mock_num_images + mock_rotation_increment
     mock_time_image = 0.2
     mock_params = {
-        "detector_z": mock_detector_z,
-        "detector_two_theta": mock_detector_two_theta,
-        "phi_start": mock_rotation_start,
-        "phi_end": mock_rotation_end,
-        "phi_steps": mock_num_images,
-        "exposure_time": mock_time_image,
-        "eh2_aperture": mock_eh2_aperture,
+        "detector_distance_mm": mock_detector_z,
+        "two_theta_deg": mock_detector_two_theta,
+        "rot_axis_start": mock_rotation_start,
+        "rot_axis_end": mock_rotation_end,
+        "rot_axis_increment": mock_rotation_increment,
+        "images_per_well": mock_num_images,
+        "exposure_time_s": mock_time_image,
+        "aperture_request": mock_eh2_aperture,
     }
     mock_eh2_gui.run_btn.click()
     mock_eh2_gui.client.run_plan.assert_called_once_with(

@@ -236,14 +236,29 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         detector_two_theta = float(self.inputs.two_theta.text())
         eh2_aperture = self.read_aperture_dropdown()
         params = {
-            "detector_z": detector_z,
-            "detector_two_theta": detector_two_theta,
-            "phi_start": rotation_start,
-            "phi_end": rotation_end,
-            "phi_steps": num_images,
-            "exposure_time": float(self.inputs.time_image.text()),
-            "eh2_aperture": eh2_aperture,
+            "detector_distance_mm": detector_z,
+            "two_theta_deg": detector_two_theta,
+            "rot_axis_start": rotation_start,
+            "rot_axis_end": rotation_end,
+            "rot_axis_increment": rotation_increment,
+            "images_per_well": num_images,
+            "exposure_time_s": float(self.inputs.time_image.text()),
+            "aperture_request": eh2_aperture,
         }
+        #     "hutch": "EH2",
+        #     "visit": "/tmp/i19-2/cm12345-1",
+        #     "dataset": "foo",
+        #     "filename_prefix": "bar_01",
+        #     "image_width_deg": 0.1,
+        #     "transmission_fraction": 0.3,
+        #     "grid": {
+        #         "grid_type": "Silicon",
+        #         "x_steps": 20,
+        #         "z_steps": 20,
+        #     },
+        #     "detector_type": "EIGER",
+        #     "well_position": {1: (1, 2, 3)},
+        #     "wells": dummy_wells_settings,
         self.client.run_plan("run_serial_from_panda", params)
         self.appendOutput("Start serial collection with the panda")
         self.appendOutput(f"With parameters: {params}")
