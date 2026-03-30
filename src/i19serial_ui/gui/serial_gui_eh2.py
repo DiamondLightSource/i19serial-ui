@@ -73,12 +73,10 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self._create_collection_buttons_group()
         # Log window
         self._create_bottom_group()
-
         # General layout
         self.general_layout = self.create_main_layout()
         centralWidget.setLayout(self.general_layout)
         self.setCentralWidget(centralWidget)
-
         # Toolbar
         self._create_toolbar()
 
@@ -132,6 +130,15 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.aperturedropdown.addItems(list(ApertureOptions))
         self.selected_aperture = self.read_aperture_dropdown()
 
+    def _create_adjuster(self):
+        self.phiadjusterpositive = self._create_button(
+            "+", self.on_click_move_phi_deg_pos
+        )
+        self.phiadjusternegative = self._create_button(
+            "-", self.on_click_move_phi_deg_neg
+        )
+        self.phianglebox = QtWidgets.QLineEdit()
+
     def read_aperture_dropdown(self):
         return self.aperturedropdown.currentText()
 
@@ -143,11 +150,29 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.ddb_label = QtWidgets.QLabel("Select aperture size:")
         self.ddb_label.setFont(QtGui.QFont(FONT, 10))
         self.ddb_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft)
-        top_layout.addWidget(self.ddb_label)
-        top_layout.addWidget(self.aperturedropdown)
-        self.top_group.setLayout(top_layout)
+        self.adj_label = QtWidgets.QLabel("Phi")
+        self.adj_label.setFont(QtGui.QFont(FONT, 10))
+        self.adj_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.aperturedropdown.setFixedWidth(150)
-        top_layout.setColumnStretch(2, 1)
+        self._create_adjuster()
+        self.phianglebox.setText("25")
+        self.top_group.setLayout(top_layout)
+
+        top_layout.setColumnStretch(3, 2)
+        left_layout = QtWidgets.QHBoxLayout()
+
+        left_layout.addWidget(self.ddb_label)
+        left_layout.addWidget(self.aperturedropdown)
+
+        right_layout = QtWidgets.QHBoxLayout()
+        right_layout.addWidget(self.adj_label)
+        right_layout.addWidget(self.phiadjusterpositive)
+        right_layout.addWidget(self.phianglebox)
+        right_layout.addWidget(self.phiadjusternegative)
+
+        top_layout.addLayout(left_layout, 0, 0)
+        top_layout.addLayout(right_layout, 0, 1)
+        top_layout.setColumnStretch(0, 1)
 
     def _create_coordinate_system_group(self):
         self.cs_group = QtWidgets.QGroupBox("Coordinate System")
@@ -260,6 +285,32 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         #     "well_position": {1: (1, 2, 3)},
         #     "wells": dummy_wells_settings,
         self.client.run_plan("run_serial_from_panda", params)
+        self.appendOutput("Start serial collection with the panda")
+        self.appendOutput(f"With parameters: {params}")
+
+    def on_click_move_phi_deg_pos(self):
+        rotation_start = float(self.inputs.rotation_start.text())
+        rotation_increment = float(self.phianglebox.text())
+        rotation_end = rotation_start + rotation_increment
+        params = {
+            "rot_axis_start": rotation_start,
+            "rot_axis_end": rotation_end,
+            "rot_axis_increment": rotation_increment,
+        }
+        self.client.run_plan("rotate_in_phi", params)
+        self.appendOutput("Start serial collection with the panda")
+        self.appendOutput(f"With parameters: {params}")
+
+    def on_click_move_phi_deg_neg(self):
+        rotation_start = float(self.inputs.rotation_start.text())
+        rotation_increment = -float(self.phianglebox.text())
+        rotation_end = rotation_start + rotation_increment
+        params = {
+            "rot_axis_start": rotation_start,
+            "rot_axis_end": rotation_end,
+            "rot_axis_increment": rotation_increment,
+        }
+        self.client.run_plan("rotate_in_phi", params)
         self.appendOutput("Start serial collection with the panda")
         self.appendOutput(f"With parameters: {params}")
 
