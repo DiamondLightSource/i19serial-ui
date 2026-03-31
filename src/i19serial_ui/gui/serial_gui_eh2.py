@@ -312,20 +312,33 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             "exposure_time_s": float(self.inputs.time_image.text()),
             "aperture_request": eh2_aperture,
         }
+
+        # need a way to read well selection params
+        # if wells.selection_checkbox.isChecked():
+        # well_list=self.wells.get_selected_wells_list()
+        # wells_chosen={first:well_list[0],
+        # last:well_list[-1],
+        # selected: well_list,
+        # manual_selection_enabled: True}
+        # ?
+        #
         #     "hutch": "EH2",
-        #     "visit": "/tmp/i19-2/cm12345-1",
-        #     "dataset": "foo",
-        #     "filename_prefix": "bar_01",
-        #     "image_width_deg": 0.1,
-        #     "transmission_fraction": 0.3,
+        #     "visit": self.inputs.visit_path.text(),
+        #     "dataset": self.inputs.dataset.text(),
+        #     "filename_prefix": self.inputs.prefix.text(),
+        #     "image_width_deg": self.inputs.image_width.text(),
+        #     "transmission_fraction": self.inputs.transmission_fraction.text(),
         #     "grid": {
-        #         "grid_type": "Silicon",
-        #         "x_steps": 20,
-        #         "z_steps": 20,
+        #         "grid_type": self.grid.grid_box.currentText(),
+        #         "x_steps": self.grid.grid_x.text(),
+        #         "z_steps": self.grid.grid_z.text(),
         #     },
         #     "detector_type": "EIGER",
         #     "well_position": {1: (1, 2, 3)},
-        #     "wells": dummy_wells_settings,
+        #     "wells": {first,last,selected,manual_selection_enabled},
+        #
+        #
+        # }
         self.client.run_plan("run_serial_from_panda", params)
         self.appendOutput("Start serial collection with the panda")
         self.appendOutput(f"With parameters: {params}")
