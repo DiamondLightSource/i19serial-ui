@@ -302,6 +302,20 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         detector_z = float(self.inputs.det_dist.text())
         detector_two_theta = float(self.inputs.two_theta.text())
         eh2_aperture = self.read_aperture_dropdown()
+        # need a way to read well selection params
+        # if wells.selection_checkbox.isChecked():
+        #   well_list=self.wells.get_selected_wells_list()
+        #   wells_chosen={first:well_list[0],
+        #   last:well_list[-1],
+        #   selected: well_list,
+        #   manual_selection_enabled: True}
+        # else:
+        #   full_dimensions=float(self.grid.grid_x.text())*float(self.grid.grid_z.text()
+        # ),
+        #   wells_chosen={first:1
+        #   last: full_dimensions),
+        #   selected:range(1,full_dimensions),
+        #   manual_selection_enabled: False}
         params = {
             "detector_distance_mm": detector_z,
             "two_theta_deg": detector_two_theta,
@@ -312,16 +326,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             "exposure_time_s": float(self.inputs.time_image.text()),
             "aperture_request": eh2_aperture,
         }
-
-        # need a way to read well selection params
-        # if wells.selection_checkbox.isChecked():
-        # well_list=self.wells.get_selected_wells_list()
-        # wells_chosen={first:well_list[0],
-        # last:well_list[-1],
-        # selected: well_list,
-        # manual_selection_enabled: True}
-        # ?
-        #
         #     "hutch": "EH2",
         #     "visit": self.inputs.visit_path.text(),
         #     "dataset": self.inputs.dataset.text(),
@@ -336,8 +340,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         #     "detector_type": "EIGER",
         #     "well_position": {1: (1, 2, 3)},
         #     "wells": {first,last,selected,manual_selection_enabled},
-        #
-        #
         # }
         self.client.run_plan("run_serial_from_panda", params)
         self.appendOutput("Start serial collection with the panda")
