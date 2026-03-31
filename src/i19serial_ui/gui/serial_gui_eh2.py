@@ -64,6 +64,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         # Title
         self._setup_title()
         # Arrows, backlight, & co
+        self._create_backlight_buttons()
         self._create_top_group()
         # Coordinate system
         self._create_coordinate_system_group()
@@ -138,41 +139,75 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             "-", self.on_click_move_phi_deg_neg
         )
         self.phianglebox = QtWidgets.QLineEdit()
+        inputvalidator = QtGui.QRegularExpressionValidator(
+            QtCore.QRegularExpression("[0-9][0-9]"), self.phianglebox
+        )
+        self.phianglebox.setValidator(inputvalidator)
 
     def read_aperture_dropdown(self):
         return self.aperturedropdown.currentText()
 
     def _create_top_group(self):
+
         # move arrows, phi step, focuse, backlight etc
         self._create_dropdown()
         self.top_group = QtWidgets.QGroupBox()
         top_layout = QtWidgets.QGridLayout()
+
         self.ddb_label = QtWidgets.QLabel("Select aperture size:")
         self.ddb_label.setFont(QtGui.QFont(FONT, 10))
-        self.ddb_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft)
-        self.adj_label = QtWidgets.QLabel("Phi")
-        self.adj_label.setFont(QtGui.QFont(FONT, 10))
-        self.adj_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.aperturedropdown.setFixedWidth(150)
+        self.ddb_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
+        self.aperturedropdown.setFixedWidth(100)
         self._create_adjuster()
-        self.phianglebox.setText("25")
-        self.top_group.setLayout(top_layout)
+        # top_layout.setColumnStretch(2, 1)
 
-        top_layout.setColumnStretch(3, 2)
-        left_layout = QtWidgets.QHBoxLayout()
-
+        left_layout = QtWidgets.QVBoxLayout()
         left_layout.addWidget(self.ddb_label)
         left_layout.addWidget(self.aperturedropdown)
+        left_layout.setContentsMargins(12, 12, 12, 0)
+        left_layout.addStretch()
 
-        right_layout = QtWidgets.QHBoxLayout()
+        centre_layout = QtWidgets.QVBoxLayout()
+        self.lgt_label = QtWidgets.QLabel("Backlight:")
+        self.lgt_label.setFont(QtGui.QFont(FONT, 10))
+        centre_layout.addWidget(self.lgt_label)
+        centre_layout_bottom = QtWidgets.QVBoxLayout()
+        centre_layout_bottom.addWidget(self.in_button)
+        centre_layout_bottom.addWidget(self.in_quick_button)
+        centre_layout_bottom.addWidget(self.out_button)
+        self.in_button.setFixedWidth(75)
+        self.in_button.setFixedHeight(15)
+        self.in_quick_button.setFixedWidth(75)
+        self.in_quick_button.setFixedHeight(15)
+        self.out_button.setFixedWidth(75)
+        self.out_button.setFixedHeight(15)
+        centre_layout.addLayout(centre_layout_bottom)
+        centre_layout.setContentsMargins(12, 0, 12, 0)
+        centre_layout.addStretch()
+
+        right_layout = QtWidgets.QVBoxLayout()
+        self.adj_label = QtWidgets.QLabel("Phi Rotation:")
+        self.adj_label.setFont(QtGui.QFont(FONT, 10))
+        # self.adj_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
+        right_layout_bottom = QtWidgets.QHBoxLayout()
         right_layout.addWidget(self.adj_label)
-        right_layout.addWidget(self.phiadjusterpositive)
-        right_layout.addWidget(self.phianglebox)
-        right_layout.addWidget(self.phiadjusternegative)
+        right_layout_bottom.addWidget(self.phiadjusterpositive)
+        right_layout_bottom.addWidget(self.phianglebox)
+        right_layout_bottom.addWidget(self.phiadjusternegative)
+        self.phianglebox.setText("10")
+        self.phiadjusternegative.setFixedWidth(25)
+        self.phianglebox.setFixedWidth(25)
+        self.phiadjusterpositive.setFixedWidth(25)
+        right_layout.addLayout(right_layout_bottom)
+        right_layout.setContentsMargins(12, 12, 12, 0)
+        right_layout.addStretch()
 
         top_layout.addLayout(left_layout, 0, 0)
-        top_layout.addLayout(right_layout, 0, 1)
-        top_layout.setColumnStretch(0, 1)
+        top_layout.addLayout(centre_layout, 0, 1)
+        top_layout.addLayout(right_layout, 0, 2)
+        # top_layout.setColumnStretch(0, 1)
+        self.top_group.setMaximumHeight(100)
+        self.top_group.setLayout(top_layout)
 
     def _create_coordinate_system_group(self):
         self.cs_group = QtWidgets.QGroupBox("Coordinate System")
@@ -193,6 +228,13 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         button = QtWidgets.QPushButton(name)
         button.clicked.connect(func)
         return button
+
+    def _create_backlight_buttons(self):
+        self.in_button = self._create_button("IN", self.on_click_move_backlight_in)
+        self.in_quick_button = self._create_button(
+            "QUICK", self.on_click_move_backlight_in_quick
+        )
+        self.out_button = self._create_button("OUT", self.on_click_move_backlight_out)
 
     def _create_collection_buttons_group(self):
         self.run_btns_group = QtWidgets.QGroupBox()
@@ -289,12 +331,8 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.appendOutput(f"With parameters: {params}")
 
     def on_click_move_phi_deg_pos(self):
-        rotation_start = float(self.inputs.rotation_start.text())
         rotation_increment = float(self.phianglebox.text())
-        rotation_end = rotation_start + rotation_increment
         params = {
-            "rot_axis_start": rotation_start,
-            "rot_axis_end": rotation_end,
             "rot_axis_increment": rotation_increment,
         }
         self.client.run_plan("rotate_in_phi", params)
@@ -302,17 +340,28 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.appendOutput(f"With parameters: {params}")
 
     def on_click_move_phi_deg_neg(self):
-        rotation_start = float(self.inputs.rotation_start.text())
         rotation_increment = -float(self.phianglebox.text())
-        rotation_end = rotation_start + rotation_increment
         params = {
-            "rot_axis_start": rotation_start,
-            "rot_axis_end": rotation_end,
             "rot_axis_increment": rotation_increment,
         }
         self.client.run_plan("rotate_in_phi", params)
         self.appendOutput("Start serial collection with the panda")
         self.appendOutput(f"With parameters: {params}")
+
+    def on_click_move_backlight_out(self):
+        params = {}
+        self.appendOutput("Moving backlight out")
+        self.client.run_plan("move_backlight_out", params)
+
+    def on_click_move_backlight_in(self):
+        params = {}
+        self.appendOutput("Moving backlight in")
+        self.client.run_plan("move_backlight_in_via_ui", params)
+
+    def on_click_move_backlight_in_quick(self):
+        params = {}
+        self.appendOutput("Moving backlight in quickly")
+        self.client.run_plan("move_backlight_in_via_ui_quick", params)
 
 
 def start_eh2_ui():

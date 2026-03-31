@@ -66,6 +66,30 @@ def test_abort_button(mock_eh2_gui):
     mock_eh2_gui.client.abort_task.assert_called_once()
 
 
+@pytest.mark.parametrize(
+    "plan,mock_params,buttoncalled",
+    [
+        (
+            "rotate_in_phi",
+            {"rot_axis_increment": 10},
+            "phiadjusterpositive",
+        ),
+        (
+            "rotate_in_phi",
+            {"rot_axis_increment": -10},
+            "phiadjusternegative",
+        ),
+        ("move_backlight_out", {}, "out_button"),
+        ("move_backlight_in_via_ui", {}, "in_button"),
+        ("move_backlight_in_via_ui_quick", {}, "in_quick_button"),
+    ],
+)
+def test_top_buttons(mock_eh2_gui, plan, mock_params, buttoncalled):
+    button = getattr(mock_eh2_gui, buttoncalled)
+    button.click()
+    mock_eh2_gui.client.run_plan.assert_called_once_with(plan, mock_params)
+
+
 def test_run_panda(mock_eh2_gui):
     mock_detector_z = 117.53
     mock_eh2_aperture = "20um"  # ApertureOptions.UM_20
