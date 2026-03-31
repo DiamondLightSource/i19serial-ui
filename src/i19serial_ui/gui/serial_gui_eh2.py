@@ -308,13 +308,13 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         #   wells_chosen={first:well_list[0],
         #   last:well_list[-1],
         #   selected: well_list,
+        #   series_length:int(self.input.series_length.text()),
         #   manual_selection_enabled: True}
         # else:
-        #   full_dimensions=float(self.grid.grid_x.text())*float(self.grid.grid_z.text()
-        # ),
-        #   wells_chosen={first:1
-        #   last: full_dimensions),
-        #   selected:range(1,full_dimensions),
+        #   wells_chosen={first:float(self.input.well_start.text()),
+        #   last: float(self.input.well_end.text()),
+        #   selected:range(1,float(self.input.well_end.text())),
+        #   series_length: int(self.input.series_length.text()),
         #   manual_selection_enabled: False}
         params = {
             "detector_distance_mm": detector_z,
@@ -339,7 +339,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         #     },
         #     "detector_type": "EIGER",
         #     "well_position": {1: (1, 2, 3)},
-        #     "wells": {first,last,selected,manual_selection_enabled},
+        #     "wells": {first,last,selected,series_length,manual_selection_enabled},
         # }
         self.client.run_plan("run_serial_from_panda", params)
         self.appendOutput("Start serial collection with the panda")
