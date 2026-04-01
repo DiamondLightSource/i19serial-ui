@@ -339,7 +339,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         #     },
         #     "detector_type": "EIGER",
         #     "well_position": {1: (1, 2, 3)},
-        #     "wells": {first,last,selected,series_length,manual_selection_enabled},
+        #     "wells": wells_chosen,
         # }
         self.client.run_plan("run_serial_from_panda", params)
         self.appendOutput("Start serial collection with the panda")
