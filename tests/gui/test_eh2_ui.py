@@ -1,3 +1,4 @@
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -83,6 +84,39 @@ def test_run_panda(mock_eh2_gui):
         "phi_steps": mock_num_images,
         "exposure_time": mock_time_image,
         "eh2_aperture": mock_eh2_aperture,
+    }
+    wells_chosen = {
+        "first": 1,
+        "last": 10,
+        "selected": range(1, 10),
+        "series_length": 1,
+        "manual_selection_enabled": False,
+    }
+    mock_params = {
+        "parameters": {
+            "detector_distance_mm": mock_detector_z,
+            "two_theta_deg": mock_detector_two_theta,
+            "rot_axis_start": mock_rotation_start,
+            "rot_axis_end": mock_rotation_end,
+            "rot_axis_increment": 0.2,
+            "images_per_well": mock_num_images,
+            "exposure_time_s": mock_time_image,  # float(self.inputs.time_image.text()),
+            "aperture_request": mock_eh2_aperture,
+            "hutch": "EH2",
+            "visit": Path("."),
+            "dataset": "",
+            "filename_prefix": "",
+            "image_width_deg": 0.2,
+            "transmission_fraction": 5.0,
+            "grid": {
+                "grid_type": "polymer",
+                "x_steps": 20,
+                "z_steps": 20,
+            },
+            "detector_type": "EIGER",
+            "well_position": {1: (1, 2, 3)},
+            "wells": wells_chosen,
+        }
     }
     mock_eh2_gui.run_btn.click()
     mock_eh2_gui.client.run_plan.assert_called_once_with(
