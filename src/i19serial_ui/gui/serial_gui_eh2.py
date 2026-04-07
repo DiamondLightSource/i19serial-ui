@@ -253,6 +253,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
                 "series_length": int(self.inputs.series_length.text()),
                 "manual_selection_enabled": False,
             }
+
         params = {
             "parameters": {
                 "detector_distance_mm": detector_z,
