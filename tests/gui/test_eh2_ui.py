@@ -76,15 +76,6 @@ def test_run_panda(mock_eh2_gui):
     mock_rotation_increment = 0.2
     mock_rotation_end = mock_rotation_start + mock_num_images + mock_rotation_increment
     mock_time_image = 0.2
-    mock_params = {
-        "detector_z": mock_detector_z,
-        "detector_two_theta": mock_detector_two_theta,
-        "phi_start": mock_rotation_start,
-        "phi_end": mock_rotation_end,
-        "phi_steps": mock_num_images,
-        "exposure_time": mock_time_image,
-        "eh2_aperture": mock_eh2_aperture,
-    }
     wells_chosen = {
         "first": 1,
         "last": 10,
