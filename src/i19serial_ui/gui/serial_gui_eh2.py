@@ -228,14 +228,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.client.abort_task()
         self.appendOutput("Abort")
 
-    def run_serial(self):
-        rotation_start = float(self.inputs.rotation_start.text())
-        num_images = float(self.inputs.num_images.text())
-        rotation_increment = float(self.inputs.image_width.text())
-        rotation_end = rotation_start + num_images + rotation_increment
-        detector_z = float(self.inputs.det_dist.text())
-        detector_two_theta = float(self.inputs.two_theta.text())
-        eh2_aperture = self.read_aperture_dropdown()
+    def read_wells(self):
         if self.wells.selection_checkbox.isChecked():
             well_list = self.wells.get_selected_wells_list()
             wells_chosen = {
@@ -253,6 +246,16 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
                 "series_length": int(self.inputs.series_length.text()),
                 "manual_selection_enabled": False,
             }
+        return wells_chosen
+
+    def read_all_parameters(self):
+        rotation_start = float(self.inputs.rotation_start.text())
+        num_images = float(self.inputs.num_images.text())
+        rotation_increment = float(self.inputs.image_width.text())
+        rotation_end = rotation_start + num_images + rotation_increment
+        detector_z = float(self.inputs.det_dist.text())
+        detector_two_theta = float(self.inputs.two_theta.text())
+        eh2_aperture = self.read_aperture_dropdown()
 
         params = {
             "parameters": {
@@ -277,12 +280,15 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
                 },
                 "detector_type": "EIGER",
                 "well_position": {1: (1, 2, 3)},  # to be removed asap
-                "wells": wells_chosen,
+                "wells": self.read_wells(),
             }
         }
-        self.client.run_plan("run_serial_from_panda", params)
+        return params
+
+    def run_serial(self):
+        self.client.run_plan("run_serial_from_panda", self.read_all_parameters())
         self.appendOutput("Start serial collection with the panda")
-        self.appendOutput(f"With parameters: {params}")
+        self.appendOutput(f"With parameters: {self.read_all_parameters()}")
 
 
 def start_eh2_ui():

@@ -77,7 +77,13 @@ def make_text_mock(value):
     "well_list,manual_selection_enabled,series_length",
     [([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], False, 1), ([1, 3, 5, 7, 9], True, 2)],
 )
-def test_run_panda(mock_eh2_gui, well_list, manual_selection_enabled, series_length):
+def test_run_panda_and_read_all_parameters(
+    # mock_read_wells: MagicMock,
+    mock_eh2_gui,
+    well_list,
+    manual_selection_enabled,
+    series_length,
+):
     mock_detector_z = 117.53
     mock_eh2_aperture = "20um"  # ApertureOptions.UM_20
     mock_detector_two_theta = 0.0
@@ -117,25 +123,6 @@ def test_run_panda(mock_eh2_gui, well_list, manual_selection_enabled, series_len
         return_value=manual_selection_enabled
     )
     mock_eh2_gui.wells.get_selected_wells_list = Mock(return_value=well_list)
-
-    if manual_selection_enabled:
-        mock_well_list = well_list
-        wells_chosen = {
-            "first": mock_well_list[0],
-            "last": mock_well_list[-1],
-            "selected": mock_well_list,
-            "series_length": series_length,
-            "manual_selection_enabled": manual_selection_enabled,
-        }
-    else:
-        mock_well_list = well_list
-        wells_chosen = {
-            "first": mock_well_list[0],
-            "last": mock_well_list[-1],
-            "selected": range(1, mock_well_list[-1]),
-            "series_length": series_length,
-            "manual_selection_enabled": manual_selection_enabled,
-        }
     mock_params = {
         "parameters": {
             "detector_distance_mm": mock_detector_z,
@@ -159,7 +146,7 @@ def test_run_panda(mock_eh2_gui, well_list, manual_selection_enabled, series_len
             },
             "detector_type": "EIGER",
             "well_position": {1: (1, 2, 3)},
-            "wells": wells_chosen,
+            "wells": mock_eh2_gui.read_wells(),
         }
     }
     mock_eh2_gui.run_btn.click()
