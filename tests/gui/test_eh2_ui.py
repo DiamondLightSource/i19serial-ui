@@ -78,7 +78,6 @@ def make_text_mock(value):
     [([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], False, 1), ([1, 3, 5, 7, 9], True, 2)],
 )
 def test_run_panda_and_read_all_parameters(
-    # mock_read_wells: MagicMock,
     mock_eh2_gui,
     well_list,
     manual_selection_enabled,
