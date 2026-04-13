@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=64", "setuptools_scm[toml]>=8"]
+requires = ["setuptools>=82.0.1", "setuptools_scm[toml]>=10.0.5"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -14,10 +14,10 @@ classifiers = [
 description = "A PyQt UI to run ssx collections with Bluesky on I19"
 dependencies = [
     "numpy",
-    "PyQt6 < 6.10.0",
+    "PyQt6 < 6.12.0",
     "pydantic",
     "aiohttp",
-    "blueapi >= 1.12.0", # Minimum version to get plan result
+    "blueapi >= 1.12.2", # Minimum version to get plan result
 ] # Add project dependencies here, e.g. ["click", "numpy"]
 dynamic = ["version"]
 license.file = "LICENSE"
@@ -31,7 +31,7 @@ dev = [
     "myst-parser",
     "pipdeptree",
     "pre-commit",
-    "pydata-sphinx-theme>=0.12",
+    "pydata-sphinx-theme>=0.17.0",
     "pyright",
     "pytest",
     "pytest-cov",
