@@ -71,6 +71,8 @@ class PhiAdjust(QtWidgets.QWidget):
     def appendOutput(self, msg: str, level: str = "INFO"):  # noqa: N802
         log_to_gui(self.gui_logger, msg, level)
 
+    # Both of these require a full parameters dict, shall be done when the previous comm
+    # -it is approved so I have a good basis to go from
     def on_click_move_phi_deg_pos(self):
         rotation_increment = float(self.phianglebox.text())
         params = {
