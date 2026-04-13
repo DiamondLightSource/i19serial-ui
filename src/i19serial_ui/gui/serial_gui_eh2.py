@@ -15,6 +15,7 @@ from i19serial_ui.gui.widgets import (
     GridOptions,
     InputPanel,
     LogBox,
+    PhiAdjust,
     WellsSelectionPanel,
 )
 from i19serial_ui.log import (
@@ -59,7 +60,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.inputs = InputPanel(centralWidget)
         self.wells = WellsSelectionPanel(centralWidget)
         self.grid = GridOptions(centralWidget)
-
+        self.phi_rotator = PhiAdjust(self.client, centralWidget)
         # Create boxes with layouts
         # Title
         self._setup_title()
@@ -131,19 +132,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.aperturedropdown.addItems(list(ApertureOptions))
         self.selected_aperture = self.read_aperture_dropdown()
 
-    def _create_adjuster(self):
-        self.phiadjusterpositive = self._create_button(
-            "+", self.on_click_move_phi_deg_pos
-        )
-        self.phiadjusternegative = self._create_button(
-            "-", self.on_click_move_phi_deg_neg
-        )
-        self.phianglebox = QtWidgets.QLineEdit()
-        inputvalidator = QtGui.QRegularExpressionValidator(
-            QtCore.QRegularExpression("[0-9][0-9]"), self.phianglebox
-        )
-        self.phianglebox.setValidator(inputvalidator)
-
     def read_aperture_dropdown(self):
         return self.aperturedropdown.currentText()
 
@@ -158,8 +146,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.ddb_label.setFont(QtGui.QFont(FONT, 10))
         self.ddb_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
         self.aperturedropdown.setFixedWidth(100)
-        self._create_adjuster()
-        # top_layout.setColumnStretch(2, 1)
 
         left_layout = QtWidgets.QVBoxLayout()
         left_layout.addWidget(self.ddb_label)
@@ -185,27 +171,9 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         centre_layout.setContentsMargins(12, 0, 12, 0)
         centre_layout.addStretch()
 
-        right_layout = QtWidgets.QVBoxLayout()
-        self.adj_label = QtWidgets.QLabel("Phi Rotation:")
-        self.adj_label.setFont(QtGui.QFont(FONT, 10))
-        # self.adj_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
-        right_layout_bottom = QtWidgets.QHBoxLayout()
-        right_layout.addWidget(self.adj_label)
-        right_layout_bottom.addWidget(self.phiadjusterpositive)
-        right_layout_bottom.addWidget(self.phianglebox)
-        right_layout_bottom.addWidget(self.phiadjusternegative)
-        self.phianglebox.setText("10")
-        self.phiadjusternegative.setFixedWidth(25)
-        self.phianglebox.setFixedWidth(25)
-        self.phiadjusterpositive.setFixedWidth(25)
-        right_layout.addLayout(right_layout_bottom)
-        right_layout.setContentsMargins(12, 12, 12, 0)
-        right_layout.addStretch()
-
         top_layout.addLayout(left_layout, 0, 0)
         top_layout.addLayout(centre_layout, 0, 1)
-        top_layout.addLayout(right_layout, 0, 2)
-        # top_layout.setColumnStretch(0, 1)
+        top_layout.addLayout(self.phi_rotator.phirotator_layout, 0, 2)
         self.top_group.setMaximumHeight(100)
         self.top_group.setLayout(top_layout)
 
@@ -342,24 +310,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         #     "wells": wells_chosen,
         # }
         self.client.run_plan("run_serial_from_panda", params)
-        self.appendOutput("Start serial collection with the panda")
-        self.appendOutput(f"With parameters: {params}")
-
-    def on_click_move_phi_deg_pos(self):
-        rotation_increment = float(self.phianglebox.text())
-        params = {
-            "rot_axis_increment": rotation_increment,
-        }
-        self.client.run_plan("rotate_in_phi", params)
-        self.appendOutput("Start serial collection with the panda")
-        self.appendOutput(f"With parameters: {params}")
-
-    def on_click_move_phi_deg_neg(self):
-        rotation_increment = -float(self.phianglebox.text())
-        params = {
-            "rot_axis_increment": rotation_increment,
-        }
-        self.client.run_plan("rotate_in_phi", params)
         self.appendOutput("Start serial collection with the panda")
         self.appendOutput(f"With parameters: {params}")
 

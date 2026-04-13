@@ -8,6 +8,7 @@ from i19serial_ui.gui.widgets import (
     GridOptions,
     InputPanel,
     LogBox,
+    PhiAdjust,
     WellsSelectionPanel,
 )
 
@@ -29,6 +30,7 @@ def test_all_widgets_initialised(mock_eh2_gui):
     assert mock_eh2_gui.inputs and isinstance(mock_eh2_gui.inputs, InputPanel)
     assert mock_eh2_gui.wells and isinstance(mock_eh2_gui.wells, WellsSelectionPanel)
     assert mock_eh2_gui.grid and isinstance(mock_eh2_gui.grid, GridOptions)
+    assert mock_eh2_gui.phi_rotator and isinstance(mock_eh2_gui.phi_rotator, PhiAdjust)
     assert mock_eh2_gui.aperturedropdown and isinstance(
         mock_eh2_gui.aperturedropdown, QtWidgets.QComboBox
     )
@@ -69,16 +71,6 @@ def test_abort_button(mock_eh2_gui):
 @pytest.mark.parametrize(
     "plan,mock_params,buttoncalled",
     [
-        (
-            "rotate_in_phi",
-            {"rot_axis_increment": 10},
-            "phiadjusterpositive",
-        ),
-        (
-            "rotate_in_phi",
-            {"rot_axis_increment": -10},
-            "phiadjusternegative",
-        ),
         ("move_backlight_out", {}, "out_button"),
         ("move_backlight_in_via_ui", {}, "in_button"),
         ("move_backlight_in_via_ui_quick", {}, "in_quick_button"),
