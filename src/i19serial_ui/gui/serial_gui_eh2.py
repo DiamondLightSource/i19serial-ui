@@ -286,9 +286,10 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         return params
 
     def run_serial(self):
-        self.client.run_plan("run_serial_from_panda", self.read_all_parameters())
+        all_params = self.read_all_parameters()
         self.appendOutput("Start serial collection with the panda")
-        self.appendOutput(f"With parameters: {self.read_all_parameters()}")
+        self.appendOutput(f"With parameters: {all_params}")
+        self.client.run_plan("run_serial_from_panda", all_params)
 
 
 def start_eh2_ui():
