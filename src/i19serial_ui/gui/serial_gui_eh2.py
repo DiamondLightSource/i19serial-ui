@@ -1,5 +1,6 @@
 import sys
 from collections.abc import Callable
+from pathlib import Path
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 
@@ -227,7 +228,27 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.client.abort_task()
         self.appendOutput("Abort")
 
-    def run_serial(self):
+    def read_wells(self):
+        if self.wells.selection_checkbox.isChecked():
+            well_list = self.wells.get_selected_wells_list()
+            wells_chosen = {
+                "first": well_list[0],
+                "last": well_list[-1],
+                "selected": well_list,
+                "series_length": int(self.inputs.series_length.text()),
+                "manual_selection_enabled": True,
+            }
+        else:
+            wells_chosen = {
+                "first": float(self.inputs.well_start.text()),
+                "last": float(self.inputs.well_end.text()),
+                "selected": range(1, int(self.inputs.well_end.text())),
+                "series_length": int(self.inputs.series_length.text()),
+                "manual_selection_enabled": False,
+            }
+        return wells_chosen
+
+    def read_all_parameters(self):
         rotation_start = float(self.inputs.rotation_start.text())
         num_images = float(self.inputs.num_images.text())
         rotation_increment = float(self.inputs.image_width.text())
@@ -235,18 +256,40 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         detector_z = float(self.inputs.det_dist.text())
         detector_two_theta = float(self.inputs.two_theta.text())
         eh2_aperture = self.read_aperture_dropdown()
+
         params = {
-            "detector_z": detector_z,
-            "detector_two_theta": detector_two_theta,
-            "phi_start": rotation_start,
-            "phi_end": rotation_end,
-            "phi_steps": num_images,
-            "exposure_time": float(self.inputs.time_image.text()),
-            "eh2_aperture": eh2_aperture,
+            "parameters": {
+                "detector_distance_mm": detector_z,
+                "two_theta_deg": detector_two_theta,
+                "rot_axis_start": rotation_start,
+                "rot_axis_end": rotation_end,
+                "rot_axis_increment": rotation_increment,
+                "images_per_well": num_images,
+                "exposure_time_s": float(self.inputs.time_image.text()),
+                "aperture_request": eh2_aperture,
+                "hutch": "EH2",
+                "visit": Path(self.inputs.visit_path.text()),
+                "dataset": self.inputs.dataset.text(),
+                "filename_prefix": self.inputs.prefix.text(),
+                "image_width_deg": float(self.inputs.image_width.text()),
+                "transmission_fraction": float(self.inputs.transmission.text()),
+                "grid": {
+                    "grid_type": self.grid.grid_box.currentText(),
+                    "x_steps": int(self.grid.grid_x.text()),
+                    "z_steps": int(self.grid.grid_z.text()),
+                },
+                "detector_type": "EIGER",
+                "well_position": {1: (1, 2, 3)},  # to be removed asap
+                "wells": self.read_wells(),
+            }
         }
-        self.client.run_plan("run_serial_from_panda", params)
+        return params
+
+    def run_serial(self):
+        all_params = self.read_all_parameters()
         self.appendOutput("Start serial collection with the panda")
-        self.appendOutput(f"With parameters: {params}")
+        self.appendOutput(f"With parameters: {all_params}")
+        self.client.run_plan("run_serial_from_panda", all_params)
 
 
 def start_eh2_ui():
