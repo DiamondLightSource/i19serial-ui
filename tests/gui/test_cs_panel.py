@@ -6,6 +6,7 @@ from blueapi.config import ApplicationConfig
 
 from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
 from i19serial_ui.gui.widgets.cs_panel import CoordinateSystemPanel
+from i19serial_ui.parameters.grid import GridType
 
 
 @pytest.fixture
@@ -20,6 +21,6 @@ def mock_client() -> SerialBlueapiClient:
 
 @pytest.fixture
 def mock_cs_panel(mock_client, qtbot):
-    test_panel = CoordinateSystemPanel(mock_client, (3, 3))
+    test_panel = CoordinateSystemPanel(mock_client, GridType.POLYMER, (3, 3))
     qtbot.addWidget(test_panel)
     return test_panel
