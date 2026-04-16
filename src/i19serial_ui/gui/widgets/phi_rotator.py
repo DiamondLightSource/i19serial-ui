@@ -44,10 +44,10 @@ class PhiAdjust(QtWidgets.QWidget):
 
     def create_phirotator_layout(self):
         right_layout = QtWidgets.QVBoxLayout()
-        self.adj_label = QtWidgets.QLabel("Phi Rotation:")
-        self.adj_label.setFont(QtGui.QFont("Arial", 10))
+        adj_label = QtWidgets.QLabel("Phi Rotation:")
+        adj_label.setFont(QtGui.QFont("Arial", 10))
         right_layout_bottom = QtWidgets.QHBoxLayout()
-        right_layout.addWidget(self.adj_label)
+        right_layout.addWidget(adj_label)
         right_layout_bottom.addWidget(self.phiadjusterpositive)
         right_layout_bottom.addWidget(self.phianglebox)
         right_layout_bottom.addWidget(self.phiadjusternegative)

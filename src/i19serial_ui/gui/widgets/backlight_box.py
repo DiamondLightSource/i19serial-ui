@@ -53,9 +53,9 @@ class BacklightBox(QtWidgets.QWidget):
 
     def create_backlight_layout(self):
         centre_layout = QtWidgets.QVBoxLayout()
-        self.lgt_label = QtWidgets.QLabel("Backlight:")
-        self.lgt_label.setFont(QtGui.QFont("Arial", 10))
-        centre_layout.addWidget(self.lgt_label)
+        lgt_label = QtWidgets.QLabel("Backlight:")
+        lgt_label.setFont(QtGui.QFont("Arial", 10))
+        centre_layout.addWidget(lgt_label)
         centre_layout_bottom = QtWidgets.QVBoxLayout()
         centre_layout_bottom.addWidget(self.in_button)
         centre_layout_bottom.addWidget(self.in_quick_button)
