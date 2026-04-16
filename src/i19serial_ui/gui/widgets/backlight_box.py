@@ -42,14 +42,14 @@ class BacklightBox(QtWidgets.QWidget):
         self.client.run_plan("move_backlight_out", params)
 
     def on_click_move_backlight_in(self):
-        params = {}
+        params = {"option": "slow"}
         LOGGER.info("Moving backlight in")
         self.client.run_plan("move_backlight_in_via_ui", params)
 
     def on_click_move_backlight_in_quick(self):
-        params = {}
+        params = {"option": "quick"}
         LOGGER.info("Moving backlight in quickly")
-        self.client.run_plan("move_backlight_in_via_ui_quick", params)
+        self.client.run_plan("move_backlight_in_via_ui", params)
 
     def create_backlight_layout(self):
         centre_layout = QtWidgets.QVBoxLayout()

@@ -17,8 +17,8 @@ def mock_eh2_gui(qtbot):
     "plan,mock_params,buttoncalled",
     [
         ("move_backlight_out", {}, "out_button"),
-        ("move_backlight_in_via_ui", {}, "in_button"),
-        ("move_backlight_in_via_ui_quick", {}, "in_quick_button"),
+        ("move_backlight_in_via_ui", {"option": "slow"}, "in_button"),
+        ("move_backlight_in_via_ui", {"option": "quick"}, "in_quick_button"),
     ],
 )
 def test_top_buttons(mock_eh2_gui, plan, mock_params, buttoncalled):
