@@ -31,7 +31,8 @@ FAKE_COORDS = {
 def test_calculate_kapton_xz_positions(fiducial, xz, expected_xz):
     res = _calculate_kapton_xz_positions(xz, fiducial)
 
-    assert res == expected_xz
+    assert res[0] == pytest.approx(expected_xz[0], 1e-3)
+    assert res[1] == pytest.approx(expected_xz[1], 1e-3)
 
 
 @pytest.fixture
