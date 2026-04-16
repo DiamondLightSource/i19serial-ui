@@ -215,7 +215,7 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
             top_right = (
                 float(self.top_right_x.text()),
                 float(self.top_right_y.text()),
-                float(self.top_left_z.text()),
+                float(self.top_right_z.text()),
             )
             bottom_left = (
                 float(self.bottom_left_x.text()),
@@ -230,8 +230,9 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
             self.logger.info(f"Coordinates: \n {coordinates}")
 
             save_coordinates_to_json("coordinates.json", coordinates)
-        except Exception:
+        except Exception as e:
             self.logger.error("Unable to save coordinates")
+            self.logger.exception(e)
 
     def _upload_coordinates(self):
         filename = COORD_FILE_PATH / "coordinates.json"
