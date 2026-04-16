@@ -1,11 +1,8 @@
-from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-from blueapi.config import ApplicationConfig
 from PyQt6 import QtWidgets
 
-from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
 from i19serial_ui.gui.widgets.cs_panel import (
     CoordinateSystemPanel,
     _calculate_kapton_xz_positions,
@@ -36,20 +33,11 @@ def test_calculate_kapton_xz_positions(fiducial, xz, expected_xz):
 
 
 @pytest.fixture
-def mock_client() -> SerialBlueapiClient:
-    with patch(
-        "i19serial_ui.blueapi_tools.blueapi_client.SerialBlueapiClient._load_config_from_file"
-    ) as patch_config:
-        patch_config.return_value = ApplicationConfig()
-        client = SerialBlueapiClient(Path("/some/config.yaml"))
-    return client
-
-
-@pytest.fixture
-def mock_cs_panel(mock_client, qtbot):
-    test_panel = CoordinateSystemPanel(mock_client, GridType.POLYMER, (3, 3))
-    qtbot.addWidget(test_panel)
-    return test_panel
+def mock_cs_panel(qtbot):
+    with patch("i19serial_ui.gui.widgets.cs_panel.SerialBlueapiClient") as mock_client:
+        test_panel = CoordinateSystemPanel(mock_client, GridType.POLYMER, (3, 3))
+        qtbot.addWidget(test_panel)
+        return test_panel
 
 
 def test_cs_panel_layout(mock_cs_panel):
@@ -108,3 +96,40 @@ def test_save_coordinates_does_not_run_if_value_missing(mock_save, mock_cs_panel
     mock_cs_panel._save_coordinates()
 
     mock_save.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    "fiducial, positions",
+    [
+        (FiducialPosition.TL, (0.1, 0.0, 1.2)),
+        (FiducialPosition.TR, (0.1, 0.0, 1.4)),
+        (FiducialPosition.BL, (0.3, 0.0, 1.2)),
+    ],
+)
+def test_set_xyz_coordinates_for_fiducial(fiducial, positions, mock_cs_panel):
+    mock_cs_panel.client.run_plan_and_get_result.return_value = positions
+
+    if fiducial == FiducialPosition.TL:
+        text_boxes = [
+            mock_cs_panel.top_left_x,
+            mock_cs_panel.top_left_y,
+            mock_cs_panel.top_left_z,
+        ]
+    elif fiducial == FiducialPosition.TR:
+        text_boxes = [
+            mock_cs_panel.top_right_x,
+            mock_cs_panel.top_right_y,
+            mock_cs_panel.top_right_z,
+        ]
+    else:
+        text_boxes = [
+            mock_cs_panel.bottom_left_x,
+            mock_cs_panel.bottom_left_y,
+            mock_cs_panel.bottom_left_z,
+        ]
+
+    mock_cs_panel._set_xyz_coordinates_for_fiducial(fiducial, text_boxes)
+
+    assert text_boxes[0].text() == str(positions[0])
+    assert text_boxes[1].text() == str(positions[1])
+    assert text_boxes[2].text() == str(positions[2])
