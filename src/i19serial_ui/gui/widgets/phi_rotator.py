@@ -78,13 +78,13 @@ class PhiAdjust(QtWidgets.QWidget):
         params = {
             "rot_axis_increment": rotation_increment,
         }
-        self.client.run_plan("rotate_in_phi", params)
         self.appendOutput(f"Rotating {params['rot_axis_increment']} in phi")
+        self.client.run_plan("rotate_in_phi", params)
 
     def on_click_move_phi_deg_neg(self):
         rotation_increment = -float(self.phianglebox.text())
         params = {
             "rot_axis_increment": rotation_increment,
         }
-        self.client.run_plan("rotate_in_phi", params)
         self.appendOutput(f"Rotating {params['rot_axis_increment']} in phi")
+        self.client.run_plan("rotate_in_phi", params)
