@@ -13,6 +13,7 @@ from i19serial_ui.gui.ui_utils import (
     image_file_path,
 )
 from i19serial_ui.gui.widgets import (
+    BacklightBox,
     GridOptions,
     InputPanel,
     LogBox,
@@ -62,11 +63,11 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.wells = WellsSelectionPanel(centralWidget)
         self.grid = GridOptions(centralWidget)
         self.phi_rotator = PhiAdjust(self.client, centralWidget)
+        self.backlight = BacklightBox(self.client, centralWidget)
         # Create boxes with layouts
         # Title
         self._setup_title()
         # Arrows, backlight, & co
-        self._create_backlight_buttons()
         self._create_top_group()
         # Coordinate system
         self._create_coordinate_system_group()
@@ -154,26 +155,8 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         left_layout.setContentsMargins(12, 12, 12, 0)
         left_layout.addStretch()
 
-        centre_layout = QtWidgets.QVBoxLayout()
-        self.lgt_label = QtWidgets.QLabel("Backlight:")
-        self.lgt_label.setFont(QtGui.QFont(FONT, 10))
-        centre_layout.addWidget(self.lgt_label)
-        centre_layout_bottom = QtWidgets.QVBoxLayout()
-        centre_layout_bottom.addWidget(self.in_button)
-        centre_layout_bottom.addWidget(self.in_quick_button)
-        centre_layout_bottom.addWidget(self.out_button)
-        self.in_button.setFixedWidth(75)
-        self.in_button.setFixedHeight(15)
-        self.in_quick_button.setFixedWidth(75)
-        self.in_quick_button.setFixedHeight(15)
-        self.out_button.setFixedWidth(75)
-        self.out_button.setFixedHeight(15)
-        centre_layout.addLayout(centre_layout_bottom)
-        centre_layout.setContentsMargins(12, 0, 12, 0)
-        centre_layout.addStretch()
-
         top_layout.addLayout(left_layout, 0, 0)
-        top_layout.addLayout(centre_layout, 0, 1)
+        top_layout.addLayout(self.backlight.backlight_layout, 0, 1)
         top_layout.addLayout(self.phi_rotator.phirotator_layout, 0, 2)
         self.top_group.setMaximumHeight(100)
         self.top_group.setLayout(top_layout)
@@ -197,13 +180,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         button = QtWidgets.QPushButton(name)
         button.clicked.connect(func)
         return button
-
-    def _create_backlight_buttons(self):
-        self.in_button = self._create_button("IN", self.on_click_move_backlight_in)
-        self.in_quick_button = self._create_button(
-            "QUICK", self.on_click_move_backlight_in_quick
-        )
-        self.out_button = self._create_button("OUT", self.on_click_move_backlight_out)
 
     def _create_collection_buttons_group(self):
         self.run_btns_group = QtWidgets.QGroupBox()
@@ -325,21 +301,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.appendOutput("Start serial collection with the panda")
         self.appendOutput(f"With parameters: {all_params}")
         self.client.run_plan("run_serial_from_panda", all_params)
-
-    def on_click_move_backlight_out(self):
-        params = {}
-        self.appendOutput("Moving backlight out")
-        self.client.run_plan("move_backlight_out", params)
-
-    def on_click_move_backlight_in(self):
-        params = {}
-        self.appendOutput("Moving backlight in")
-        self.client.run_plan("move_backlight_in_via_ui", params)
-
-    def on_click_move_backlight_in_quick(self):
-        params = {}
-        self.appendOutput("Moving backlight in quickly")
-        self.client.run_plan("move_backlight_in_via_ui_quick", params)
 
 
 def start_eh2_ui():

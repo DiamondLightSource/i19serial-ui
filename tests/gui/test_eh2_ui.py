@@ -69,20 +69,6 @@ def test_abort_button(mock_eh2_gui):
     mock_eh2_gui.client.abort_task.assert_called_once()
 
 
-@pytest.mark.parametrize(
-    "plan,mock_params,buttoncalled",
-    [
-        ("move_backlight_out", {}, "out_button"),
-        ("move_backlight_in_via_ui", {}, "in_button"),
-        ("move_backlight_in_via_ui_quick", {}, "in_quick_button"),
-    ],
-)
-def test_top_buttons(mock_eh2_gui, plan, mock_params, buttoncalled):
-    button = getattr(mock_eh2_gui, buttoncalled)
-    button.click()
-    mock_eh2_gui.client.run_plan.assert_called_once_with(plan, mock_params)
-
-
 def make_text_mock(value):
     m = Mock()
     m.text.return_value = str(value)

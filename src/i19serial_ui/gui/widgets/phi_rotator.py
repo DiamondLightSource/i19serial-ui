@@ -5,8 +5,6 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
 from i19serial_ui.log import (
     LOGGER,
-    GuiWindowLogHandler,
-    log_to_gui,
 )
 
 
@@ -17,16 +15,10 @@ class PhiAdjust(QtWidgets.QWidget):
         parent: QtWidgets.QWidget | None = None,
     ):
         super().__init__(parent)
-        self._setup_logger()
         self.logger = LOGGER
         self._create_adjuster()
         self.client = blueapi_client
         self.phirotator_layout = self.create_phirotator_layout()
-
-    def _setup_logger(self):
-        self.gui_logger = LOGGER
-        self.LogHandler = GuiWindowLogHandler()
-        self.gui_logger.addHandler(self.LogHandler)
 
     def _create_button(
         self,
@@ -68,15 +60,12 @@ class PhiAdjust(QtWidgets.QWidget):
         right_layout.addStretch()
         return right_layout
 
-    def appendOutput(self, msg: str, level: str = "INFO"):  # noqa: N802
-        log_to_gui(self.gui_logger, msg, level)
-
     def on_click_move_phi_deg_pos(self):
         rotation_increment = float(self.phianglebox.text())
         params = {
             "rot_axis_increment": rotation_increment,
         }
-        self.appendOutput(f"Rotating {params['rot_axis_increment']} in phi")
+        LOGGER.info(f"Rotating {params['rot_axis_increment']} in phi")
         self.client.run_plan("rotate_in_phi", params)
 
     def on_click_move_phi_deg_neg(self):
@@ -84,5 +73,5 @@ class PhiAdjust(QtWidgets.QWidget):
         params = {
             "rot_axis_increment": rotation_increment,
         }
-        self.appendOutput(f"Rotating {params['rot_axis_increment']} in phi")
+        LOGGER.info(f"Rotating {params['rot_axis_increment']} in phi")
         self.client.run_plan("rotate_in_phi", params)
