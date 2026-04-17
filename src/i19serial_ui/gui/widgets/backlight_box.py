@@ -1,6 +1,6 @@
 from collections.abc import Callable
 
-from PyQt6 import QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 
 from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
 from i19serial_ui.log import (
@@ -54,6 +54,7 @@ class BacklightBox(QtWidgets.QWidget):
     def create_backlight_layout(self):
         centre_layout = QtWidgets.QVBoxLayout()
         lgt_label = QtWidgets.QLabel("Backlight:")
+        lgt_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         lgt_label.setFont(QtGui.QFont("Arial", 10))
         centre_layout.addWidget(lgt_label)
         centre_layout_bottom = QtWidgets.QVBoxLayout()

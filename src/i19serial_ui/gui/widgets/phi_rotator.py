@@ -37,6 +37,7 @@ class PhiAdjust(QtWidgets.QWidget):
             "-", self.on_click_move_phi_deg_neg
         )
         self.phianglebox = QtWidgets.QLineEdit()
+        self.phianglebox.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         # TODO add additional input verification, currently allows for
         # digits up to 399.99 - obviously not ideal.
         # My current idea is to limit it to 199.99, still allows for
@@ -51,6 +52,7 @@ class PhiAdjust(QtWidgets.QWidget):
         right_layout = QtWidgets.QVBoxLayout()
         adj_label = QtWidgets.QLabel("Phi Rotation:")
         adj_label.setFont(QtGui.QFont("Arial", 10))
+        adj_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         right_layout_bottom = QtWidgets.QHBoxLayout()
         right_layout.addWidget(adj_label)
         right_layout_bottom.addWidget(self.phiadjusterpositive)
@@ -58,7 +60,7 @@ class PhiAdjust(QtWidgets.QWidget):
         right_layout_bottom.addWidget(self.phiadjusternegative)
         self.phianglebox.setText("10")
         self.phiadjusternegative.setFixedWidth(25)
-        self.phianglebox.setFixedWidth(25)
+        self.phianglebox.setFixedWidth(50)  # Should be larger
         self.phiadjusterpositive.setFixedWidth(25)
         right_layout.addLayout(right_layout_bottom)
         right_layout.setContentsMargins(12, 12, 12, 0)
