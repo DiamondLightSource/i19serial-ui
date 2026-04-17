@@ -6,3 +6,8 @@ class ApertureOptions(StrEnum):
     UM_40 = "40um"
     UM_100 = "100um"
     UM_3000 = "3000um"
+
+
+class BacklightOption(StrEnum):
+    SLOW = "Slow"
+    QUICK = "Quick"

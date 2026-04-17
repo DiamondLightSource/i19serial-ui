@@ -13,9 +13,11 @@ from i19serial_ui.gui.ui_utils import (
     image_file_path,
 )
 from i19serial_ui.gui.widgets import (
+    BacklightBox,
     GridOptions,
     InputPanel,
     LogBox,
+    PhiAdjust,
     WellsSelectionPanel,
 )
 from i19serial_ui.log import (
@@ -60,7 +62,8 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.inputs = InputPanel(centralWidget)
         self.wells = WellsSelectionPanel(centralWidget)
         self.grid = GridOptions(centralWidget)
-
+        self.phi_rotator = PhiAdjust(self.client, centralWidget)
+        self.backlight = BacklightBox(self.client, centralWidget)
         # Create boxes with layouts
         # Title
         self._setup_title()
@@ -74,12 +77,10 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self._create_collection_buttons_group()
         # Log window
         self._create_bottom_group()
-
         # General layout
         self.general_layout = self.create_main_layout()
         centralWidget.setLayout(self.general_layout)
         self.setCentralWidget(centralWidget)
-
         # Toolbar
         self._create_toolbar()
 
@@ -137,18 +138,28 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         return self.aperturedropdown.currentText()
 
     def _create_top_group(self):
+
         # move arrows, phi step, focuse, backlight etc
         self._create_dropdown()
         self.top_group = QtWidgets.QGroupBox()
         top_layout = QtWidgets.QGridLayout()
+
         self.ddb_label = QtWidgets.QLabel("Select aperture size:")
         self.ddb_label.setFont(QtGui.QFont(FONT, 10))
-        self.ddb_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft)
-        top_layout.addWidget(self.ddb_label)
-        top_layout.addWidget(self.aperturedropdown)
+        self.ddb_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
+        self.aperturedropdown.setFixedWidth(100)
+
+        left_layout = QtWidgets.QVBoxLayout()
+        left_layout.addWidget(self.ddb_label)
+        left_layout.addWidget(self.aperturedropdown)
+        left_layout.setContentsMargins(12, 12, 12, 0)
+        left_layout.addStretch()
+
+        top_layout.addLayout(left_layout, 0, 0)
+        top_layout.addLayout(self.backlight.backlight_layout, 0, 1)
+        top_layout.addLayout(self.phi_rotator.phirotator_layout, 0, 2)
+        self.top_group.setMaximumHeight(100)
         self.top_group.setLayout(top_layout)
-        self.aperturedropdown.setFixedWidth(150)
-        top_layout.setColumnStretch(2, 1)
 
     def _create_coordinate_system_group(self):
         self.cs_group = QtWidgets.QGroupBox("Coordinate System")

@@ -9,8 +9,10 @@ from i19serial_ui.gui.widgets import (
     GridOptions,
     InputPanel,
     LogBox,
+    PhiAdjust,
     WellsSelectionPanel,
 )
+from i19serial_ui.parameters.general_utils import BacklightOption
 
 
 @pytest.fixture
@@ -30,6 +32,7 @@ def test_all_widgets_initialised(mock_eh2_gui):
     assert mock_eh2_gui.inputs and isinstance(mock_eh2_gui.inputs, InputPanel)
     assert mock_eh2_gui.wells and isinstance(mock_eh2_gui.wells, WellsSelectionPanel)
     assert mock_eh2_gui.grid and isinstance(mock_eh2_gui.grid, GridOptions)
+    assert mock_eh2_gui.phi_rotator and isinstance(mock_eh2_gui.phi_rotator, PhiAdjust)
     assert mock_eh2_gui.aperturedropdown and isinstance(
         mock_eh2_gui.aperturedropdown, QtWidgets.QComboBox
     )
@@ -71,6 +74,45 @@ def make_text_mock(value):
     m = Mock()
     m.text.return_value = str(value)
     return m
+
+
+@pytest.mark.parametrize(
+    "plan,mock_params,buttoncalled",
+    [
+        ("move_backlight_out", {}, "out_button"),
+        ("move_backlight_in_via_ui", {"option": BacklightOption.SLOW}, "in_button"),
+        (
+            "move_backlight_in_via_ui",
+            {"option": BacklightOption.QUICK},
+            "in_quick_button",
+        ),
+    ],
+)
+def test_backlight_buttons(mock_eh2_gui, plan, mock_params, buttoncalled):
+    button = getattr(mock_eh2_gui.backlight, buttoncalled)
+    button.click()
+    mock_eh2_gui.client.run_plan.assert_called_once_with(plan, mock_params)
+
+
+@pytest.mark.parametrize(
+    "plan,mock_params,buttoncalled",
+    [
+        (
+            "rotate_in_phi",
+            {"rot_increment": 10},
+            "phiadjusterpositive",
+        ),
+        (
+            "rotate_in_phi",
+            {"rot_increment": -10},
+            "phiadjusternegative",
+        ),
+    ],
+)
+def test_phi_buttons(mock_eh2_gui, plan, mock_params, buttoncalled):
+    button = getattr(mock_eh2_gui.phi_rotator, buttoncalled)
+    button.click()
+    mock_eh2_gui.client.run_plan.assert_called_once_with(plan, mock_params)
 
 
 @pytest.mark.parametrize(
