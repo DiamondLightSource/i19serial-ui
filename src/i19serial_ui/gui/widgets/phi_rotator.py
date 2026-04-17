@@ -37,8 +37,13 @@ class PhiAdjust(QtWidgets.QWidget):
             "-", self.on_click_move_phi_deg_neg
         )
         self.phianglebox = QtWidgets.QLineEdit()
+        # TODO add additional input verification, currently allows for
+        # digits up to 399.99 - obviously not ideal.
+        # My current idea is to limit it to 199.99, still allows for
+        # very big rotations
         inputvalidator = QtGui.QRegularExpressionValidator(
-            QtCore.QRegularExpression("[0-9][0-9]"), self.phianglebox
+            QtCore.QRegularExpression(r"[1-3]?[\d]?[\d](\.\d\d|\.\d|)"),
+            self.phianglebox,
         )
         self.phianglebox.setValidator(inputvalidator)
 
