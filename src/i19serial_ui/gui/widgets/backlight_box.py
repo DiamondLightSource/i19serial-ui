@@ -6,6 +6,7 @@ from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
 from i19serial_ui.log import (
     LOGGER,
 )
+from i19serial_ui.parameters.general_utils import BacklightOption
 
 
 class BacklightBox(QtWidgets.QWidget):
@@ -37,17 +38,16 @@ class BacklightBox(QtWidgets.QWidget):
         self.out_button = self._create_button("OUT", self.on_click_move_backlight_out)
 
     def on_click_move_backlight_out(self):
-        params = {}
         LOGGER.info("Moving backlight out")
-        self.client.run_plan("move_backlight_out", params)
+        self.client.run_plan("move_backlight_out", {})
 
     def on_click_move_backlight_in(self):
-        params = {"option": "slow"}
+        params = {"option": BacklightOption.SLOW}
         LOGGER.info("Moving backlight in")
         self.client.run_plan("move_backlight_in_via_ui", params)
 
     def on_click_move_backlight_in_quick(self):
-        params = {"option": "quick"}
+        params = {"option": BacklightOption.QUICK}
         LOGGER.info("Moving backlight in quickly")
         self.client.run_plan("move_backlight_in_via_ui", params)
 

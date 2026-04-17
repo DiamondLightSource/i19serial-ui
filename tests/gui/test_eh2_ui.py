@@ -12,6 +12,7 @@ from i19serial_ui.gui.widgets import (
     PhiAdjust,
     WellsSelectionPanel,
 )
+from i19serial_ui.parameters.general_utils import BacklightOption
 
 
 @pytest.fixture
@@ -73,6 +74,45 @@ def make_text_mock(value):
     m = Mock()
     m.text.return_value = str(value)
     return m
+
+
+@pytest.mark.parametrize(
+    "plan,mock_params,buttoncalled",
+    [
+        ("move_backlight_out", {}, "out_button"),
+        ("move_backlight_in_via_ui", {"option": BacklightOption.SLOW}, "in_button"),
+        (
+            "move_backlight_in_via_ui",
+            {"option": BacklightOption.QUICK},
+            "in_quick_button",
+        ),
+    ],
+)
+def test_backlight_buttons(mock_eh2_gui, plan, mock_params, buttoncalled):
+    button = getattr(mock_eh2_gui.backlight, buttoncalled)
+    button.click()
+    mock_eh2_gui.client.run_plan.assert_called_once_with(plan, mock_params)
+
+
+@pytest.mark.parametrize(
+    "plan,mock_params,buttoncalled",
+    [
+        (
+            "rotate_in_phi",
+            {"rot_increment": 10},
+            "phiadjusterpositive",
+        ),
+        (
+            "rotate_in_phi",
+            {"rot_increment": -10},
+            "phiadjusternegative",
+        ),
+    ],
+)
+def test_phi_buttons(mock_eh2_gui, plan, mock_params, buttoncalled):
+    button = getattr(mock_eh2_gui.phi_rotator, buttoncalled)
+    button.click()
+    mock_eh2_gui.client.run_plan.assert_called_once_with(plan, mock_params)
 
 
 @pytest.mark.parametrize(

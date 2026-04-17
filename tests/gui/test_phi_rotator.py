@@ -2,33 +2,22 @@ from unittest.mock import patch
 
 import pytest
 
-from i19serial_ui.gui.serial_gui_eh2 import SerialGuiEH2
+from i19serial_ui.gui.widgets.phi_rotator import PhiAdjust
 
 
 @pytest.fixture
-def mock_eh2_gui(qtbot):
-    with patch("i19serial_ui.gui.serial_gui_eh2.SerialBlueapiClient"):
-        test_gui = SerialGuiEH2()
-        qtbot.addWidget(test_gui)
-        return test_gui
+def mock_phi_panel(qtbot):
+    with patch("i19serial_ui.gui.serial_gui_eh2.SerialBlueapiClient") as c:
+        test_panel = PhiAdjust(c)
+        qtbot.addWidget(test_panel)
+        return test_panel
 
 
-@pytest.mark.parametrize(
-    "plan,mock_params,buttoncalled",
-    [
-        (
-            "rotate_in_phi",
-            {"rot_axis_increment": 10},
-            "phiadjusterpositive",
-        ),
-        (
-            "rotate_in_phi",
-            {"rot_axis_increment": -10},
-            "phiadjusternegative",
-        ),
-    ],
-)
-def test_top_buttons(mock_eh2_gui, plan, mock_params, buttoncalled):
-    button = getattr(mock_eh2_gui.phi_rotator, buttoncalled)
-    button.click()
-    mock_eh2_gui.client.run_plan.assert_called_once_with(plan, mock_params)
+def test_has_phi_panel_layout(mock_phi_panel):
+    assert mock_phi_panel.phirotator_layout is not None
+
+
+def test_default_present_and_buttons(mock_phi_panel):
+    assert mock_phi_panel.phianglebox.text() == "10"
+    assert mock_phi_panel.phiadjusterpositive is not None
+    assert mock_phi_panel.phiadjusternegative is not None
