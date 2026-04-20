@@ -194,7 +194,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.run_btns_group = QtWidgets.QGroupBox()
         btn_layout = QtWidgets.QHBoxLayout()
 
-        self.run_btn = self._create_button("Run Plan", self.run_serial)
+        self.run_btn = self._create_button("Run Plan", self.run)
 
         self.abort_btn = self._create_button("Abort", self.abort)
 
@@ -242,7 +242,10 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         log_to_gui(self.gui_logger, msg, level)
 
     def run(self):
-        self.appendOutput("RUN COLLECTION FROM HERE")
+        all_params = self.read_all_parameters()
+        self.appendOutput("Start serial collection with the panda")
+        self.appendOutput(f"With parameters: {all_params}")
+        self.client.run_plan("run_serial_from_panda", all_params)
 
     def abort(self):
         self.client.abort_task()
@@ -304,12 +307,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             }
         }
         return params
-
-    def run_serial(self):
-        all_params = self.read_all_parameters()
-        self.appendOutput("Start serial collection with the panda")
-        self.appendOutput(f"With parameters: {all_params}")
-        self.client.run_plan("run_serial_from_panda", all_params)
 
 
 def start_eh2_ui():
