@@ -29,15 +29,9 @@ def save_coordinates_to_json(filename: Path | str, coordinates: Coordinates):
         json.dump(coordinates.model_dump(), fh, indent=4)
 
 
-def _find_translated_coordinates(
+def _get_translated_coordinates(
     fiducial_coords: tuple[float, float, float],
     translation_vector: tuple[float, float, float],
 ) -> Coord3D:
     res = [(i + j) for i, j in zip(fiducial_coords, translation_vector, strict=True)]
     return Coord3D(*res)
-
-
-def work_out_fiducial_positions_from_ui_input(
-    fiducial: FiducialPosition,
-) -> tuple[float, float, float]:
-    return (0, 0, 0)

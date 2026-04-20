@@ -2,6 +2,8 @@ from enum import StrEnum
 
 from pydantic.dataclasses import dataclass
 
+from i19serial_ui.parameters.coordinates import FiducialPosition
+
 
 class GridType(StrEnum):
     POLYMER = "polymer"
@@ -56,3 +58,25 @@ class Grid:
             "bottom_right": br_pos,
         }
         return pos_dict
+
+    def get_fiducial_translation(
+        self, fiducial: FiducialPosition, known_fiducial: FiducialPosition
+    ) -> tuple[float, float, float]:
+        v = (0, 0, 0)
+        match fiducial:
+            case FiducialPosition.TL:
+                if known_fiducial == FiducialPosition.TR:
+                    v = (-self.city_block_x, 0, 0)
+                if known_fiducial == FiducialPosition.BL:
+                    v = (0, 0, self.city_block_z)
+            case FiducialPosition.TR:
+                if known_fiducial == FiducialPosition.TL:
+                    v = (self.city_block_x, 0, 0)
+                if known_fiducial == FiducialPosition.BL:
+                    v = (self.city_block_x, 0, -self.city_block_z)
+            case FiducialPosition.BL:
+                if known_fiducial == FiducialPosition.TL:
+                    v = (0, 0, -self.city_block_z)
+                if known_fiducial == FiducialPosition.BL:
+                    v = (-self.city_block_x, 0, -self.city_block_z)
+        return v

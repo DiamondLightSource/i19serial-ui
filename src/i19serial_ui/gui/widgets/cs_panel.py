@@ -4,6 +4,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 
 from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
 from i19serial_ui.coordinate_system.utils import (
+    _get_translated_coordinates,
     calculate_kapton_xz_positions,
     save_coordinates_to_json,
 )
@@ -36,8 +37,9 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
     ):
         super().__init__(parent)
         self.client = blueapi_client
-        self.grid_type = grid_type
-        self.grid_size = grid_size
+        self._grid_type = grid_type
+        self._grid_size = grid_size
+        self._grid = Grid(*grid_size, grid_type)  # type: ignore
         self.logger = LOGGER
         self.init_coordinates()
         self.init_buttons()
@@ -53,7 +55,7 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         return main_layout
 
     def init_coordinates(self):
-        coord_length = self.grid_size[0] * self.grid_size[1]
+        coord_length = self._grid_size[0] * self._grid_size[1]
         self.coordinates = [None for _ in range(coord_length)]
 
     def init_buttons(self):
@@ -114,7 +116,7 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
                 "No positions could be read off the diffractometer, check blueapi logs"
             )
             return
-        if self.grid_type is GridType.KAPTON400:
+        if self._grid_type is GridType.KAPTON400:
             xz_offset = calculate_kapton_xz_positions(stage_positions[0:3:2], position)
             text_boxes[0].setText(str(xz_offset[0]))
             text_boxes[1].setText(str(stage_positions[1]))
@@ -186,28 +188,65 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
     def _update_xyz(self):
         pass
 
+    def _check_coordinates_text_fields(self, position: FiducialPosition) -> bool:
+        if position == FiducialPosition.TL:
+            if (
+                self.top_left_x.text()
+                and self.top_left_y.text()
+                and self.top_left_z.text()
+            ):
+                return True
+        if position == FiducialPosition.TR:
+            if (
+                self.top_right_x.text()
+                and self.top_right_y.text()
+                and self.top_right_z.text()
+            ):
+                return True
+        if position == FiducialPosition.BL:
+            if (
+                self.bottom_left_x.text()
+                and self.bottom_left_y.text()
+                and self.bottom_left_z.text()
+            ):
+                return True
+        return False
+
+    def _read_coordinates_from_ui(self, position: FiducialPosition) -> Coord3D:
+        try:
+            if position == FiducialPosition.TL:
+                _x = float(self.top_left_x.text())
+                _y = float(self.top_left_y.text())
+                _z = float(self.top_left_z.text())
+            if position == FiducialPosition.TR:
+                _x = float(self.top_right_x.text())
+                _y = float(self.top_right_y.text())
+                _z = float(self.top_left_z.text())
+            if position == FiducialPosition.BL:
+                _x = float(self.bottom_left_x.text())
+                _y = float(self.bottom_left_y.text())
+                _z = float(self.bottom_left_z.text())
+        except ValueError:
+            LOGGER.error(
+                f"""
+                Can't read all coordinates for {position.value} position,
+                are some fields blank?
+                """
+            )
+            raise
+
+        return Coord3D(_x, _y, _z)
+
     def _save_coordinates(self):
         try:
             self.logger.info("Saving coordinates to file")
-            top_left = (
-                float(self.top_left_x.text()),
-                float(self.top_left_y.text()),
-                float(self.top_left_z.text()),
-            )
-            top_right = (
-                float(self.top_right_x.text()),
-                float(self.top_right_y.text()),
-                float(self.top_right_z.text()),
-            )
-            bottom_left = (
-                float(self.bottom_left_x.text()),
-                float(self.bottom_left_y.text()),
-                float(self.bottom_left_z.text()),
-            )
+            top_left = self._read_coordinates_from_ui(FiducialPosition.TL)
+            top_right = self._read_coordinates_from_ui(FiducialPosition.TR)
+            bottom_left = self._read_coordinates_from_ui(FiducialPosition.BL)
             coordinates = Coordinates(
-                top_left=Coord3D(*top_left),
-                top_right=Coord3D(*top_right),
-                bottom_left=Coord3D(*bottom_left),
+                top_left=top_left,
+                top_right=top_right,
+                bottom_left=bottom_left,
             )
             self.logger.info(f"Coordinates: \n {coordinates}")
 
@@ -251,14 +290,69 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
 
         self.init_coordinates()
 
-    def _work_out_fiducial_positions_from_text_input(self):
-        coords = Coord3D(None, None, None)  # type: ignore
-        if not all(coords):
-            raise ValueError("Missing values in the input fields")
+    def _work_out_fiducial_positions_from_text_input(self, position: FiducialPosition):
+        match position:
+            case FiducialPosition.TL:
+                if self._check_coordinates_text_fields(position):
+                    coords = self._read_coordinates_from_ui(position)
+                elif self._check_coordinates_text_fields(FiducialPosition.TR):
+                    x1_y1_z1 = self._read_coordinates_from_ui(FiducialPosition.TR)
+                    dx_dy_dz = self._grid.get_fiducial_translation(
+                        position, FiducialPosition.TR
+                    )
+                    coords = _get_translated_coordinates(x1_y1_z1, dx_dy_dz)
+                elif self._check_coordinates_text_fields(FiducialPosition.BL):
+                    x1_y1_z1 = self._read_coordinates_from_ui(FiducialPosition.BL)
+                    dx_dy_dz = self._grid.get_fiducial_translation(
+                        position, FiducialPosition.BL
+                    )
+                    coords = _get_translated_coordinates(x1_y1_z1, dx_dy_dz)
+                else:
+                    raise ValueError(
+                        "Can't read from UI, all fields appear to be empty"
+                    )
+            case FiducialPosition.TR:
+                if self._check_coordinates_text_fields(position):
+                    coords = self._read_coordinates_from_ui(position)
+                elif self._check_coordinates_text_fields(FiducialPosition.TL):
+                    x1_y1_z1 = self._read_coordinates_from_ui(FiducialPosition.TL)
+                    dx_dy_dz = self._grid.get_fiducial_translation(
+                        position, FiducialPosition.TL
+                    )
+                    coords = _get_translated_coordinates(x1_y1_z1, dx_dy_dz)
+                elif self._check_coordinates_text_fields(FiducialPosition.BL):
+                    x1_y1_z1 = self._read_coordinates_from_ui(FiducialPosition.BL)
+                    dx_dy_dz = self._grid.get_fiducial_translation(
+                        position, FiducialPosition.BL
+                    )
+                    coords = _get_translated_coordinates(x1_y1_z1, dx_dy_dz)
+                else:
+                    raise ValueError(
+                        "Can't read from UI, all fields appear to be empty"
+                    )
+            case FiducialPosition.BL:
+                if self._check_coordinates_text_fields(position):
+                    coords = self._read_coordinates_from_ui(position)
+                elif self._check_coordinates_text_fields(FiducialPosition.TL):
+                    x1_y1_z1 = self._read_coordinates_from_ui(FiducialPosition.TL)
+                    dx_dy_dz = self._grid.get_fiducial_translation(
+                        position, FiducialPosition.TL
+                    )
+                    coords = _get_translated_coordinates(x1_y1_z1, dx_dy_dz)
+                elif self._check_coordinates_text_fields(FiducialPosition.TR):
+                    x1_y1_z1 = self._read_coordinates_from_ui(FiducialPosition.TR)
+                    dx_dy_dz = self._grid.get_fiducial_translation(
+                        position, FiducialPosition.TR
+                    )
+                    coords = _get_translated_coordinates(x1_y1_z1, dx_dy_dz)
+                else:
+                    raise ValueError(
+                        "Can't read from UI, all fields appear to be empty"
+                    )
+
         return (coords.x, coords.y, coords.z)
 
-    # THIS WHOLE LOGIC IS INSANE AND NEEDS RETHINKING.
-    # THERE MUST BE A WAY OF SIMPLIFYING IT
+    # THIS WHOLE LOGIC IS INSANE
     def perform_grid_move(self, position: FiducialPosition):
         """Plan will be:
         def move_grid_to_position([x,y,z], device_to_move) the device can be either
@@ -269,7 +363,7 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         if not all(self.coordinates):  # all or some Nones
             LOGGER.info("Coordinate list not yet generated, using values from UI.")
             try:
-                _x, _y, _z = self._work_out_fiducial_positions_from_text_input()
+                _x, _y, _z = self._work_out_fiducial_positions_from_text_input(position)
                 self.client.run_plan(
                     "move_sample_stage_to_corners", {"corner_coord": (_x, _y, _z)}
                 )
@@ -283,5 +377,5 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
                 LOGGER.exception(e)
         else:
             LOGGER.info("Move fiducial from set coordinates")
-            grid = Grid(*self.grid_size, self.grid_type)  # type: ignore
+            grid = Grid(*self._grid_size, self._grid_type)  # type: ignore
             print(grid)
