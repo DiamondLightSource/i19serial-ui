@@ -1,10 +1,12 @@
-import json
 from collections.abc import Callable
-from pathlib import Path
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
+from i19serial_ui.coordinate_system.utils import (
+    calculate_kapton_xz_positions,
+    save_coordinates_to_json,
+)
 from i19serial_ui.gui.ui_utils import create_image_icon, image_file_path
 from i19serial_ui.log import LOGGER
 from i19serial_ui.parameters.coordinates import (
@@ -17,29 +19,9 @@ from i19serial_ui.parameters.grid import Grid, GridType
 
 READ_POSITIONS_PLAN_NAME = "read_current_sample_stage_xyz_position"
 
-KAPTON_OFFSET = 0.150
-
-
-def _calculate_kapton_xz_positions(
-    xz: tuple[float, float], fiducial_position: FiducialPosition
-) -> tuple[float, float]:
-    match fiducial_position:
-        case FiducialPosition.TL:
-            return (xz[0] + KAPTON_OFFSET, xz[1] - KAPTON_OFFSET)
-        case FiducialPosition.TR:
-            return (xz[0] - KAPTON_OFFSET, xz[1] - KAPTON_OFFSET)
-        case FiducialPosition.BL:
-            return (xz[0] + KAPTON_OFFSET, xz[1] + KAPTON_OFFSET)
-
 
 def placeholder_run_btn(s: str):
     LOGGER.info(s)
-
-
-def save_coordinates_to_json(filename: Path | str, coordinates: Coordinates):
-    full_filename = COORD_FILE_PATH / filename
-    with open(full_filename, "w") as fh:
-        json.dump(coordinates.model_dump(), fh, indent=4)
 
 
 class CoordinateSystemPanel(QtWidgets.QWidget):
@@ -133,7 +115,7 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
             )
             return
         if self.grid_type is GridType.KAPTON400:
-            xz_offset = _calculate_kapton_xz_positions(stage_positions[0:3:2], position)
+            xz_offset = calculate_kapton_xz_positions(stage_positions[0:3:2], position)
             text_boxes[0].setText(str(xz_offset[0]))
             text_boxes[1].setText(str(stage_positions[1]))
             text_boxes[2].setText(str(xz_offset[1]))
@@ -301,5 +283,5 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
                 LOGGER.exception(e)
         else:
             LOGGER.info("Move fiducial from set coordinates")
-            grid = Grid(*self.grid_size, self.grid_type)
+            grid = Grid(*self.grid_size, self.grid_type)  # type: ignore
             print(grid)
