@@ -41,21 +41,21 @@ class Grid:
     def city_block_z(self) -> float:
         return (self.size_z - 1) * self.dim_xz_steps[1]
 
-    def get_grid_positions(self) -> dict[str, float]:
-        "Returns index of TL, TR, BL, BR positions in coords list."
+    def get_grid_positions(self) -> dict[FiducialPosition, float]:
+        "Returns index of TL, TR, BL positions in coords list."
         tl_pos = 0.0
         tr_pos = self.size_x - 1
         if (self.size_z % 2) == 0:
             bl_pos = self.size_x * self.size_z - 1
-            br_pos = self.size_x * (self.size_z - 1) - 1
+            # br_pos = self.size_x * (self.size_z - 1) - 1
         else:
             bl_pos = self.size_x * (self.size_z - 1) - 1
-            br_pos = self.size_x * self.size_z - 1
+            # br_pos = self.size_x * self.size_z - 1
         pos_dict = {
-            "top_left": tl_pos,
-            "top_right": tr_pos,
-            "bottom_left": bl_pos,
-            "bottom_right": br_pos,
+            FiducialPosition.TL: tl_pos,
+            FiducialPosition.TR: tr_pos,
+            FiducialPosition.BL: bl_pos,
+            # "bottom_right": br_pos,
         }
         return pos_dict
 

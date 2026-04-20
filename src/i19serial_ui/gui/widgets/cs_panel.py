@@ -352,6 +352,14 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
 
         return (coords.x, coords.y, coords.z)
 
+    def _get_fiducial_positions_from_known_coordinates(
+        self, position: FiducialPosition
+    ) -> tuple[float, float, float]:
+        _pos = self._grid.get_grid_positions()[position]
+        coords = self.coordinates[_pos]  # type: ignore
+        LOGGER.info(f"Moving to {coords}")
+        return (coords.x, coords.y, coords.z)
+
     # THIS WHOLE LOGIC IS INSANE
     def perform_grid_move(self, position: FiducialPosition):
         """Plan will be:
@@ -364,9 +372,6 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
             LOGGER.info("Coordinate list not yet generated, using values from UI.")
             try:
                 _x, _y, _z = self._work_out_fiducial_positions_from_text_input(position)
-                self.client.run_plan(
-                    "move_sample_stage_to_corners", {"corner_coord": (_x, _y, _z)}
-                )
             except ValueError as err:
                 LOGGER.error(
                     "Error while reading coordinates, please type in some values!"
@@ -377,5 +382,7 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
                 LOGGER.exception(e)
         else:
             LOGGER.info("Move fiducial from set coordinates")
-            grid = Grid(*self._grid_size, self._grid_type)  # type: ignore
-            print(grid)
+            _x, _y, _z = self._get_fiducial_positions_from_known_coordinates(position)
+        self.client.run_plan(
+            "move_sample_stage_to_corners", {"corner_coord": (_x, _y, _z)}
+        )
