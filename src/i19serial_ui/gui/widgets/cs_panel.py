@@ -3,6 +3,7 @@ from collections.abc import Callable
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
+from i19serial_ui.coordinate_system.create_cs import make_coordinate_system
 from i19serial_ui.coordinate_system.utils import (
     _get_translated_coordinates,
     calculate_kapton_xz_positions,
@@ -26,8 +27,6 @@ def placeholder_run_btn(s: str):
 
 
 class CoordinateSystemPanel(QtWidgets.QWidget):
-    coordinates: list[Coord3D | None]
-
     def __init__(
         self,
         blueapi_client: SerialBlueapiClient,
@@ -55,12 +54,12 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         return main_layout
 
     def init_coordinates(self):
-        coord_length = self._grid_size[0] * self._grid_size[1]
-        self.coordinates = [None for _ in range(coord_length)]
+        self.coord_length = self._grid_size[0] * self._grid_size[1]
+        self.coordinates: list[Coord3D] = []
 
     def init_buttons(self):
         self.make_btn = self._create_button(
-            "Make coordinate system", lambda: placeholder_run_btn("CS MAKER")
+            "Make coordinate system", self._make_coordinate_system
         )
         self.test_btn = self._create_button(
             "Test", lambda: placeholder_run_btn("CS TEST")
@@ -263,7 +262,6 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
             LOGGER.warning("No file selected")
             return
         LOGGER.info(f"Loading coordinates from {filename}")
-        # filename = COORD_FILE_PATH / "coordinates.json"
         self.logger.info(f"Uploading coordinates from file {filename}")
         try:
             coordinates = Coordinates.from_json(filename)
@@ -363,19 +361,17 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         self, position: FiducialPosition
     ) -> tuple[float, float, float]:
         _pos = self._grid.get_grid_positions()[position]
-        coords = self.coordinates[_pos]  # type: ignore
+        coords = self.coordinates[_pos]
         LOGGER.info(f"Moving to {coords}")
         return (coords.x, coords.y, coords.z)
 
     # THIS WHOLE LOGIC IS INSANE
     def perform_grid_move(self, position: FiducialPosition):
         """Plan will be:
-        def move_grid_to_position([x,y,z], device_to_move) the device can be either
-        newport or beamstop stage - will pass the name of the device here.
-        Chosen from dropdown I guess.
+        def move_grid_to_position([x,y,z])
         """
         LOGGER.info(f"Moving to grid position {position.value}")
-        if not all(self.coordinates):  # all or some Nones
+        if len(self.coordinates) == 0:
             LOGGER.info("Coordinate list not yet generated, using values from UI.")
             try:
                 _x, _y, _z = self._work_out_fiducial_positions_from_text_input(position)
@@ -393,3 +389,21 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         self.client.run_plan(
             "move_sample_stage_to_corners", {"corner_coord": (_x, _y, _z)}
         )
+
+    def _make_coordinate_system(self):
+        top_left = self._read_coordinates_from_ui(FiducialPosition.TL)
+        top_right = self._read_coordinates_from_ui(FiducialPosition.TR)
+        bottom_left = self._read_coordinates_from_ui(FiducialPosition.BL)
+
+        fiducial_positions = (top_left, top_right, bottom_left)
+
+        try:
+            self.coordinates = make_coordinate_system(
+                self._grid_size[0], self._grid_size[1], fiducial_positions
+            )
+        except ValueError as e:
+            LOGGER.error("ERROR in creating the coordinates")
+            LOGGER.exception(e)
+
+        LOGGER.info(f"\t Coordinates: \n {self.coordinates}")
+        LOGGER.info(f"Coordinates len: {len(self.coordinates)}")
