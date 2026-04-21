@@ -56,14 +56,12 @@ def make_coordinate_system(
     ]
     _fid = fiducial_positions[0]
 
-    # Onestamente non credo che serva...
     for i in range(horizontal_wells):
         for j in range(vertical_wells):
             x = round(_fid.x + (i * step_x_h) + (j * step_x_v), decimals)
             y = round(_fid.y + (i * step_y_h) + (j * step_y_v), decimals)
             z = round(_fid.z + (i * step_z_h) + (j * step_z_v), decimals)
 
-            # HOW AHS THIS EVER WORKED?!?!?
             if j % 2:  # Odd wells
                 idx = (horizontal_wells - 1 - i) + (j * horizontal_wells)
             else:
