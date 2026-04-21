@@ -256,7 +256,14 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
             self.logger.exception(e)
 
     def _upload_coordinates(self):
-        filename = COORD_FILE_PATH / "coordinates.json"
+        filename = QtWidgets.QFileDialog.getOpenFilename(
+            None, directory=COORD_FILE_PATH, filter="Json file (*.json)"
+        )[0]
+        if not filename:
+            LOGGER.warning("No file selected")
+            return
+        LOGGER.info(f"Loading coordinates from {filename}")
+        # filename = COORD_FILE_PATH / "coordinates.json"
         self.logger.info(f"Uploading coordinates from file {filename}")
         try:
             coordinates = Coordinates.from_json(filename)
