@@ -23,8 +23,14 @@ def calculate_kapton_xz_positions(
             return (xz[0] + KAPTON_OFFSET, xz[1] + KAPTON_OFFSET)
 
 
-def save_coordinates_to_json(filename: Path | str, coordinates: Coordinates):
-    full_filename = COORD_FILE_PATH / filename
+def save_coordinates_to_json(
+    filename: Path | str,
+    coordinates: Coordinates,
+    filepath: Path | str = COORD_FILE_PATH,
+):
+    if not isinstance(filepath, Path):
+        filepath = Path(filepath)
+    full_filename = filepath / filename
     with open(full_filename, "w") as fh:
         json.dump(coordinates.model_dump(), fh, indent=4)
 
