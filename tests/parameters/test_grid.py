@@ -1,5 +1,6 @@
 import pytest
 
+from i19serial_ui.parameters.coordinates import FiducialPosition
 from i19serial_ui.parameters.grid import Grid, GridType
 
 
@@ -34,11 +35,10 @@ def test_grid(
     ],
 )
 def test_get_grid_positions(x: int, z: int, expected_pos: list[float]):
-    test_grid = Grid(x, z, GridType.POLYMER)
+    test_grid = Grid(size_x=x, size_z=z, grid_type=GridType.POLYMER)
 
     res = test_grid.get_grid_positions()
 
-    assert res["top_left"] == expected_pos[0] and res["top_right"] == expected_pos[1]
-    assert (
-        res["bottom_left"] == expected_pos[2] and res["bottom_right"] == expected_pos[3]
-    )
+    assert res[FiducialPosition.TL] == expected_pos[0]
+    assert res[FiducialPosition.TR] == expected_pos[1]
+    assert res[FiducialPosition.BL] == expected_pos[2]

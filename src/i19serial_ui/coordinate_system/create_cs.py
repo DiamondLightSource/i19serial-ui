@@ -1,3 +1,6 @@
+from scanspec.core import Path as ScanPath
+from scanspec.specs import Line
+
 from i19serial_ui.log import LOGGER
 from i19serial_ui.parameters.coordinates import Coord3D
 
@@ -12,7 +15,7 @@ def _get_delta(pos_1: Coord3D, pos_2: Coord3D) -> tuple[float, float, float]:
 
 
 def _get_step_size(delta: float, steps: int) -> float:
-    return delta / (steps + 1)
+    return delta / (steps - 1)
 
 
 def _get_well_index(h, v, tot):
@@ -56,6 +59,7 @@ def make_coordinate_system(
     ]
     _fid = fiducial_positions[0]
 
+    # USE SCANSPEC INSTEAD!
     for i in range(horizontal_wells):
         for j in range(vertical_wells):
             x = round(_fid.x + (i * step_x_h) + (j * step_x_v), decimals)
@@ -72,3 +76,20 @@ def make_coordinate_system(
     if not all(_coord_list):
         raise ValueError("")
     return _coord_list  # type: ignore
+
+
+def make_coordinate_system_new(
+    horizontal_wells: int,
+    vertical_wells: int,
+    fiducial_positions: tuple[Coord3D, Coord3D, Coord3D],
+):
+    # spec = Line(
+    #     "x", fiducial_positions[0].x, fiducial_positions[1].x, horizontal_wells
+    # ) * ~Line("z", fiducial_positions[0].z, fiducial_positions[2].z, vertical_wells)
+    # Beacause "flipped" when mounted -> z is horizontal
+    spec = Line(
+        "z", fiducial_positions[0].z, fiducial_positions[2].z, horizontal_wells
+    ) * ~Line("x", fiducial_positions[0].x, fiducial_positions[1].x, vertical_wells)
+    scan_path = ScanPath(spec.calculate())
+    points = scan_path.consume().midpoints
+    return points
