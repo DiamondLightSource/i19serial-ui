@@ -55,7 +55,7 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
 
     def init_coordinates(self):
         self.coord_length = self._grid_size[0] * self._grid_size[1]
-        self.coordinates: list[Coord3D] = []
+        self.coordinates: list[tuple] = []
 
     def init_buttons(self):
         self.make_btn = self._create_button(

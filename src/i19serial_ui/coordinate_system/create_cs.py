@@ -23,7 +23,7 @@ def make_coordinate_system(
     horizontal_wells: int,
     vertical_wells: int,
     fiducial_positions: tuple[Coord3D, Coord3D, Coord3D],
-):
+) -> list[tuple]:
     grid_points = _calculate_spec_points(
         fiducial_positions[0], fiducial_positions[2], horizontal_wells, vertical_wells
     )
@@ -31,6 +31,6 @@ def make_coordinate_system(
 
     coord_list = []
     for i, j in zip(grid_points["x"], grid_points["z"], strict=False):
-        _c = Coord3D(float(i), y_pos, float(j))
+        _c = (float(i), y_pos, float(j))
         coord_list.append(_c)
     return coord_list
