@@ -401,9 +401,12 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
             self.coordinates = make_coordinate_system(
                 self._grid_size[0], self._grid_size[1], fiducial_positions
             )
-        except ValueError as e:
+
+        except Exception as e:
             LOGGER.error("ERROR in creating the coordinates")
             LOGGER.exception(e)
 
         LOGGER.info(f"\t Coordinates: \n {self.coordinates}")
+        if len(self.coordinates) != self.coord_length:
+            LOGGER.error("Coordinates may be missing, wrong length")
         LOGGER.info(f"Coordinates len: {len(self.coordinates)}")
