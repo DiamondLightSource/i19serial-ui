@@ -47,15 +47,12 @@ class Grid:
         tr_pos = self.size_x - 1
         if (self.size_z % 2) == 0:
             bl_pos = self.size_x * self.size_z - 1
-            # br_pos = self.size_x * (self.size_z - 1) - 1
         else:
             bl_pos = self.size_x * (self.size_z - 1) - 1
-            # br_pos = self.size_x * self.size_z - 1
         pos_dict = {
             FiducialPosition.TL: tl_pos,
             FiducialPosition.TR: tr_pos,
             FiducialPosition.BL: bl_pos,
-            # "bottom_right": br_pos,
         }
         return pos_dict
 
@@ -77,6 +74,6 @@ class Grid:
             case FiducialPosition.BL:
                 if known_fiducial == FiducialPosition.TL:
                     v = (0, 0, -self.city_block_z)
-                if known_fiducial == FiducialPosition.BL:
+                if known_fiducial == FiducialPosition.TR:
                     v = (-self.city_block_x, 0, -self.city_block_z)
         return v

@@ -360,9 +360,7 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         return (coords[0], coords[1], coords[2])
 
     def perform_grid_move(self, position: FiducialPosition):
-        """Plan will be:
-        def move_grid_to_position([x,y,z])
-        """
+        """Move to the fiducial position by triggering a bluesky plan."""
         LOGGER.info(f"Moving to grid position {position.value}")
         if len(self.coordinates) == 0:
             LOGGER.info("Coordinate list not yet generated, using values from UI.")
