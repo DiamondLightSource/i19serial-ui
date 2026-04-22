@@ -403,4 +403,8 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         LOGGER.info(f"Coordinates len: {len(self.coordinates)}")
 
     def _run_coordinate_system_test(self):
+        LOGGER.info("Run a test to check on the coordinate system")
+        if len(self.coordinates) == 0:
+            LOGGER.error("Please create the coordinate system first.")
+            return
         self.client.run_plan(TEST_CS_PLAN, {"coord_list": self.coordinates})
