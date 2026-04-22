@@ -19,11 +19,9 @@ from i19serial_ui.parameters.coordinates import (
 )
 from i19serial_ui.parameters.grid import Grid, GridType
 
-READ_POSITIONS_PLAN_NAME = "read_current_sample_stage_xyz_position"
-
-
-def placeholder_run_btn(s: str):
-    LOGGER.info(s)
+READ_POSITIONS_PLAN = "read_current_sample_stage_xyz_position"
+MOVE_SAMPLE_STAGE_PLAN = "move_sample_stage"
+TEST_CS_PLAN = "run_coordinate_system_test"
 
 
 class CoordinateSystemPanel(QtWidgets.QWidget):
@@ -61,9 +59,7 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         self.make_btn = self._create_button(
             "Make coordinate system", self._make_coordinate_system
         )
-        self.test_btn = self._create_button(
-            "Test", lambda: placeholder_run_btn("CS TEST")
-        )
+        self.test_btn = self._create_button("Test", self._run_coordinate_system_test)
         self.clear_btn = self._create_button("Clear", self._clear_coordinates)
         self.save_btn = self._create_button("Save", self._save_coordinates)
         self.upload_btn = self._create_button("Upload", self._upload_coordinates)
@@ -107,9 +103,7 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         self, position: FiducialPosition, text_boxes: list[QtWidgets.QLineEdit]
     ):
         LOGGER.info(f"Setting x,y,z for position {position}")
-        stage_positions = self.client.run_plan_and_get_result(
-            READ_POSITIONS_PLAN_NAME, {}
-        )
+        stage_positions = self.client.run_plan_and_get_result(READ_POSITIONS_PLAN, {})
         if not stage_positions:
             LOGGER.error(
                 "No positions could be read off the diffractometer, check blueapi logs"
@@ -363,9 +357,8 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         _pos = self._grid.get_grid_positions()[position]
         coords = self.coordinates[_pos]
         LOGGER.info(f"Moving to {coords}")
-        return (coords.x, coords.y, coords.z)
+        return (coords[0], coords[1], coords[2])
 
-    # THIS WHOLE LOGIC IS INSANE
     def perform_grid_move(self, position: FiducialPosition):
         """Plan will be:
         def move_grid_to_position([x,y,z])
@@ -386,9 +379,7 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         else:
             LOGGER.info("Move fiducial from set coordinates")
             _x, _y, _z = self._get_fiducial_positions_from_known_coordinates(position)
-        self.client.run_plan(
-            "move_sample_stage_to_corners", {"corner_coord": (_x, _y, _z)}
-        )
+        self.client.run_plan(MOVE_SAMPLE_STAGE_PLAN, {"corner_coord": (_x, _y, _z)})
 
     def _make_coordinate_system(self):
         top_left = self._read_coordinates_from_ui(FiducialPosition.TL)
@@ -410,3 +401,6 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         if len(self.coordinates) != self.coord_length:
             LOGGER.error("Coordinates may be missing, wrong length")
         LOGGER.info(f"Coordinates len: {len(self.coordinates)}")
+
+    def _run_coordinate_system_test(self):
+        self.client.run_plan(TEST_CS_PLAN, {"coord_list": self.coordinates})
