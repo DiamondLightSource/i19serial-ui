@@ -7,11 +7,12 @@ from i19serial_ui.parameters.coordinates import Coord3D
 def _calculate_spec_points(
     pos_1: Coord3D,
     pos_2: Coord3D,
+    pos_3: Coord3D,
     horizontal_wells: int,
     vertical_wells: int,
 ):
     # Beacause "flipped" when mounted -> z is horizontal
-    spec = Line("z", pos_1.z, pos_2.z, horizontal_wells) * ~Line(
+    spec = Line("z", pos_1.z, pos_3.z, horizontal_wells) * ~Line(
         "x", pos_1.x, pos_2.x, vertical_wells
     )
     scan_path = ScanPath(spec.calculate())
@@ -25,7 +26,7 @@ def make_coordinate_system(
     fiducial_positions: tuple[Coord3D, Coord3D, Coord3D],
 ) -> list[tuple]:
     grid_points = _calculate_spec_points(
-        fiducial_positions[0], fiducial_positions[2], horizontal_wells, vertical_wells
+        *fiducial_positions, horizontal_wells, vertical_wells
     )
     y_pos = fiducial_positions[0].y  # This one doesn't change
 
