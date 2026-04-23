@@ -178,9 +178,6 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         icon_button.clicked.connect(func)
         return icon_button
 
-    def _update_xyz(self):
-        pass
-
     def _check_coordinates_text_fields(self, position: FiducialPosition) -> bool:
         if position == FiducialPosition.TL:
             if (
@@ -289,65 +286,38 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
 
         self.init_coordinates()
 
+    def _get_fiducial_coordinates_from_ui(
+        self, position: FiducialPosition, other_fiducials: list[FiducialPosition]
+    ) -> Coord3D:
+        fid_1, fid_2 = other_fiducials
+        if self._check_coordinates_text_fields(position):
+            coords = self._read_coordinates_from_ui(position)
+        elif self._check_coordinates_text_fields(fid_1):
+            x1_y1_z1 = self._read_coordinates_from_ui(fid_1)
+            dx_dy_dz = self._grid.get_fiducial_translation(position, fid_1)
+            coords = _get_translated_coordinates(x1_y1_z1, dx_dy_dz)
+        elif self._check_coordinates_text_fields(fid_2):
+            x1_y1_z1 = self._read_coordinates_from_ui(fid_2)
+            dx_dy_dz = self._grid.get_fiducial_translation(position, fid_2)
+            coords = _get_translated_coordinates(x1_y1_z1, dx_dy_dz)
+        else:
+            raise ValueError("Can't read from UI, all fields appear to be empty")
+        return coords
+
     def _work_out_fiducial_positions_from_text_input(self, position: FiducialPosition):
         match position:
             case FiducialPosition.TL:
-                if self._check_coordinates_text_fields(position):
-                    coords = self._read_coordinates_from_ui(position)
-                elif self._check_coordinates_text_fields(FiducialPosition.TR):
-                    x1_y1_z1 = self._read_coordinates_from_ui(FiducialPosition.TR)
-                    dx_dy_dz = self._grid.get_fiducial_translation(
-                        position, FiducialPosition.TR
-                    )
-                    coords = _get_translated_coordinates(x1_y1_z1, dx_dy_dz)
-                elif self._check_coordinates_text_fields(FiducialPosition.BL):
-                    x1_y1_z1 = self._read_coordinates_from_ui(FiducialPosition.BL)
-                    dx_dy_dz = self._grid.get_fiducial_translation(
-                        position, FiducialPosition.BL
-                    )
-                    coords = _get_translated_coordinates(x1_y1_z1, dx_dy_dz)
-                else:
-                    raise ValueError(
-                        "Can't read from UI, all fields appear to be empty"
-                    )
+                coords = self._get_fiducial_coordinates_from_ui(
+                    position, [FiducialPosition.TR, FiducialPosition.BL]
+                )
             case FiducialPosition.TR:
-                if self._check_coordinates_text_fields(position):
-                    coords = self._read_coordinates_from_ui(position)
-                elif self._check_coordinates_text_fields(FiducialPosition.TL):
-                    x1_y1_z1 = self._read_coordinates_from_ui(FiducialPosition.TL)
-                    dx_dy_dz = self._grid.get_fiducial_translation(
-                        position, FiducialPosition.TL
-                    )
-                    coords = _get_translated_coordinates(x1_y1_z1, dx_dy_dz)
-                elif self._check_coordinates_text_fields(FiducialPosition.BL):
-                    x1_y1_z1 = self._read_coordinates_from_ui(FiducialPosition.BL)
-                    dx_dy_dz = self._grid.get_fiducial_translation(
-                        position, FiducialPosition.BL
-                    )
-                    coords = _get_translated_coordinates(x1_y1_z1, dx_dy_dz)
-                else:
-                    raise ValueError(
-                        "Can't read from UI, all fields appear to be empty"
-                    )
+                coords = self._get_fiducial_coordinates_from_ui(
+                    position, [FiducialPosition.TL, FiducialPosition.BL]
+                )
             case FiducialPosition.BL:
-                if self._check_coordinates_text_fields(position):
-                    coords = self._read_coordinates_from_ui(position)
-                elif self._check_coordinates_text_fields(FiducialPosition.TL):
-                    x1_y1_z1 = self._read_coordinates_from_ui(FiducialPosition.TL)
-                    dx_dy_dz = self._grid.get_fiducial_translation(
-                        position, FiducialPosition.TL
-                    )
-                    coords = _get_translated_coordinates(x1_y1_z1, dx_dy_dz)
-                elif self._check_coordinates_text_fields(FiducialPosition.TR):
-                    x1_y1_z1 = self._read_coordinates_from_ui(FiducialPosition.TR)
-                    dx_dy_dz = self._grid.get_fiducial_translation(
-                        position, FiducialPosition.TR
-                    )
-                    coords = _get_translated_coordinates(x1_y1_z1, dx_dy_dz)
-                else:
-                    raise ValueError(
-                        "Can't read from UI, all fields appear to be empty"
-                    )
+                coords = self._get_fiducial_coordinates_from_ui(
+                    position, [FiducialPosition.TL, FiducialPosition.TR]
+                )
 
         return (coords.x, coords.y, coords.z)
 
@@ -377,7 +347,7 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         else:
             LOGGER.info("Move fiducial from set coordinates")
             _x, _y, _z = self._get_fiducial_positions_from_known_coordinates(position)
-        self.client.run_plan(MOVE_SAMPLE_STAGE_PLAN, {"corner_coord": (_x, _y, _z)})
+        self.client.run_plan(MOVE_SAMPLE_STAGE_PLAN, {"coord": (_x, _y, _z)})
 
     def _make_coordinate_system(self):
         top_left = self._read_coordinates_from_ui(FiducialPosition.TL)
