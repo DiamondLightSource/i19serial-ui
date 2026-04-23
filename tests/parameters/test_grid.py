@@ -56,6 +56,7 @@ def test_get_grid_positions(x: int, z: int, expected_pos: list[float]):
             GridType.KAPTON400,
             (-2.28, 0, -2.28),
         ),
+        (FiducialPosition.BL, FiducialPosition.TL, GridType.POLYMER, (0, 0, -2.28)),
     ],
 )
 def test_fiducial_translation(
