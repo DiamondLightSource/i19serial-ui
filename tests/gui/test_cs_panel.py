@@ -257,6 +257,30 @@ def test_set_xyz_coordinates_for_fiducial(fiducial, positions, mock_cs_panel):
     assert text_boxes[2].text() == str(positions[2])
 
 
+def test_set_xyz_coordinates_for_fiducial_when_using_kapton_grid(mock_cs_panel):
+    mock_cs_panel._grid_type = GridType.KAPTON400
+    mock_cs_panel.client.run_plan_and_get_result.return_value = (0.1, 0.0, 1.2)
+    expected_positions = (0.250, 0.0, 1.05)
+
+    text_boxes = [
+        mock_cs_panel.top_left_x,
+        mock_cs_panel.top_left_y,
+        mock_cs_panel.top_left_z,
+    ]
+
+    mock_cs_panel._set_xyz_coordinates_for_fiducial(FiducialPosition.TL, text_boxes)
+
+    assert float(mock_cs_panel.top_left_x.text()) == pytest.approx(
+        expected_positions[0], 1e-2
+    )
+    assert float(mock_cs_panel.top_left_y.text()) == pytest.approx(
+        expected_positions[1], 1e-2
+    )
+    assert float(mock_cs_panel.top_left_z.text()) == pytest.approx(
+        expected_positions[2], 1e-2
+    )
+
+
 @pytest.mark.parametrize(
     "position, expected_coordinates",
     (
