@@ -1,4 +1,5 @@
 from .backlight_box import BacklightBox
+from .cs_panel import CoordinateSystemPanel
 from .grid_options import GridOptions
 from .input_panel import InputPanel
 from .log_box import LogBox
@@ -12,4 +13,5 @@ __all__ = [
     "LogBox",
     "PhiAdjust",
     "BacklightBox",
+    "CoordinateSystemPanel",
 ]

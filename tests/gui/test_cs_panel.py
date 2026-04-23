@@ -39,9 +39,15 @@ def test_coordinates_text_fields_update_when_uploaded_from_json(mock_cs_panel):
     expected_top_left = (0.1, 0.0, 1.2)
     expected_top_right = (0.1, 0.0, 1.4)
     expected_bottom_left = (0.3, 0.0, 1.2)
-    with patch(
-        "i19serial_ui.gui.widgets.cs_panel.Coordinates.from_json"
-    ) as mock_json_load:
+    with (
+        patch(
+            "i19serial_ui.gui.widgets.cs_panel.Coordinates.from_json"
+        ) as mock_json_load,
+        patch(
+            "i19serial_ui.gui.widgets.cs_panel.QtWidgets.QFileDialog.getOpenFileName"
+        ) as patch_file,
+    ):
+        patch_file.return_value = "/chosen/path/to/coord.json"
         mock_json_load.return_value = Coordinates(**FAKE_COORDS)
         mock_cs_panel._upload_coordinates()
 

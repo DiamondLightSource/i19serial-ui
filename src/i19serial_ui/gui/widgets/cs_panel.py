@@ -214,7 +214,7 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
             if position == FiducialPosition.TR:
                 _x = float(self.top_right_x.text())
                 _y = float(self.top_right_y.text())
-                _z = float(self.top_left_z.text())
+                _z = float(self.top_right_z.text())
             if position == FiducialPosition.BL:
                 _x = float(self.bottom_left_x.text())
                 _y = float(self.bottom_left_y.text())
