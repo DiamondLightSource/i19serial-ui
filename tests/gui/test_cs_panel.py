@@ -92,6 +92,21 @@ def test_save_coordinates_does_not_run_if_value_missing(mock_save, mock_cs_panel
     mock_save.assert_not_called()
 
 
+@patch("i19serial_ui.gui.widgets.cs_panel.LOGGER")
+@patch("i19serial_ui.gui.widgets.cs_panel.save_coordinates_to_json")
+def test_exception_is_raised_and_caught_if_save_not_successful(
+    mock_save, mock_logger, mock_cs_panel
+):
+    set_values_to_all_boxes(mock_cs_panel)
+    mock_cs_panel.logger = MagicMock()
+    mock_save.side_effect = Exception("NOPE")
+
+    mock_cs_panel._save_coordinates()
+
+    mock_cs_panel.logger.error.assert_called_once_with("Unable to save coordinates")
+    mock_logger.exception.assert_called_once()
+
+
 def test_check_coordinates_text_fields(mock_cs_panel):
     set_values_to_all_boxes(mock_cs_panel)
 

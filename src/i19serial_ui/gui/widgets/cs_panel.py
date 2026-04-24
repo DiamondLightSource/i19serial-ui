@@ -243,7 +243,7 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
             save_coordinates_to_json("coordinates.json", coordinates)
         except Exception as e:
             self.logger.error("Unable to save coordinates")
-            self.logger.exception(e)
+            LOGGER.exception(e)
 
     def _upload_coordinates(self):
         filename = QtWidgets.QFileDialog.getOpenFileName(
