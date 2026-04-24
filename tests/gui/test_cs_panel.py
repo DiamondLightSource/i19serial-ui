@@ -74,6 +74,26 @@ def test_coordinates_text_fields_update_when_uploaded_from_json(mock_cs_panel):
         assert mock_cs_panel.bottom_left_z.text() == str(expected_bottom_left[2])
 
 
+def test_ipload_coordinates_fails(mock_cs_panel):
+    mock_cs_panel.logger = MagicMock()
+    with (
+        patch(
+            "i19serial_ui.gui.widgets.cs_panel.Coordinates.from_json"
+        ) as mock_json_load,
+        patch(
+            "i19serial_ui.gui.widgets.cs_panel.QtWidgets.QFileDialog.getOpenFileName"
+        ) as patch_file,
+    ):
+        patch_file.return_value = "/chosen/path/to/coord.json"
+        mock_json_load.side_effect = Exception()
+
+        mock_cs_panel._upload_coordinates()
+
+        mock_cs_panel.logger.error.asser_called_once_with(
+            "Unable to upload coordinates"
+        )
+
+
 @patch("i19serial_ui.gui.widgets.cs_panel.save_coordinates_to_json")
 def test_save_coordinates(mock_save, mock_cs_panel):
     set_values_to_all_boxes(mock_cs_panel)
@@ -371,6 +391,19 @@ def test_make_coordinate_system(mock_cs_maker, mock_cs_panel):
     mock_cs_maker.assert_called_once_with(
         3, 3, ((0.1, 0.0, 1.2), (0.1, 0.0, 1.4), (0.3, 0.0, 1.2))
     )
+
+
+@patch("i19serial_ui.gui.widgets.cs_panel.LOGGER")
+@patch("i19serial_ui.gui.widgets.cs_panel.make_coordinate_system")
+def test_make_coordinate_system_failure(mock_cs_maker, mock_logger, mock_cs_panel):
+    set_values_to_all_boxes(mock_cs_panel)
+    mock_cs_panel.logger = MagicMock()
+    mock_cs_maker.side_effect = Exception()
+
+    mock_cs_panel._make_coordinate_system()
+
+    mock_logger.exception.assert_called_once()
+    mock_cs_panel.logger.error.assert_called_once()
 
 
 def test_run_cs_test(mock_cs_panel):
