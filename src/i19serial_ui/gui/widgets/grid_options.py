@@ -51,5 +51,10 @@ class GridOptions(QtWidgets.QWidget):
         return text_layout
 
     def _update_grid(self):
-        self.current_grid = self.grid_box.currentText()
-        self.logger.info(f"Grid selected: {self.current_grid}")
+        self.current_grid = GridType(self.grid_box.currentText())
+        self.logger.info(f"Grid selected: {self.current_grid.value}")
+
+    def get_grid_size(self) -> tuple[int, int]:
+        _x = int(self.grid_x.text())
+        _z = int(self.grid_z.text())
+        return (_x, _z)

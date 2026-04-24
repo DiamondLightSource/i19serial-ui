@@ -36,6 +36,6 @@ def get_data_main_path() -> Path:
     return base_path
 
 
-def _create_image_icon(image_path: str) -> QIcon:
+def create_image_icon(image_path: str) -> QIcon:
     icon = QIcon(image_path)
     return icon

@@ -1,5 +1,6 @@
 import pytest
 
+from i19serial_ui.parameters.coordinates import FiducialPosition
 from i19serial_ui.parameters.grid import Grid, GridType
 
 
@@ -34,11 +35,40 @@ def test_grid(
     ],
 )
 def test_get_grid_positions(x: int, z: int, expected_pos: list[float]):
-    test_grid = Grid(x, z, GridType.POLYMER)
+    test_grid = Grid(size_x=x, size_z=z, grid_type=GridType.POLYMER)
 
     res = test_grid.get_grid_positions()
 
-    assert res["top_left"] == expected_pos[0] and res["top_right"] == expected_pos[1]
-    assert (
-        res["bottom_left"] == expected_pos[2] and res["bottom_right"] == expected_pos[3]
-    )
+    assert res[FiducialPosition.TL] == expected_pos[0]
+    assert res[FiducialPosition.TR] == expected_pos[1]
+    assert res[FiducialPosition.BL] == expected_pos[2]
+
+
+@pytest.mark.parametrize(
+    "requested_fid, known_fid, grid_type, expected_vector",
+    [
+        (FiducialPosition.TL, FiducialPosition.TR, GridType.POLYMER, (-2.28, 0, 0)),
+        (FiducialPosition.TL, FiducialPosition.BL, GridType.SILICON, (0, 0, 2.375)),
+        (FiducialPosition.TR, FiducialPosition.BL, GridType.FILM, (1.90, 0, -1.90)),
+        (
+            FiducialPosition.BL,
+            FiducialPosition.TR,
+            GridType.KAPTON400,
+            (-2.28, 0, -2.28),
+        ),
+        (FiducialPosition.BL, FiducialPosition.TL, GridType.POLYMER, (0, 0, -2.28)),
+    ],
+)
+def test_fiducial_translation(
+    requested_fid: FiducialPosition,
+    known_fid: FiducialPosition,
+    grid_type: GridType,
+    expected_vector: tuple,
+):
+    test_grid = Grid(20, 20, grid_type)
+
+    res = test_grid.get_fiducial_translation(requested_fid, known_fid)
+
+    assert res[0] == pytest.approx(expected_vector[0], 1e-2)
+    assert res[1] == pytest.approx(expected_vector[1], 1e-2)
+    assert res[2] == pytest.approx(expected_vector[2], 1e-2)

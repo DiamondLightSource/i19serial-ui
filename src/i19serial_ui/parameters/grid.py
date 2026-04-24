@@ -2,6 +2,8 @@ from enum import StrEnum
 
 from pydantic.dataclasses import dataclass
 
+from i19serial_ui.parameters.coordinates import FiducialPosition
+
 
 class GridType(StrEnum):
     POLYMER = "polymer"
@@ -39,20 +41,39 @@ class Grid:
     def city_block_z(self) -> float:
         return (self.size_z - 1) * self.dim_xz_steps[1]
 
-    def get_grid_positions(self) -> dict[str, float]:
-        "Returns index of TL, TR, BL, BR positions in coords list."
-        tl_pos = 0.0
+    def get_grid_positions(self) -> dict[FiducialPosition, int]:
+        "Returns index of TL, TR, BL positions in coords list."
+        tl_pos = 0
         tr_pos = self.size_x - 1
         if (self.size_z % 2) == 0:
             bl_pos = self.size_x * self.size_z - 1
-            br_pos = self.size_x * (self.size_z - 1) - 1
         else:
             bl_pos = self.size_x * (self.size_z - 1) - 1
-            br_pos = self.size_x * self.size_z - 1
         pos_dict = {
-            "top_left": tl_pos,
-            "top_right": tr_pos,
-            "bottom_left": bl_pos,
-            "bottom_right": br_pos,
+            FiducialPosition.TL: tl_pos,
+            FiducialPosition.TR: tr_pos,
+            FiducialPosition.BL: bl_pos,
         }
         return pos_dict
+
+    def get_fiducial_translation(
+        self, fiducial: FiducialPosition, known_fiducial: FiducialPosition
+    ) -> tuple[float, float, float]:
+        v = (0, 0, 0)
+        match fiducial:
+            case FiducialPosition.TL:
+                if known_fiducial == FiducialPosition.TR:
+                    v = (-self.city_block_x, 0, 0)
+                if known_fiducial == FiducialPosition.BL:
+                    v = (0, 0, self.city_block_z)
+            case FiducialPosition.TR:
+                if known_fiducial == FiducialPosition.TL:
+                    v = (self.city_block_x, 0, 0)
+                if known_fiducial == FiducialPosition.BL:
+                    v = (self.city_block_x, 0, -self.city_block_z)
+            case FiducialPosition.BL:
+                if known_fiducial == FiducialPosition.TL:
+                    v = (0, 0, -self.city_block_z)
+                if known_fiducial == FiducialPosition.TR:
+                    v = (-self.city_block_x, 0, -self.city_block_z)
+        return v

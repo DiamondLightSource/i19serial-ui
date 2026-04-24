@@ -3,6 +3,8 @@ from unittest.mock import MagicMock, call, patch
 
 import pytest
 from blueapi.client.client import BlueapiClient
+
+# from blueapi.client.rest import ServiceUnavailableError
 from blueapi.config import ApplicationConfig
 from blueapi.service.model import TaskRequest
 from blueapi.worker.event import TaskResult, TaskStatus

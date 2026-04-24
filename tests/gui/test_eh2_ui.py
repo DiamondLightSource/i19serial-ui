@@ -6,6 +6,7 @@ from PyQt6 import QtWidgets
 
 from i19serial_ui.gui.serial_gui_eh2 import SerialGuiEH2
 from i19serial_ui.gui.widgets import (
+    CoordinateSystemPanel,
     GridOptions,
     InputPanel,
     LogBox,
@@ -36,6 +37,9 @@ def test_all_widgets_initialised(mock_eh2_gui):
     assert mock_eh2_gui.aperturedropdown and isinstance(
         mock_eh2_gui.aperturedropdown, QtWidgets.QComboBox
     )
+    assert mock_eh2_gui.cs_widget and isinstance(
+        mock_eh2_gui.cs_widget, CoordinateSystemPanel
+    )
 
 
 def test_general_layout(mock_eh2_gui):
@@ -44,6 +48,11 @@ def test_general_layout(mock_eh2_gui):
     title = mock_eh2_gui.general_layout.children()[0]
     assert isinstance(title, QtWidgets.QHBoxLayout)
     assert isinstance(mock_eh2_gui.top_group, QtWidgets.QGroupBox)
+    assert isinstance(mock_eh2_gui.cs_group, QtWidgets.QGroupBox)
+    assert isinstance(mock_eh2_gui.input_group, QtWidgets.QGroupBox)
+    assert isinstance(mock_eh2_gui.cs_group, QtWidgets.QGroupBox)
+    assert isinstance(mock_eh2_gui.run_btns_group, QtWidgets.QGroupBox)
+    assert isinstance(mock_eh2_gui.bottom_group, QtWidgets.QGroupBox)
 
 
 @pytest.mark.parametrize(

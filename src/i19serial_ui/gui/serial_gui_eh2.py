@@ -7,8 +7,8 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
 from i19serial_ui.gui.ui_utils import (
     HutchInUse,
-    _create_image_icon,
     config_file_path,
+    create_image_icon,
     get_data_main_path,
     image_file_path,
 )
@@ -20,6 +20,7 @@ from i19serial_ui.gui.widgets import (
     PhiAdjust,
     WellsSelectionPanel,
 )
+from i19serial_ui.gui.widgets.cs_panel import CoordinateSystemPanel
 from i19serial_ui.log import (
     LOGGER,
     GuiWindowLogHandler,
@@ -62,6 +63,13 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.inputs = InputPanel(centralWidget)
         self.wells = WellsSelectionPanel(centralWidget)
         self.grid = GridOptions(centralWidget)
+        self.cs_widget = CoordinateSystemPanel(
+            self.client,
+            self.grid.current_grid,
+            self.grid.get_grid_size(),
+            centralWidget,
+        )
+
         self.phi_rotator = PhiAdjust(self.client, centralWidget)
         self.backlight = BacklightBox(self.client, centralWidget)
         # Create boxes with layouts
@@ -115,13 +123,13 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
     def _create_actions(self):
         self.select_visit_action = QtGui.QAction(self)
         self.select_visit_action.setIcon(
-            _create_image_icon(image_file_path("openDir.png"))
+            create_image_icon(image_file_path("openDir.png"))
         )
         self.select_visit_action.triggered.connect(self.select_visit)
         self.home_action = QtGui.QAction(self)
-        self.home_action.setIcon(_create_image_icon(image_file_path("home.png")))
+        self.home_action.setIcon(create_image_icon(image_file_path("home.png")))
         self.run_action = QtGui.QAction(self)
-        self.run_action.setIcon(_create_image_icon(image_file_path("run.png")))
+        self.run_action.setIcon(create_image_icon(image_file_path("run.png")))
         self.run_action.triggered.connect(self.run)
 
     def _setup_title(self):
@@ -163,6 +171,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
 
     def _create_coordinate_system_group(self):
         self.cs_group = QtWidgets.QGroupBox("Coordinate System")
+        self.cs_group.setLayout(self.cs_widget.cs_layout)
 
     def _create_collection_inputs_group(self):
         self.input_group = QtWidgets.QGroupBox("Collection set up")
@@ -185,7 +194,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.run_btns_group = QtWidgets.QGroupBox()
         btn_layout = QtWidgets.QHBoxLayout()
 
-        self.run_btn = self._create_button("Run Plan", self.run_serial)
+        self.run_btn = self._create_button("Run Plan", self.run)
 
         self.abort_btn = self._create_button("Abort", self.abort)
 
@@ -233,7 +242,10 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         log_to_gui(self.gui_logger, msg, level)
 
     def run(self):
-        self.appendOutput("RUN COLLECTION FROM HERE")
+        all_params = self.read_all_parameters()
+        self.appendOutput("Start serial collection with the panda")
+        self.appendOutput(f"With parameters: {all_params}")
+        self.client.run_plan("run_serial_from_panda", all_params)
 
     def abort(self):
         self.client.abort_task()
@@ -295,12 +307,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             }
         }
         return params
-
-    def run_serial(self):
-        all_params = self.read_all_parameters()
-        self.appendOutput("Start serial collection with the panda")
-        self.appendOutput(f"With parameters: {all_params}")
-        self.client.run_plan("run_serial_from_panda", all_params)
 
 
 def start_eh2_ui():
