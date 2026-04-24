@@ -102,10 +102,10 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
     def _set_xyz_coordinates_for_fiducial(
         self, position: FiducialPosition, text_boxes: list[QtWidgets.QLineEdit]
     ):
-        LOGGER.info(f"Setting x,y,z for position {position}")
+        self.logger.info(f"Setting x,y,z for position {position}")
         stage_positions = self.client.run_plan_and_get_result(READ_POSITIONS_PLAN, {})
         if not stage_positions:
-            LOGGER.error(
+            self.logger.error(
                 "No positions could be read off the diffractometer, check blueapi logs"
             )
             return
@@ -217,7 +217,7 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
                 _y = float(self.bottom_left_y.text())
                 _z = float(self.bottom_left_z.text())
         except ValueError:
-            LOGGER.error(
+            self.logger.error(
                 f"""
                 Can't read all coordinates for {position.value} position,
                 are some fields blank?
@@ -250,9 +250,8 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
             None, directory=COORD_FILE_PATH.as_posix(), filter="Json file (*.json)"
         )[0]
         if not filename:
-            LOGGER.warning("No file selected")
+            self.logger.warning("No file selected")
             return
-        LOGGER.info(f"Loading coordinates from {filename}")
         self.logger.info(f"Uploading coordinates from file {filename}")
         try:
             coordinates = Coordinates.from_json(filename)
@@ -326,26 +325,30 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
     ) -> tuple[float, float, float]:
         _pos = self._grid.get_grid_positions()[position]
         coords = self.coordinates[_pos]
-        LOGGER.info(f"Moving to {coords}")
+        self.logger.info(f"Moving to {coords}")
         return (coords[0], coords[1], coords[2])
 
     def perform_grid_move(self, position: FiducialPosition):
         """Move to the fiducial position by triggering a bluesky plan."""
-        LOGGER.info(f"Moving to grid position {position.value}")
+        self.logger.info(f"Moving to grid position {position.value}")
         if len(self.coordinates) == 0:
-            LOGGER.info("Coordinate list not yet generated, using values from UI.")
+            self.logger.info("Coordinate list not yet generated, using values from UI.")
             try:
                 _x, _y, _z = self._work_out_fiducial_positions_from_text_input(position)
             except ValueError as err:
-                LOGGER.error(
+                self.logger.error(
                     "Error while reading coordinates, please type in some values!"
                 )
                 LOGGER.exception(err)
+                return
             except Exception as e:
-                LOGGER.error("Something seems to be wrong with the input number format")
+                self.logger.error(
+                    "Something seems to be wrong with the input number format"
+                )
                 LOGGER.exception(e)
+                return
         else:
-            LOGGER.info("Move fiducial from set coordinates")
+            self.logger.info("Move fiducial from set coordinates")
             _x, _y, _z = self._get_fiducial_positions_from_known_coordinates(position)
         self.client.run_plan(MOVE_SAMPLE_STAGE_PLAN, {"coord": (_x, _y, _z)})
 
@@ -362,17 +365,18 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
             )
 
         except Exception as e:
-            LOGGER.error("ERROR in creating the coordinates")
+            self.logger.error("ERROR in creating the coordinates")
             LOGGER.exception(e)
+            return
 
-        LOGGER.info(f"\t Coordinates: \n {self.coordinates}")
+        self.logger.info(f"\t Coordinates: \n {self.coordinates}")
         if len(self.coordinates) != self.coord_length:
-            LOGGER.error("Coordinates may be missing, wrong length")
-        LOGGER.info(f"Coordinates len: {len(self.coordinates)}")
+            self.logger.error("Coordinates may be missing, wrong length")
+        self.logger.info(f"Coordinates len: {len(self.coordinates)}")
 
     def _run_coordinate_system_test(self):
-        LOGGER.info("Run a test to check on the coordinate system")
+        self.logger.info("Run a test to check on the coordinate system")
         if len(self.coordinates) == 0:
-            LOGGER.error("Please create the coordinate system first.")
+            self.logger.error("Please create the coordinate system first.")
             return
         self.client.run_plan(TEST_CS_PLAN, {"coord_list": self.coordinates})

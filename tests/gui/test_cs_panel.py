@@ -1,4 +1,4 @@
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from PyQt6 import QtWidgets
@@ -300,6 +300,28 @@ def test_perform_grid_move_from_ui_values(
     mock_cs_panel.client.run_plan.assert_called_once_with(
         "move_sample_stage", {"coord": expected_coordinates}
     )
+
+
+@patch("i19serial_ui.gui.widgets.cs_panel.LOGGER")
+def test_perform_grid_move_from_ui_does_not_run_because_no_values_in_fields(
+    mock_logger,
+    mock_cs_panel,
+):
+    set_values_to_all_boxes(mock_cs_panel)
+    mock_cs_panel.logger = MagicMock()
+
+    with patch(
+        "i19serial_ui.gui.widgets.cs_panel.CoordinateSystemPanel._work_out_fiducial_positions_from_text_input"
+    ) as patch_ui_read:
+        patch_ui_read.side_effect = ValueError()
+
+        mock_cs_panel.perform_grid_move(FiducialPosition.BL)
+
+        mock_cs_panel.client.run_plan.assert_not_called()
+        mock_cs_panel.logger.error.assert_called_once_with(
+            "Error while reading coordinates, please type in some values!"
+        )
+        mock_logger.exception.assert_called_once()
 
 
 @pytest.mark.parametrize(
