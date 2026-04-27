@@ -125,6 +125,57 @@ def test_phi_buttons(mock_eh2_gui, plan, mock_params, buttoncalled):
 
 
 @pytest.mark.parametrize(
+    "wells_chosen,results",
+    [
+        (
+            {
+                "first": 1,
+                "last": 20,
+                "selected": [1, 10, 20],
+                "series_length": 10,
+                "manual_selection_enabled": True,
+            },
+            {
+                1: (0.0, 0.0, 0.0),
+                10: (0.4736842105263158, 0.0, 0.0),  # will fix when we round to 3
+                20: (0.9999999999999999, 0.0, 0.0),
+            },
+        ),
+        (
+            {
+                "first": 1,
+                "last": 5,
+                "selected": list(range(1, 6)),
+                "series_length": 1,
+                "manual_selection_enabled": False,
+            },
+            {
+                1: (0.0, 0.0, 0.0),
+                2: (0.05263157894736842, 0.0, 0.0),  # will fix when we round to 3
+                3: (0.10526315789473684, 0.0, 0.0),
+                4: (0.15789473684210525, 0.0, 0.0),
+                5: (0.21052631578947367, 0.0, 0.0),
+            },
+        ),
+    ],
+)
+def test_get_run_position_coordinates(mock_eh2_gui, wells_chosen, results):
+    cs = mock_eh2_gui.cs_widget
+    cs.top_left_x.setText("0")
+    cs.top_left_y.setText("0")
+    cs.top_left_z.setText("0")
+    cs.top_right_x.setText("1.0")
+    cs.top_right_y.setText("0.0")
+    cs.top_right_z.setText("0.0")
+    cs.bottom_left_x.setText("0.0")
+    cs.bottom_left_y.setText("0.0")
+    cs.bottom_left_z.setText("1.0")
+    cs._make_coordinate_system()
+    run_coords = mock_eh2_gui.get_run_position_coordinates(wells_chosen)
+    assert run_coords == results
+
+
+@pytest.mark.parametrize(
     "well_list,manual_selection_enabled,series_length",
     [([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], False, 1), ([1, 3, 5, 7, 9], True, 2)],
 )
