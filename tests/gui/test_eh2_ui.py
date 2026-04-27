@@ -144,7 +144,6 @@ def test_run_panda_and_read_all_parameters(
     mock_time_image = 0.2
 
     inputs = mock_eh2_gui.inputs
-
     inputs.rotation_start = make_text_mock(mock_rotation_start)
     inputs.num_images = make_text_mock(mock_num_images)
     inputs.image_width = make_text_mock(mock_rotation_increment)
@@ -163,6 +162,18 @@ def test_run_panda_and_read_all_parameters(
     inputs.well_start = make_text_mock(well_list[0])
     inputs.well_end = make_text_mock(well_list[-1])
 
+    cs = mock_eh2_gui.cs_widget
+    cs.top_left_x.setText("0.1")
+    cs.top_left_y.setText("0.0")
+    cs.top_left_z.setText("1.2")
+    cs.top_right_x.setText("0.1")
+    cs.top_right_y.setText("0.0")
+    cs.top_right_z.setText("1.4")
+    cs.bottom_left_x.setText("0.3")
+    cs.bottom_left_y.setText("0.0")
+    cs.bottom_left_z.setText("1.2")
+    cs._make_coordinate_system()
+
     mock_eh2_gui.grid.grid_box.currentText = Mock(return_value="polymer")
     mock_eh2_gui.grid.grid_x = make_text_mock(20)
     mock_eh2_gui.grid.grid_z = make_text_mock(20)
@@ -173,6 +184,7 @@ def test_run_panda_and_read_all_parameters(
         return_value=manual_selection_enabled
     )
     mock_eh2_gui.wells.get_selected_wells_list = Mock(return_value=well_list)
+
     mock_params = {
         "parameters": {
             "detector_distance_mm": mock_detector_z,
@@ -195,7 +207,9 @@ def test_run_panda_and_read_all_parameters(
                 "z_steps": 20,
             },
             "detector_type": "EIGER",
-            "well_position": {1: (1, 2, 3)},
+            "well_position": mock_eh2_gui.get_run_position_coordinates(
+                mock_eh2_gui.read_wells(),
+            ),
             "wells": mock_eh2_gui.read_wells(),
         }
     }

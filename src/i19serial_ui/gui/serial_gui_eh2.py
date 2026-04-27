@@ -27,6 +27,7 @@ from i19serial_ui.log import (
     log_to_gui,
     tidy_up_logging,
 )
+from i19serial_ui.parameters.coordinates import Coord3D
 from i19serial_ui.parameters.general_utils import ApertureOptions
 
 WINDOW_SIZE = (600, 1200)
@@ -265,11 +266,23 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             wells_chosen = {
                 "first": float(self.inputs.well_start.text()),
                 "last": float(self.inputs.well_end.text()),
-                "selected": range(1, int(self.inputs.well_end.text())),
+                "selected": list(range(1, int(self.inputs.well_end.text()) + 1)),
                 "series_length": int(self.inputs.series_length.text()),
                 "manual_selection_enabled": False,
             }
+        log_to_gui(LOGGER, f"selection: {wells_chosen}")
         return wells_chosen
+
+    def get_run_position_coordinates(
+        self,
+        wells_chosen: dict,
+    ) -> dict[int, Coord3D]:
+        # "Returns dict[int, Coord3D] (wellnum: position) for each well in series"
+        run_positions: dict[int, Coord3D] = {}
+        for well in wells_chosen["selected"]:
+            _well_coords = self.cs_widget.coordinates[well - 1]
+            run_positions[well] = _well_coords
+        return run_positions
 
     def read_all_parameters(self):
         rotation_start = float(self.inputs.rotation_start.text())
@@ -279,7 +292,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         detector_z = float(self.inputs.det_dist.text())
         detector_two_theta = float(self.inputs.two_theta.text())
         eh2_aperture = self.read_aperture_dropdown()
-
+        wells = self.read_wells()
         params = {
             "parameters": {
                 "detector_distance_mm": detector_z,
@@ -302,8 +315,8 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
                     "z_steps": int(self.grid.grid_z.text()),
                 },
                 "detector_type": "EIGER",
-                "well_position": {1: (1, 2, 3)},  # to be removed asap
-                "wells": self.read_wells(),
+                "well_position": self.get_run_position_coordinates(wells),
+                "wells": wells,
             }
         }
         return params
