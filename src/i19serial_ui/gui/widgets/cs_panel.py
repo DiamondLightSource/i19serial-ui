@@ -353,13 +353,13 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         self.client.run_plan(MOVE_SAMPLE_STAGE_PLAN, {"coord": (_x, _y, _z)})
 
     def _make_coordinate_system(self):
-        top_left = self._read_coordinates_from_ui(FiducialPosition.TL)
-        top_right = self._read_coordinates_from_ui(FiducialPosition.TR)
-        bottom_left = self._read_coordinates_from_ui(FiducialPosition.BL)
-
-        fiducial_positions = (top_left, top_right, bottom_left)
-
         try:
+            top_left = self._read_coordinates_from_ui(FiducialPosition.TL)
+            top_right = self._read_coordinates_from_ui(FiducialPosition.TR)
+            bottom_left = self._read_coordinates_from_ui(FiducialPosition.BL)
+
+            fiducial_positions = (top_left, top_right, bottom_left)
+
             self.coordinates = make_coordinate_system(
                 self._grid_size[0], self._grid_size[1], fiducial_positions
             )
