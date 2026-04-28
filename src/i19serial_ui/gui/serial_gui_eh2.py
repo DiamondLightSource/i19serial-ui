@@ -146,7 +146,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         return self.aperturedropdown.currentText()
 
     def _create_top_group(self):
-
         # move arrows, phi step, focuse, backlight etc
         self._create_dropdown()
         self.top_group = QtWidgets.QGroupBox()
