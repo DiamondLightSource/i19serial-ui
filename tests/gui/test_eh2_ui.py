@@ -4,6 +4,7 @@ from unittest.mock import Mock, patch
 import pytest
 from PyQt6 import QtWidgets
 
+from i19serial_ui.coordinate_system.utils import get_run_position_coordinates
 from i19serial_ui.gui.serial_gui_eh2 import SerialGuiEH2
 from i19serial_ui.gui.widgets import (
     CoordinateSystemPanel,
@@ -205,7 +206,7 @@ def test_get_run_position_coordinates(mock_eh2_gui, wells_chosen, results):
     cs.bottom_left_y.setText("0.0")
     cs.bottom_left_z.setText("1.0")
     cs._make_coordinate_system()
-    run_coords = mock_eh2_gui.get_run_position_coordinates(wells_chosen)
+    run_coords = get_run_position_coordinates(cs, wells_chosen)
     assert run_coords == results
 
 
@@ -292,7 +293,8 @@ def test_run_panda_and_read_all_parameters(
                 "z_steps": 20,
             },
             "detector_type": "EIGER",
-            "well_position": mock_eh2_gui.get_run_position_coordinates(
+            "well_position": get_run_position_coordinates(
+                mock_eh2_gui.cs_widget,
                 mock_eh2_gui.read_wells(),
             ),
             "wells": mock_eh2_gui.read_wells(),

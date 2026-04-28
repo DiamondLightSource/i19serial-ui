@@ -41,3 +41,15 @@ def _get_translated_coordinates(
 ) -> Coord3D:
     res = [(i + j) for i, j in zip(fiducial_coords, translation_vector, strict=True)]
     return Coord3D(*res)
+
+
+def get_run_position_coordinates(
+    self,
+    wells_chosen: dict,
+) -> dict[int, Coord3D]:
+    # "Returns dict[int, Coord3D] (wellnum: position) for each well in series"
+    run_positions: dict[int, Coord3D] = {}
+    for well in wells_chosen["selected"]:
+        _well_coords = self.coordinates[well - 1]
+        run_positions[well] = _well_coords
+    return run_positions

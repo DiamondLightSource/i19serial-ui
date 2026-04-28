@@ -5,6 +5,7 @@ from pathlib import Path
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
+from i19serial_ui.coordinate_system.utils import get_run_position_coordinates
 from i19serial_ui.gui.ui_utils import (
     HutchInUse,
     config_file_path,
@@ -27,7 +28,6 @@ from i19serial_ui.log import (
     log_to_gui,
     tidy_up_logging,
 )
-from i19serial_ui.parameters.coordinates import Coord3D
 from i19serial_ui.parameters.general_utils import ApertureOptions
 
 WINDOW_SIZE = (600, 1200)
@@ -273,17 +273,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         log_to_gui(LOGGER, f"selection: {wells_chosen}")
         return wells_chosen
 
-    def get_run_position_coordinates(
-        self,
-        wells_chosen: dict,
-    ) -> dict[int, Coord3D]:
-        # "Returns dict[int, Coord3D] (wellnum: position) for each well in series"
-        run_positions: dict[int, Coord3D] = {}
-        for well in wells_chosen["selected"]:
-            _well_coords = self.cs_widget.coordinates[well - 1]
-            run_positions[well] = _well_coords
-        return run_positions
-
     def read_all_parameters(self):
         rotation_start = float(self.inputs.rotation_start.text())
         num_images = float(self.inputs.num_images.text())
@@ -315,7 +304,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
                     "z_steps": int(self.grid.grid_z.text()),
                 },
                 "detector_type": "EIGER",
-                "well_position": self.get_run_position_coordinates(wells),
+                "well_position": get_run_position_coordinates(self.cs_widget, wells),
                 "wells": wells,
             }
         }
