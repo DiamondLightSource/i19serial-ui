@@ -13,6 +13,7 @@ from i19serial_ui.gui.widgets import (
     PhiAdjust,
     WellsSelectionPanel,
 )
+from i19serial_ui.parameters.coordinates import FiducialPosition
 from i19serial_ui.parameters.general_utils import BacklightOption
 
 
@@ -37,8 +38,8 @@ def test_all_widgets_initialised(mock_eh2_gui):
     assert mock_eh2_gui.aperturedropdown and isinstance(
         mock_eh2_gui.aperturedropdown, QtWidgets.QComboBox
     )
-    assert mock_eh2_gui.cs_widget and isinstance(
-        mock_eh2_gui.cs_widget, CoordinateSystemPanel
+    assert mock_eh2_gui.cs_panel and isinstance(
+        mock_eh2_gui.cs_panel, CoordinateSystemPanel
     )
 
 
@@ -53,6 +54,38 @@ def test_general_layout(mock_eh2_gui):
     assert isinstance(mock_eh2_gui.cs_group, QtWidgets.QGroupBox)
     assert isinstance(mock_eh2_gui.run_btns_group, QtWidgets.QGroupBox)
     assert isinstance(mock_eh2_gui.bottom_group, QtWidgets.QGroupBox)
+
+
+def test_toolbar(mock_eh2_gui):
+    assert isinstance(mock_eh2_gui.toolbar, QtWidgets.QToolBar)
+    assert len(mock_eh2_gui.toolbar.actions()) == 6
+
+
+def test_grid_move_tl_action(mock_eh2_gui):
+    with patch(
+        "i19serial_ui.gui.serial_gui_eh2.CoordinateSystemPanel.perform_grid_move"
+    ) as patch_grid_move:
+        mock_eh2_gui.grid_move_tl_action.trigger()
+
+        patch_grid_move.assert_called_once_with(FiducialPosition.TL)
+
+
+def test_grid_move_tr_action(mock_eh2_gui):
+    with patch(
+        "i19serial_ui.gui.serial_gui_eh2.CoordinateSystemPanel.perform_grid_move"
+    ) as patch_grid_move:
+        mock_eh2_gui.grid_move_tr_action.trigger()
+
+        patch_grid_move.assert_called_once_with(FiducialPosition.TR)
+
+
+def test_grid_move_bl_action(mock_eh2_gui):
+    with patch(
+        "i19serial_ui.gui.serial_gui_eh2.CoordinateSystemPanel.perform_grid_move"
+    ) as patch_grid_move:
+        mock_eh2_gui.grid_move_bl_action.trigger()
+
+        patch_grid_move.assert_called_once_with(FiducialPosition.BL)
 
 
 @pytest.mark.parametrize(
