@@ -127,19 +127,19 @@ def test_phi_buttons(mock_eh2_gui, plan, mock_params, buttoncalled):
 
 @pytest.mark.parametrize(
     "well_list,manual_selection_enabled,series_length",
-    [([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], False, 1), ([1, 3, 5, 7, 9], True, 2)],
+    [([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], False, 10), ([1, 3, 5, 7, 9], True, 5)],
 )
 def test_run_panda_and_read_all_parameters(
     mock_eh2_gui,
-    well_list,
-    manual_selection_enabled,
-    series_length,
+    well_list: list[int],
+    manual_selection_enabled: bool,
+    series_length: float,
 ):
     mock_detector_z = 117.53
     mock_eh2_aperture = "20um"  # ApertureOptions.UM_20
     mock_detector_two_theta = 0.0
     mock_rotation_start = 0.0
-    mock_num_images = 50.0
+    mock_num_images = 50
     mock_rotation_increment = 0.2
     mock_rotation_end = mock_rotation_start + mock_num_images + mock_rotation_increment
     mock_time_image = 0.2
@@ -164,15 +164,15 @@ def test_run_panda_and_read_all_parameters(
     inputs.well_end = make_text_mock(well_list[-1])
 
     cs = mock_eh2_gui.cs_widget
-    cs.top_left_x.setText("0.1")
+    cs.top_left_x.setText("0.0")
     cs.top_left_y.setText("0.0")
-    cs.top_left_z.setText("1.2")
-    cs.top_right_x.setText("0.1")
+    cs.top_left_z.setText("0.0")
+    cs.top_right_x.setText("1.0")
     cs.top_right_y.setText("0.0")
-    cs.top_right_z.setText("1.4")
-    cs.bottom_left_x.setText("0.3")
+    cs.top_right_z.setText("0.0")
+    cs.bottom_left_x.setText("0.0")
     cs.bottom_left_y.setText("0.0")
-    cs.bottom_left_z.setText("1.2")
+    cs.bottom_left_z.setText("1.0")
     cs._make_coordinate_system()
 
     mock_eh2_gui.grid.grid_box.currentText = Mock(return_value="polymer")

@@ -258,16 +258,16 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         if self.wells.selection_checkbox.isChecked():
             well_list = self.wells.get_selected_wells_list()
             wells_chosen = {
-                "first": well_list[0],
-                "last": well_list[-1],
+                "first": int(well_list[0]),
+                "last": int(well_list[-1]),
                 "selected": well_list,
                 "series_length": int(self.inputs.series_length.text()),
                 "manual_selection_enabled": True,
             }
         else:
             wells_chosen = {
-                "first": float(self.inputs.well_start.text()),
-                "last": float(self.inputs.well_end.text()),
+                "first": int(self.inputs.well_start.text()),
+                "last": int(self.inputs.well_end.text()),
                 "selected": list(range(1, int(self.inputs.well_end.text()) + 1)),
                 "series_length": int(self.inputs.series_length.text()),
                 "manual_selection_enabled": False,
@@ -277,7 +277,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
 
     def read_all_parameters(self):
         rotation_start = float(self.inputs.rotation_start.text())
-        num_images = float(self.inputs.num_images.text())
+        num_images = int(self.inputs.num_images.text())
         rotation_increment = float(self.inputs.image_width.text())
         rotation_end = rotation_start + num_images + rotation_increment
         detector_z = float(self.inputs.det_dist.text())
