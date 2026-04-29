@@ -28,15 +28,12 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
     def __init__(
         self,
         blueapi_client: SerialBlueapiClient,
-        grid_type: GridType,
-        grid_size: tuple[int, int],  # xz
+        grid: Grid,
         parent: QtWidgets.QWidget | None = None,
     ):
         super().__init__(parent)
         self.client = blueapi_client
-        self._grid_type = grid_type
-        self._grid_size = grid_size
-        self._grid = Grid(*grid_size, grid_type)  # type: ignore
+        self._grid = grid
         self.logger = LOGGER
         self.init_coordinates()
         self.init_buttons()
@@ -52,7 +49,7 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         return main_layout
 
     def init_coordinates(self):
-        self.coord_length = self._grid_size[0] * self._grid_size[1]
+        self.coord_length = self._grid.size_x * self._grid.size_z
         self.coordinates: list[tuple] = []
 
     def init_buttons(self):
@@ -109,7 +106,7 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
                 "No positions could be read off the diffractometer, check blueapi logs"
             )
             return
-        if self._grid_type is GridType.KAPTON400:
+        if self._grid.grid_type is GridType.KAPTON400:
             xz_offset = calculate_kapton_xz_positions(stage_positions[0:3:2], position)
             text_boxes[0].setText(str(xz_offset[0]))
             text_boxes[1].setText(str(stage_positions[1]))
@@ -361,7 +358,7 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
             fiducial_positions = (top_left, top_right, bottom_left)
 
             self.coordinates = make_coordinate_system(
-                self._grid_size[0], self._grid_size[1], fiducial_positions
+                self._grid.size_x, self._grid.size_z, fiducial_positions
             )
 
         except Exception as e:

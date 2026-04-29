@@ -66,7 +66,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.cs_widget = CoordinateSystemPanel(
             self.client,
             self.grid.current_grid,
-            self.grid.get_grid_size(),
             centralWidget,
         )
 
