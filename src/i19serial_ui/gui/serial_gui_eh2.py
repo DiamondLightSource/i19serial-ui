@@ -66,7 +66,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.cs_widget = CoordinateSystemPanel(
             self.client,
             self.grid.current_grid,
-            self.grid.get_grid_size(),
             centralWidget,
         )
 
@@ -146,7 +145,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         return self.aperturedropdown.currentText()
 
     def _create_top_group(self):
-
         # move arrows, phi step, focuse, backlight etc
         self._create_dropdown()
         self.top_group = QtWidgets.QGroupBox()

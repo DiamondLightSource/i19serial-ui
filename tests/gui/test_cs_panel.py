@@ -7,7 +7,7 @@ from i19serial_ui.gui.widgets.cs_panel import (
     CoordinateSystemPanel,
 )
 from i19serial_ui.parameters.coordinates import Coord3D, Coordinates, FiducialPosition
-from i19serial_ui.parameters.grid import GridType
+from i19serial_ui.parameters.grid import Grid, GridType
 
 FAKE_COORDS = {
     "top_left": Coord3D(0.1, 0.0, 1.2),
@@ -19,7 +19,7 @@ FAKE_COORDS = {
 @pytest.fixture
 def mock_cs_panel(qtbot):
     with patch("i19serial_ui.gui.widgets.cs_panel.SerialBlueapiClient") as mock_client:
-        test_panel = CoordinateSystemPanel(mock_client, GridType.POLYMER, (3, 3))
+        test_panel = CoordinateSystemPanel(mock_client, Grid(3, 3, GridType.POLYMER))
         qtbot.addWidget(test_panel)
         return test_panel
 
@@ -293,7 +293,7 @@ def test_set_xyz_coordinates_for_fiducial(fiducial, positions, mock_cs_panel):
 
 
 def test_set_xyz_coordinates_for_fiducial_when_using_kapton_grid(mock_cs_panel):
-    mock_cs_panel._grid_type = GridType.KAPTON400
+    mock_cs_panel._grid.grid_type = GridType.KAPTON400
     mock_cs_panel.client.run_plan_and_get_result.return_value = (0.1, 0.0, 1.2)
     expected_positions = (0.250, 0.0, 1.05)
 
