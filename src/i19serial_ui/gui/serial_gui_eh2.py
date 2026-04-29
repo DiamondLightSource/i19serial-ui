@@ -5,7 +5,9 @@ from pathlib import Path
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
-from i19serial_ui.coordinate_system.utils import get_run_position_coordinates
+from i19serial_ui.coordinate_system.utils import (
+    get_run_position_coordinates,
+)
 from i19serial_ui.gui.ui_utils import (
     HutchInUse,
     config_file_path,
@@ -304,7 +306,9 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
                     "z_steps": int(self.grid.grid_z.text()),
                 },
                 "detector_type": "EIGER",
-                "well_position": get_run_position_coordinates(self.cs_widget, wells),
+                "well_position": get_run_position_coordinates(
+                    wells, 1, self.cs_widget.coordinates
+                ),
                 "wells": wells,
             }
         }

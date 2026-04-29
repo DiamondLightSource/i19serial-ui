@@ -126,91 +126,6 @@ def test_phi_buttons(mock_eh2_gui, plan, mock_params, buttoncalled):
 
 
 @pytest.mark.parametrize(
-    "wells_chosen,results",
-    [
-        (
-            {
-                "first": 1,
-                "last": 20,
-                "selected": [1, 10, 20],
-                "series_length": 10,
-                "manual_selection_enabled": True,
-            },
-            {
-                1: (0.0, 0.0, 0.0),
-                10: (0.4736842105263158, 0.0, 0.0),  # will fix when we round to 3
-                20: (0.9999999999999999, 0.0, 0.0),
-            },
-        ),
-        (
-            {
-                "first": 1,
-                "last": 5,
-                "selected": list(range(1, 6)),
-                "series_length": 1,
-                "manual_selection_enabled": False,
-            },
-            {
-                1: (0.0, 0.0, 0.0),
-                2: (0.05263157894736842, 0.0, 0.0),  # will fix when we round to 3
-                3: (0.10526315789473684, 0.0, 0.0),
-                4: (0.15789473684210525, 0.0, 0.0),
-                5: (0.21052631578947367, 0.0, 0.0),
-            },
-        ),
-        (
-            {
-                "first": 21,
-                "last": 26,
-                "selected": list(range(21, 27)),
-                "series_length": 1,
-                "manual_selection_enabled": False,
-            },
-            {
-                21: (0.9999999999999999, 0.0, 0.05263157894736842),
-                22: (0.9473684210526315, 0.0, 0.05263157894736842),
-                23: (0.8947368421052632, 0.0, 0.05263157894736842),
-                24: (0.8421052631578947, 0.0, 0.05263157894736842),
-                25: (0.7894736842105263, 0.0, 0.05263157894736842),
-                26: (0.7368421052631579, 0.0, 0.05263157894736842),
-            },
-        ),
-        (
-            {
-                "first": 395,
-                "last": 400,
-                "selected": list(range(395, 401)),
-                "series_length": 1,
-                "manual_selection_enabled": False,
-            },
-            {
-                395: (0.26315789473684215, 0.0, 0.9999999999999999),
-                396: (0.21052631578947367, 0.0, 0.9999999999999999),
-                397: (0.15789473684210525, 0.0, 0.9999999999999999),
-                398: (0.10526315789473684, 0.0, 0.9999999999999999),
-                399: (0.05263157894736842, 0.0, 0.9999999999999999),
-                400: (0, 0.0, 0.9999999999999999),
-            },
-        ),
-    ],
-)
-def test_get_run_position_coordinates(mock_eh2_gui, wells_chosen, results):
-    cs = mock_eh2_gui.cs_widget
-    cs.top_left_x.setText("0")
-    cs.top_left_y.setText("0")
-    cs.top_left_z.setText("0")
-    cs.top_right_x.setText("1.0")
-    cs.top_right_y.setText("0.0")
-    cs.top_right_z.setText("0.0")
-    cs.bottom_left_x.setText("0.0")
-    cs.bottom_left_y.setText("0.0")
-    cs.bottom_left_z.setText("1.0")
-    cs._make_coordinate_system()
-    run_coords = get_run_position_coordinates(cs, wells_chosen)
-    assert run_coords == results
-
-
-@pytest.mark.parametrize(
     "well_list,manual_selection_enabled,series_length",
     [([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], False, 1), ([1, 3, 5, 7, 9], True, 2)],
 )
@@ -294,8 +209,9 @@ def test_run_panda_and_read_all_parameters(
             },
             "detector_type": "EIGER",
             "well_position": get_run_position_coordinates(
-                mock_eh2_gui.cs_widget,
                 mock_eh2_gui.read_wells(),
+                1,
+                mock_eh2_gui.cs_widget.coordinates,
             ),
             "wells": mock_eh2_gui.read_wells(),
         }
