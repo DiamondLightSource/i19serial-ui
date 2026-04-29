@@ -27,6 +27,7 @@ from i19serial_ui.log import (
     log_to_gui,
     tidy_up_logging,
 )
+from i19serial_ui.parameters.coordinates import FiducialPosition
 from i19serial_ui.parameters.general_utils import ApertureOptions
 
 WINDOW_SIZE = (600, 1200)
@@ -63,7 +64,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.inputs = InputPanel(centralWidget)
         self.wells = WellsSelectionPanel(centralWidget)
         self.grid = GridOptions(centralWidget)
-        self.cs_widget = CoordinateSystemPanel(
+        self.cs_panel = CoordinateSystemPanel(
             self.client,
             self.grid.current_grid,
             centralWidget,
@@ -118,6 +119,9 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.toolbar.addAction(self.select_visit_action)
         self.toolbar.addAction(self.home_action)
         self.toolbar.addAction(self.run_action)
+        self.toolbar.addAction(self.grid_move_tl_action)
+        self.toolbar.addAction(self.grid_move_tr_action)
+        self.toolbar.addAction(self.grid_move_bl_action)
 
     def _create_actions(self):
         self.select_visit_action = QtGui.QAction(self)
@@ -130,6 +134,21 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.run_action = QtGui.QAction(self)
         self.run_action.setIcon(create_image_icon(image_file_path("run.png")))
         self.run_action.triggered.connect(self.run)
+        self.grid_move_tl_action = QtGui.QAction(self)
+        self.grid_move_tl_action.setIcon(create_image_icon(image_file_path("TL.png")))
+        self.grid_move_tl_action.triggered.connect(
+            lambda: self.cs_panel.perform_grid_move(FiducialPosition.TL)
+        )
+        self.grid_move_tr_action = QtGui.QAction(self)
+        self.grid_move_tr_action.setIcon(create_image_icon(image_file_path("TR.png")))
+        self.grid_move_tr_action.triggered.connect(
+            lambda: self.cs_panel.perform_grid_move(FiducialPosition.TR)
+        )
+        self.grid_move_bl_action = QtGui.QAction(self)
+        self.grid_move_bl_action.setIcon(create_image_icon(image_file_path("BL.png")))
+        self.grid_move_bl_action.triggered.connect(
+            lambda: self.cs_panel.perform_grid_move(FiducialPosition.BL)
+        )
 
     def _setup_title(self):
         self.i19_label = QtWidgets.QLabel("I19: Fixed Target Serial Crystallography")
@@ -169,7 +188,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
 
     def _create_coordinate_system_group(self):
         self.cs_group = QtWidgets.QGroupBox("Coordinate System")
-        self.cs_group.setLayout(self.cs_widget.cs_layout)
+        self.cs_group.setLayout(self.cs_panel.cs_layout)
 
     def _create_collection_inputs_group(self):
         self.input_group = QtWidgets.QGroupBox("Collection set up")
