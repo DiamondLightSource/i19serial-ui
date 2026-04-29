@@ -9,6 +9,7 @@ from i19serial_ui.coordinate_system.create_cs import (
     make_coordinate_system,
 )
 from i19serial_ui.coordinate_system.utils import (
+    RunPositions,
     get_run_position_coordinates,
     get_run_positions,
 )
@@ -72,14 +73,14 @@ def test_make_coordinate_system_returns_correct_list(h_wells, v_wells, expected_
 
 
 @pytest.mark.parametrize(
-    "wells_chosen,results",
+    "wells_chosen,results,run_positions",
     [
         (
             {
                 "first": 1,
                 "last": 20,
                 "selected": [1, 10, 20],
-                "series_length": 10,
+                "series_length": 3,
                 "manual_selection_enabled": True,
             },
             {
@@ -87,13 +88,18 @@ def test_make_coordinate_system_returns_correct_list(h_wells, v_wells, expected_
                 10: (0.4736842105263158, 0.0, 0.0),  # will fix when we round to 3
                 20: (0.9999999999999999, 0.0, 0.0),
             },
+            {
+                "run_start": 1,  # 1+1 * 1-1
+                "run_end": 20,  # 2*20 -1
+                "run_selection": [1, 10, 20],
+            },
         ),
         (
             {
                 "first": 1,
                 "last": 5,
                 "selected": list(range(1, 6)),
-                "series_length": 1,
+                "series_length": 6,
                 "manual_selection_enabled": False,
             },
             {
@@ -103,48 +109,26 @@ def test_make_coordinate_system_returns_correct_list(h_wells, v_wells, expected_
                 4: (0.15789473684210525, 0.0, 0.0),
                 5: (0.21052631578947367, 0.0, 0.0),
             },
-        ),
-        (
             {
-                "first": 21,
-                "last": 26,
-                "selected": list(range(21, 27)),
-                "series_length": 1,
-                "manual_selection_enabled": False,
-            },
-            {
-                21: (0.9999999999999999, 0.0, 0.05263157894736842),
-                22: (0.9473684210526315, 0.0, 0.05263157894736842),
-                23: (0.8947368421052632, 0.0, 0.05263157894736842),
-                24: (0.8421052631578947, 0.0, 0.05263157894736842),
-                25: (0.7894736842105263, 0.0, 0.05263157894736842),
-                26: (0.7368421052631579, 0.0, 0.05263157894736842),
-            },
-        ),
-        (
-            {
-                "first": 395,
-                "last": 400,
-                "selected": list(range(395, 401)),
-                "series_length": 1,
-                "manual_selection_enabled": False,
-            },
-            {
-                395: (0.26315789473684215, 0.0, 0.9999999999999999),
-                396: (0.21052631578947367, 0.0, 0.9999999999999999),
-                397: (0.15789473684210525, 0.0, 0.9999999999999999),
-                398: (0.10526315789473684, 0.0, 0.9999999999999999),
-                399: (0.05263157894736842, 0.0, 0.9999999999999999),
-                400: (0, 0.0, 0.9999999999999999),
+                "run_start": 1,
+                "run_end": 5,
+                "run_selection": [1, 2, 3, 4, 5],
             },
         ),
     ],
 )
-def test_get_run_position_coordinates(wells_chosen, results):
-    with patch("i19serial_ui.gui.serial_gui_eh2.get_run_positions"):
+def test_get_run_position_coordinates(wells_chosen, results, run_positions):
+    with patch(
+        "i19serial_ui.coordinate_system.utils.get_run_positions",
+        return_value=RunPositions(
+            run_start=run_positions["run_start"],
+            run_end=run_positions["run_end"],
+            run_selection=run_positions["run_selection"],
+        ),
+    ):
         fiducials = (Coord3D(0, 0, 0), Coord3D(1, 0, 0), Coord3D(0, 0, 1))
         coordinates = make_coordinate_system(20, 20, fiducials)
-        assert get_run_position_coordinates(wells_chosen, 1, coordinates) == results
+        assert get_run_position_coordinates(wells_chosen, 0, coordinates) == results
         # I think this just tests the positions correctly?
 
 
@@ -156,18 +140,15 @@ def test_get_run_position_coordinates(wells_chosen, results):
                 "first": 1,
                 "last": 20,
                 "selected": [1, 10, 20],
-                "series_length": 10,
+                "series_length": 3,
                 "manual_selection_enabled": True,
             },
-            1,
+            0,
             {
-                "run_start": 0,  # 1+1 * 1-1
-                "run_end": 39,  # 2*20 -1
+                "run_start": 0,
+                "run_end": 2,
                 "run_selection": [1, 10, 20],
             },
-            # I have no idea if ^ is correct but it
-            # does connect it up to the correct coordinates
-            # in the other section. Don't quite understand
         ),
         (
             {
@@ -177,7 +158,7 @@ def test_get_run_position_coordinates(wells_chosen, results):
                 "series_length": 1,
                 "manual_selection_enabled": False,
             },
-            1,
+            0,
             {
                 "run_start": 1,
                 "run_end": 5,

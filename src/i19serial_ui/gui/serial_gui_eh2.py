@@ -307,7 +307,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
                 },
                 "detector_type": "EIGER",
                 "well_position": get_run_position_coordinates(
-                    wells, 1, self.cs_widget.coordinates
+                    wells, 0, self.cs_widget.coordinates
                 ),
                 "wells": wells,
             }

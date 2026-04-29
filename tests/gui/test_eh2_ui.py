@@ -210,7 +210,7 @@ def test_run_panda_and_read_all_parameters(
             "detector_type": "EIGER",
             "well_position": get_run_position_coordinates(
                 mock_eh2_gui.read_wells(),
-                1,
+                0,
                 mock_eh2_gui.cs_widget.coordinates,
             ),
             "wells": mock_eh2_gui.read_wells(),

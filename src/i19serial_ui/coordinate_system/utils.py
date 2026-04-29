@@ -55,8 +55,8 @@ def _get_translated_coordinates(
 
 def get_run_positions(wells_chosen: dict, run_number: int) -> RunPositions:
     if wells_chosen["manual_selection_enabled"]:
-        run_start = int(run_number * wells_chosen["first"] - 1)
-        run_end = int((run_number + 1) * wells_chosen["last"] - 1)
+        run_start = int(run_number * wells_chosen["series_length"])
+        run_end = int((run_number + 1) * wells_chosen["series_length"] - 1)
         log_to_gui(LOGGER, f"Selected Wells: {wells_chosen['selected']}")
         log_to_gui(LOGGER, f"runListStart: {run_start}")
         log_to_gui(LOGGER, f"runListEnd: {run_end}")
@@ -70,10 +70,10 @@ def get_run_positions(wells_chosen: dict, run_number: int) -> RunPositions:
         # Ensures we go from the first position at run start to the final position
         # at run end
         run_start = int(
-            run_number * wells_chosen["series_length"] + wells_chosen["first"] - 1
+            run_number * wells_chosen["series_length"] + wells_chosen["first"]
         )
         run_end = int(
-            (run_number) * wells_chosen["series_length"] - 1 + wells_chosen["last"]
+            (run_number + 1) * wells_chosen["series_length"] - 1 + wells_chosen["first"]
         )
         log_to_gui(LOGGER, f"Selected Wells: {wells_chosen['selected']}")
         log_to_gui(LOGGER, f"runListStart: {run_start}")
