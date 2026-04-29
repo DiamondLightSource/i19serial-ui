@@ -67,8 +67,6 @@ def get_run_positions(wells_chosen: dict, run_number: int) -> RunPositions:
         )
         log_to_gui(LOGGER, f"runSelectedWells: {run_selection}")
     else:
-        # Ensures we go from the first position at run start to the final position
-        # at run end
         run_start = int(
             run_number * wells_chosen["series_length"] + wells_chosen["first"]
         )
@@ -79,6 +77,7 @@ def get_run_positions(wells_chosen: dict, run_number: int) -> RunPositions:
         log_to_gui(LOGGER, f"runListStart: {run_start}")
         log_to_gui(LOGGER, f"runListEnd: {run_end}")
         # FIXME There must be a better way, too tired to think of it now
+        # ^ Same. Am going to think about this more tomorrow.
         run_selection = (
             [*range(run_start, len(wells_chosen["selected"]) + 1)]
             if run_end - run_start > len(wells_chosen["selected"])
