@@ -43,7 +43,7 @@ def test_change_grid_size_updates_current_grid(mock_grid_panel):
     mock_grid_panel._update_grid_x(10)
     mock_grid_panel._update_grid_z(5)
 
-    assert mock_grid_panel.current_grid.size_x == 10
+    assert mock_grid_panel.current_grid.x_steps == 10
     assert mock_grid_panel.grid_x.text() == "10"
-    assert mock_grid_panel.current_grid.size_z == 5
+    assert mock_grid_panel.current_grid.z_steps == 5
     assert mock_grid_panel.grid_z.text() == "5"

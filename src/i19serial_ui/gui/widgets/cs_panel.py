@@ -49,7 +49,7 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
         return main_layout
 
     def init_coordinates(self):
-        self.coord_length = self._grid.size_x * self._grid.size_z
+        self.coord_length = self._grid.x_steps * self._grid.z_steps
         self.coordinates: list[tuple] = []
 
     def init_buttons(self):
@@ -358,7 +358,7 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
             fiducial_positions = (top_left, top_right, bottom_left)
 
             self.coordinates = make_coordinate_system(
-                self._grid.size_x, self._grid.size_z, fiducial_positions
+                self._grid.x_steps, self._grid.z_steps, fiducial_positions
             )
 
         except Exception as e:
