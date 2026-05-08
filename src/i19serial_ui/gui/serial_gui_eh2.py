@@ -5,9 +5,6 @@ from pathlib import Path
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
-from i19serial_ui.coordinate_system.utils import (
-    get_run_position_coordinates,
-)
 from i19serial_ui.gui.ui_utils import (
     HutchInUse,
     config_file_path,
@@ -30,7 +27,9 @@ from i19serial_ui.log import (
     log_to_gui,
     tidy_up_logging,
 )
+from i19serial_ui.parameters.coordinates import FiducialPosition
 from i19serial_ui.parameters.general_utils import ApertureOptions
+from i19serial_ui.parameters.wells_selection import WellsSelection
 
 WINDOW_SIZE = (600, 1200)
 LOG_HANDLERS = []
@@ -66,10 +65,9 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.inputs = InputPanel(centralWidget)
         self.wells = WellsSelectionPanel(centralWidget)
         self.grid = GridOptions(centralWidget)
-        self.cs_widget = CoordinateSystemPanel(
+        self.cs_panel = CoordinateSystemPanel(
             self.client,
             self.grid.current_grid,
-            self.grid.get_grid_size(),
             centralWidget,
         )
 
@@ -122,6 +120,9 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.toolbar.addAction(self.select_visit_action)
         self.toolbar.addAction(self.home_action)
         self.toolbar.addAction(self.run_action)
+        self.toolbar.addAction(self.grid_move_tl_action)
+        self.toolbar.addAction(self.grid_move_tr_action)
+        self.toolbar.addAction(self.grid_move_bl_action)
 
     def _create_actions(self):
         self.select_visit_action = QtGui.QAction(self)
@@ -134,6 +135,21 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.run_action = QtGui.QAction(self)
         self.run_action.setIcon(create_image_icon(image_file_path("run.png")))
         self.run_action.triggered.connect(self.run)
+        self.grid_move_tl_action = QtGui.QAction(self)
+        self.grid_move_tl_action.setIcon(create_image_icon(image_file_path("TL.png")))
+        self.grid_move_tl_action.triggered.connect(
+            lambda: self.cs_panel.perform_grid_move(FiducialPosition.TL)
+        )
+        self.grid_move_tr_action = QtGui.QAction(self)
+        self.grid_move_tr_action.setIcon(create_image_icon(image_file_path("TR.png")))
+        self.grid_move_tr_action.triggered.connect(
+            lambda: self.cs_panel.perform_grid_move(FiducialPosition.TR)
+        )
+        self.grid_move_bl_action = QtGui.QAction(self)
+        self.grid_move_bl_action.setIcon(create_image_icon(image_file_path("BL.png")))
+        self.grid_move_bl_action.triggered.connect(
+            lambda: self.cs_panel.perform_grid_move(FiducialPosition.BL)
+        )
 
     def _setup_title(self):
         self.i19_label = QtWidgets.QLabel("I19: Fixed Target Serial Crystallography")
@@ -149,7 +165,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         return self.aperturedropdown.currentText()
 
     def _create_top_group(self):
-
         # move arrows, phi step, focuse, backlight etc
         self._create_dropdown()
         self.top_group = QtWidgets.QGroupBox()
@@ -174,7 +189,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
 
     def _create_coordinate_system_group(self):
         self.cs_group = QtWidgets.QGroupBox("Coordinate System")
-        self.cs_group.setLayout(self.cs_widget.cs_layout)
+        self.cs_group.setLayout(self.cs_panel.cs_layout)
 
     def _create_collection_inputs_group(self):
         self.input_group = QtWidgets.QGroupBox("Collection set up")
@@ -254,7 +269,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.client.abort_task()
         self.appendOutput("Abort")
 
-    def read_wells(self):
+    def read_wells(self) -> WellsSelection:
         if self.wells.selection_checkbox.isChecked():
             well_list = self.wells.get_selected_wells_list()
             wells_chosen = {
@@ -272,8 +287,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
                 "series_length": int(self.inputs.series_length.text()),
                 "manual_selection_enabled": False,
             }
-        log_to_gui(LOGGER, f"selection: {wells_chosen}")
-        return wells_chosen
+        return WellsSelection(**wells_chosen)
 
     def read_all_parameters(self):
         rotation_start = float(self.inputs.rotation_start.text())
@@ -284,6 +298,8 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         detector_two_theta = float(self.inputs.two_theta.text())
         eh2_aperture = self.read_aperture_dropdown()
         wells = self.read_wells()
+        wells = self.read_wells()
+
         params = {
             "parameters": {
                 "detector_distance_mm": detector_z,
@@ -300,16 +316,9 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
                 "filename_prefix": self.inputs.prefix.text(),
                 "image_width_deg": float(self.inputs.image_width.text()),
                 "transmission_fraction": float(self.inputs.transmission.text()),
-                "grid": {
-                    "grid_type": self.grid.grid_box.currentText(),
-                    "x_steps": int(self.grid.grid_x.text()),
-                    "z_steps": int(self.grid.grid_z.text()),
-                },
                 "detector_type": "EIGER",
-                "well_position": get_run_position_coordinates(
-                    wells, 0, self.cs_widget.coordinates
-                ),
-                "wells": wells,
+                "wells_to_collect": {1: (1, 2, 3)},  # to be removed asap
+                "wells_series_len": wells.series_length,
             }
         }
         return params

@@ -36,4 +36,14 @@ def test_change_selection_in_combo_box_updates_current_grid(mock_grid_panel):
     mock_grid_panel.grid_box.setCurrentText(GridType.FILM)
 
     assert mock_grid_panel.grid_box.currentText() == GridType.FILM
-    assert mock_grid_panel.current_grid == GridType.FILM
+    assert mock_grid_panel.current_grid.grid_type == GridType.FILM
+
+
+def test_change_grid_size_updates_current_grid(mock_grid_panel):
+    mock_grid_panel._update_grid_x(10)
+    mock_grid_panel._update_grid_z(5)
+
+    assert mock_grid_panel.current_grid.x_steps == 10
+    assert mock_grid_panel.grid_x.text() == "10"
+    assert mock_grid_panel.current_grid.z_steps == 5
+    assert mock_grid_panel.grid_z.text() == "5"

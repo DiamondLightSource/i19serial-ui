@@ -16,13 +16,32 @@ class GridType(StrEnum):
 class Grid:
     """Description of the 2D grid."""
 
-    size_x: int
-    size_z: int
+    x_steps: int
+    z_steps: int
 
     grid_type: GridType = GridType.POLYMER
 
     @property
-    def dim_xz_steps(self) -> tuple[float, float]:
+    def x_step_size(self) -> float:
+        return self.get_dim_xz_steps()[0]
+
+    @property
+    def z_step_size(self) -> float:
+        return self.get_dim_xz_steps()[1]
+
+    @property
+    def city_block_x(self) -> float:
+        return (self.x_steps - 1) * self.x_step_size
+
+    @property
+    def city_block_z(self) -> float:
+        return (self.z_steps - 1) * self.z_step_size
+
+    @property
+    def total_num_wells(self) -> int:
+        return self.x_steps * self.z_steps
+
+    def get_dim_xz_steps(self) -> tuple[float, float]:
         match self.grid_type:
             case GridType.POLYMER:
                 return (0.120, 0.120)
@@ -33,22 +52,14 @@ class Grid:
             case GridType.FILM:
                 return (0.100, 0.100)
 
-    @property
-    def city_block_x(self) -> float:
-        return (self.size_x - 1) * self.dim_xz_steps[0]
-
-    @property
-    def city_block_z(self) -> float:
-        return (self.size_z - 1) * self.dim_xz_steps[1]
-
     def get_grid_positions(self) -> dict[FiducialPosition, int]:
         "Returns index of TL, TR, BL positions in coords list."
         tl_pos = 0
-        tr_pos = self.size_x - 1
-        if (self.size_z % 2) == 0:
-            bl_pos = self.size_x * self.size_z - 1
+        tr_pos = self.x_steps - 1
+        if (self.z_steps % 2) == 0:
+            bl_pos = self.x_steps * self.z_steps - 1
         else:
-            bl_pos = self.size_x * (self.size_z - 1) - 1
+            bl_pos = self.x_steps * (self.z_steps - 1) - 1
         pos_dict = {
             FiducialPosition.TL: tl_pos,
             FiducialPosition.TR: tr_pos,
