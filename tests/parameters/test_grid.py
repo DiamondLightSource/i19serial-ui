@@ -20,7 +20,9 @@ def test_grid(
 ):
     test_grid = Grid(20, 20, grid_type)
 
-    assert test_grid.dim_xz_steps == expected_xz_step_size
+    assert test_grid.get_dim_xz_steps() == expected_xz_step_size
+    assert test_grid.x_step_size == expected_xz_step_size[0]
+    assert test_grid.z_step_size == expected_xz_step_size[1]
     assert test_grid.city_block_x == pytest.approx(expected_xz_block_size[0], 1e-2)
     assert test_grid.city_block_z == pytest.approx(expected_xz_block_size[1], 1e-2)
 
@@ -35,7 +37,7 @@ def test_grid(
     ],
 )
 def test_get_grid_positions(x: int, z: int, expected_pos: list[float]):
-    test_grid = Grid(size_x=x, size_z=z, grid_type=GridType.POLYMER)
+    test_grid = Grid(x_steps=x, z_steps=z, grid_type=GridType.POLYMER)
 
     res = test_grid.get_grid_positions()
 

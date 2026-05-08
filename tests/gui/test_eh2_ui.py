@@ -222,14 +222,9 @@ def test_run_panda_and_read_all_parameters(
             "filename_prefix": "",
             "image_width_deg": 0.2,
             "transmission_fraction": 5.0,
-            "grid": {
-                "grid_type": "polymer",
-                "x_steps": 20,
-                "z_steps": 20,
-            },
             "detector_type": "EIGER",
-            "well_position": {1: (1, 2, 3)},
-            "wells": mock_eh2_gui.read_wells(),
+            "wells_to_collect": {1: (1, 2, 3)},
+            "wells_series_len": mock_eh2_gui.read_wells().series_length,
         }
     }
     mock_eh2_gui.run_btn.click()

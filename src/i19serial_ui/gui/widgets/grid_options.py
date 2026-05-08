@@ -72,10 +72,10 @@ class GridOptions(QtWidgets.QWidget):
 
     def _update_grid_x(self, new_value: int):
         self.grid_x.setText(str(new_value))
-        self.current_grid.size_x = new_value
-        self.logger.info(f"New grid x value: {self.current_grid.size_x}")
+        self.current_grid.x_steps = new_value
+        self.logger.info(f"New grid x value: {self.current_grid.x_steps}")
 
     def _update_grid_z(self, new_value: int):
         self.grid_z.setText(str(new_value))
-        self.current_grid.size_z = new_value
-        self.logger.warning(f"New grid z value: {self.current_grid.size_z}")
+        self.current_grid.z_steps = new_value
+        self.logger.warning(f"New grid z value: {self.current_grid.z_steps}")
