@@ -5,6 +5,7 @@ from pathlib import Path
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
+from i19serial_ui.coordinate_system.utils import get_run_position_coordinates
 from i19serial_ui.gui.ui_utils import (
     HutchInUse,
     config_file_path,
@@ -287,6 +288,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
                 "series_length": int(self.inputs.series_length.text()),
                 "manual_selection_enabled": False,
             }
+
         return WellsSelection(**wells_chosen)
 
     def read_all_parameters(self):
@@ -297,7 +299,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         detector_z = float(self.inputs.det_dist.text())
         detector_two_theta = float(self.inputs.two_theta.text())
         eh2_aperture = self.read_aperture_dropdown()
-        wells = self.read_wells()
         wells = self.read_wells()
 
         params = {
@@ -317,7 +318,9 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
                 "image_width_deg": float(self.inputs.image_width.text()),
                 "transmission_fraction": float(self.inputs.transmission.text()),
                 "detector_type": "EIGER",
-                "wells_to_collect": {1: (1, 2, 3)},  # to be removed asap
+                "wells_to_collect": get_run_position_coordinates(
+                    wells, self.cs_panel.coordinates
+                ),
                 "wells_series_len": wells.series_length,
             }
         }

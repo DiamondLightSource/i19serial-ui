@@ -3,21 +3,20 @@ from pathlib import Path
 
 from pydantic.dataclasses import dataclass
 
-from i19serial_ui.log import LOGGER, log_to_gui
+# from i19serial_ui.log import LOGGER, log_to_gui
 from i19serial_ui.parameters.coordinates import (
     COORD_FILE_PATH,
     Coord3D,
     Coordinates,
     FiducialPosition,
 )
+from i19serial_ui.parameters.wells_selection import WellsSelection
 
 KAPTON_OFFSET = 0.150
 
 
 @dataclass
 class RunPositions:
-    run_start: int
-    run_end: int
     run_selection: list[int]
 
 
@@ -53,49 +52,13 @@ def _get_translated_coordinates(
     return Coord3D(*res)
 
 
-def get_run_positions(wells_chosen: dict, run_number: int) -> RunPositions:
-    run_start = int(run_number * wells_chosen["series_length"])
-    run_end = int((run_number + 1) * wells_chosen["series_length"] - 1)
-
-    if wells_chosen["manual_selection_enabled"]:
-        run_selection = (
-            wells_chosen["selected"][run_start:]
-            if run_end - run_start > len(wells_chosen["selected"])
-            else wells_chosen["selected"][run_start : run_end + 1]
-        )
-    else:
-        run_start += wells_chosen["first"]
-        run_end += wells_chosen["first"]
-        run_selection = (
-            [*range(run_start, len(wells_chosen["selected"]) + 1)]
-            if run_end - run_start > len(wells_chosen["selected"])
-            else [*range(run_start, run_end + 1)]
-        )
-    log_to_gui(LOGGER, f"Selected Wells: {wells_chosen['selected']}")
-    log_to_gui(LOGGER, f"runListStart: {run_start}")
-    log_to_gui(LOGGER, f"runListEnd: {run_end}")
-    log_to_gui(LOGGER, f"runSelectedWells: {run_selection}")
-    return RunPositions(
-        run_start=run_start, run_end=run_end, run_selection=run_selection
-    )
-
-
 def get_run_position_coordinates(
-    wells_chosen: dict,
-    run_number: int,
-    # num_images: int, was in the code before but doesn't seem to be used?
+    wells_chosen: WellsSelection,
     coordinates: list[tuple],
-) -> dict[int, tuple]:
+) -> dict[str, tuple]:
     # "Returns dict[int, tuple] (wellnum: position) for each well in series"
-    # I know we said string/tuple - but I don't see the benefit of this over
-    # int/tuple, as int/tuple means that we don't need to update anything from
-    # e.g., the wells_chosen
-    log_to_gui(LOGGER, f"Starting {run_number} of {wells_chosen['selected']}")
-    _positions = get_run_positions(wells_chosen, run_number)
-
-    # run_length = len(_positions.run_selection)  also unsure why this is here?
-    run_positions: dict[int, tuple] = {}
-    for well in _positions.run_selection:
+    run_positions: dict[str, tuple] = {}
+    for well in wells_chosen.selected:
         _well_coords = coordinates[well - 1]
-        run_positions[well] = _well_coords
+        run_positions[str(well)] = _well_coords
     return run_positions
