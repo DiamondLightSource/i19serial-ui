@@ -248,12 +248,13 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         title_layout = QtWidgets.QHBoxLayout()
         title_layout.addWidget(self.i19_label)
         main_layout = QtWidgets.QGridLayout()
-        main_layout.addLayout(title_layout, 0, 0)
+        main_layout.addLayout(title_layout, 0, 0)  # , 1, 2)
         main_layout.addWidget(self.top_group, 1, 0)
         main_layout.addWidget(self.cs_group, 2, 0)
         main_layout.addWidget(self.input_group, 3, 0)
         main_layout.addWidget(self.run_btns_group, 4, 0)
         main_layout.addWidget(self.bottom_group, 5, 0)
+        # main_layout.addWidget(self.bottom_group, 3, 1, 2, 1)
         return main_layout
 
     def appendOutput(self, msg: str, level: str = "INFO"):  # noqa: N802
