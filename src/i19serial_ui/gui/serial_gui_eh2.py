@@ -29,6 +29,7 @@ from i19serial_ui.log import (
 )
 from i19serial_ui.parameters.coordinates import FiducialPosition
 from i19serial_ui.parameters.general_utils import ApertureOptions
+from i19serial_ui.parameters.wells_selection import WellsSelection
 
 WINDOW_SIZE = (600, 1200)
 LOG_HANDLERS = []
@@ -268,7 +269,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.client.abort_task()
         self.appendOutput("Abort")
 
-    def read_wells(self):
+    def read_wells(self) -> WellsSelection:
         if self.wells.selection_checkbox.isChecked():
             well_list = self.wells.get_selected_wells_list()
             wells_chosen = {
@@ -286,7 +287,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
                 "series_length": int(self.inputs.series_length.text()),
                 "manual_selection_enabled": False,
             }
-        return wells_chosen
+        return WellsSelection(**wells_chosen)
 
     def read_all_parameters(self):
         rotation_start = float(self.inputs.rotation_start.text())
@@ -296,6 +297,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         detector_z = float(self.inputs.det_dist.text())
         detector_two_theta = float(self.inputs.two_theta.text())
         eh2_aperture = self.read_aperture_dropdown()
+        wells = self.read_wells()
 
         params = {
             "parameters": {
@@ -313,14 +315,9 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
                 "filename_prefix": self.inputs.prefix.text(),
                 "image_width_deg": float(self.inputs.image_width.text()),
                 "transmission_fraction": float(self.inputs.transmission.text()),
-                "grid": {
-                    "grid_type": self.grid.grid_box.currentText(),
-                    "x_steps": int(self.grid.grid_x.text()),
-                    "z_steps": int(self.grid.grid_z.text()),
-                },
                 "detector_type": "EIGER",
-                "well_position": {1: (1, 2, 3)},  # to be removed asap
-                "wells": self.read_wells(),
+                "wells_to_collect": {1: (1, 2, 3)},  # to be removed asap
+                "wells_series_len": wells.series_length,
             }
         }
         return params
