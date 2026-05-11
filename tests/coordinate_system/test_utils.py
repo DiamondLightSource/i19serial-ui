@@ -52,7 +52,7 @@ def test_save_coordinates_to_json():
 
 
 @pytest.mark.parametrize(
-    "wells_chosen,run_positions,results",
+    "wells_chosen,results",
     [
         (
             {
@@ -61,11 +61,6 @@ def test_save_coordinates_to_json():
                 "selected": [1, 10, 20],
                 "series_length": 3,
                 "manual_selection_enabled": True,
-            },
-            {
-                "run_start": 1,
-                "run_end": 20,
-                "run_selection": [1, 10, 20],
             },
             {
                 "1": (0.0, 0.0, 0.0),
@@ -80,11 +75,6 @@ def test_save_coordinates_to_json():
                 "selected": list(range(1, 6)),
                 "series_length": 6,
                 "manual_selection_enabled": False,
-            },
-            {
-                "run_start": 1,
-                "run_end": 5,
-                "run_selection": [1, 2, 3, 4, 5],
             },
             {
                 "1": (0.0, 0.0, 0.0),
