@@ -196,18 +196,18 @@ def test_run_panda_and_read_all_parameters(
     inputs.well_start = make_text_mock(well_list[0])
     inputs.well_end = make_text_mock(well_list[-1])
 
-    cs = mock_eh2_gui.cs_panel
-    cs.top_left_x.setText("0.0")
-    cs.top_left_y.setText("0.0")
-    cs.top_left_z.setText("0.0")
-    cs.top_right_x.setText("1.0")
-    cs.top_right_y.setText("0.0")
-    cs.top_right_z.setText("0.0")
-    cs.bottom_left_x.setText("0.0")
-    cs.bottom_left_y.setText("0.0")
-    cs.bottom_left_z.setText("1.0")
-    cs._make_coordinate_system()
-
+    mock_eh2_gui.cs_panel.coordinates = [
+        (0, 0, 0),
+        (1, 0, 0),
+        (2, 0, 0),
+        (3, 0, 0),
+        (4, 0, 0),
+        (0, 0, 1),
+        (1, 0, 1),
+        (2, 0, 1),
+        (3, 0, 1),
+        (4, 0, 1),
+    ]
     mock_eh2_gui.grid.grid_box.currentText = Mock(return_value="polymer")
     mock_eh2_gui.grid.grid_x = make_text_mock(20)
     mock_eh2_gui.grid.grid_z = make_text_mock(20)

@@ -1,9 +1,6 @@
 import json
 from pathlib import Path
 
-from pydantic.dataclasses import dataclass
-
-# from i19serial_ui.log import LOGGER, log_to_gui
 from i19serial_ui.parameters.coordinates import (
     COORD_FILE_PATH,
     Coord3D,
@@ -13,11 +10,6 @@ from i19serial_ui.parameters.coordinates import (
 from i19serial_ui.parameters.wells_selection import WellsSelection
 
 KAPTON_OFFSET = 0.150
-
-
-@dataclass
-class RunPositions:
-    run_selection: list[int]
 
 
 def calculate_kapton_xz_positions(
@@ -56,7 +48,11 @@ def get_run_position_coordinates(
     wells_chosen: WellsSelection,
     coordinates: list[tuple],
 ) -> dict[str, tuple]:
-    # "Returns dict[int, tuple] (wellnum: position) for each well in series"
+    """Returns dict[int, tuple] (wellnum: position) for each well in series.
+    Args:
+        wells_chosen (WellsSelection): WellsSelection object taken from UI
+        coordinates (list[tuple]): List of coordinates"""
+
     run_positions: dict[str, tuple] = {}
     for well in wells_chosen.selected:
         _well_coords = coordinates[well - 1]
