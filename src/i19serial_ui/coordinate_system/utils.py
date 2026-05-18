@@ -54,7 +54,8 @@ def get_run_position_coordinates(
         wells_chosen (WellsSelection): WellsSelection object taken from UI
         coordinates (list[tuple]): List of coordinates
     Returns:
-      dict[str, tuple] (wellnum: position)"""
+      run_positions (dict[str, tuple]): A dictionary of the well number : coordinates
+    pairings."""
 
     run_positions: dict[str, tuple] = {}
     for well in wells_chosen.selected:
