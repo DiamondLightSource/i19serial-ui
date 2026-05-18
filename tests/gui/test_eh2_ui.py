@@ -4,6 +4,7 @@ from unittest.mock import Mock, patch
 import pytest
 from PyQt6 import QtWidgets
 
+from i19serial_ui.coordinate_system.utils import get_run_position_coordinates
 from i19serial_ui.gui.serial_gui_eh2 import SerialGuiEH2
 from i19serial_ui.gui.widgets import (
     CoordinateSystemPanel,
@@ -159,25 +160,24 @@ def test_phi_buttons(mock_eh2_gui, plan, mock_params, buttoncalled):
 
 @pytest.mark.parametrize(
     "well_list,manual_selection_enabled,series_length",
-    [([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], False, 1), ([1, 3, 5, 7, 9], True, 2)],
+    [([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], False, 10), ([1, 3, 5, 7, 9], True, 5)],
 )
 def test_run_panda_and_read_all_parameters(
     mock_eh2_gui,
-    well_list,
-    manual_selection_enabled,
-    series_length,
+    well_list: list[int],
+    manual_selection_enabled: bool,
+    series_length: float,
 ):
     mock_detector_z = 117.53
     mock_eh2_aperture = "20um"  # ApertureOptions.UM_20
     mock_detector_two_theta = 0.0
     mock_rotation_start = 0.0
-    mock_num_images = 50.0
+    mock_num_images = 50
     mock_rotation_increment = 0.2
     mock_rotation_end = mock_rotation_start + mock_num_images + mock_rotation_increment
     mock_time_image = 0.2
 
     inputs = mock_eh2_gui.inputs
-
     inputs.rotation_start = make_text_mock(mock_rotation_start)
     inputs.num_images = make_text_mock(mock_num_images)
     inputs.image_width = make_text_mock(mock_rotation_increment)
@@ -196,6 +196,18 @@ def test_run_panda_and_read_all_parameters(
     inputs.well_start = make_text_mock(well_list[0])
     inputs.well_end = make_text_mock(well_list[-1])
 
+    mock_eh2_gui.cs_panel.coordinates = [
+        (0, 0, 0),
+        (1, 0, 0),
+        (2, 0, 0),
+        (3, 0, 0),
+        (4, 0, 0),
+        (0, 0, 1),
+        (1, 0, 1),
+        (2, 0, 1),
+        (3, 0, 1),
+        (4, 0, 1),
+    ]
     mock_eh2_gui.grid.grid_box.currentText = Mock(return_value="polymer")
     mock_eh2_gui.grid.grid_x = make_text_mock(20)
     mock_eh2_gui.grid.grid_z = make_text_mock(20)
@@ -206,6 +218,7 @@ def test_run_panda_and_read_all_parameters(
         return_value=manual_selection_enabled
     )
     mock_eh2_gui.wells.get_selected_wells_list = Mock(return_value=well_list)
+
     mock_params = {
         "parameters": {
             "detector_distance_mm": mock_detector_z,
@@ -223,7 +236,9 @@ def test_run_panda_and_read_all_parameters(
             "image_width_deg": 0.2,
             "transmission_fraction": 5.0,
             "detector_type": "EIGER",
-            "wells_to_collect": {1: (1, 2, 3)},
+            "wells_to_collect": get_run_position_coordinates(
+                mock_eh2_gui.read_wells(), mock_eh2_gui.cs_panel.coordinates
+            ),
             "wells_series_len": mock_eh2_gui.read_wells().series_length,
         }
     }

@@ -7,6 +7,7 @@ from i19serial_ui.parameters.coordinates import (
     Coordinates,
     FiducialPosition,
 )
+from i19serial_ui.parameters.wells_selection import WellsSelection
 
 KAPTON_OFFSET = 0.150
 
@@ -41,3 +42,23 @@ def _get_translated_coordinates(
 ) -> Coord3D:
     res = [(i + j) for i, j in zip(fiducial_coords, translation_vector, strict=True)]
     return Coord3D(*res)
+
+
+def get_run_position_coordinates(
+    wells_chosen: WellsSelection,
+    coordinates: list[tuple],
+) -> dict[str, tuple]:
+    """Reads the well coordinates and converts them into a dictionary for each well in
+    series. Provides a well number and the coordinates.
+    Args:
+        wells_chosen (WellsSelection): WellsSelection object taken from UI
+        coordinates (list[tuple]): List of coordinates
+    Returns:
+      run_positions (dict[str, tuple]): A dictionary of the well number and coordinate
+      pairings."""
+
+    run_positions: dict[str, tuple] = {}
+    for well in wells_chosen.selected:
+        _well_coords = coordinates[well - 1]
+        run_positions[str(well)] = _well_coords
+    return run_positions
