@@ -22,6 +22,7 @@ from i19serial_ui.gui.widgets import (
     WellsSelectionPanel,
 )
 from i19serial_ui.gui.widgets.cs_panel import CoordinateSystemPanel
+from i19serial_ui.gui.widgets.queue.queue_ui import CollectionQueueUI
 from i19serial_ui.log import (
     LOGGER,
     GuiWindowLogHandler,
@@ -45,6 +46,7 @@ border-colour:black"""
 
 
 class SerialGuiEH2(QtWidgets.QMainWindow):
+    current_visit: str = ""
     hutch: HutchInUse = HutchInUse.EH2
 
     def __init__(self) -> None:
@@ -71,9 +73,12 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             self.grid.current_grid,
             centralWidget,
         )
-
         self.phi_rotator = PhiAdjust(self.client, centralWidget)
         self.backlight = BacklightBox(self.client, centralWidget)
+
+        # External UI widgets
+        self.queue_window = CollectionQueueUI(self.current_visit)
+
         # Create boxes with layouts
         # Title
         self._setup_title()
@@ -94,13 +99,16 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         # Toolbar
         self._create_toolbar()
 
-    def create_threads(self):
-        pass
-
     def closeEvent(self, a0):  # type: ignore # noqa: N802
         self.gui_logger.debug("CLOSING UI")
+        if self.queue_window.isVisible():
+            self.queue_window.close()
         tidy_up_logging([self.gui_logger])  #  *LOGGERS])
         return super().closeEvent(a0)
+
+    def open_queue_window(self):
+        self.appendOutput("Opening queue window")
+        self.queue_window.show()
 
     def _setup_logger(self):
         self.gui_logger = LOGGER
@@ -124,6 +132,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.toolbar.addAction(self.grid_move_tl_action)
         self.toolbar.addAction(self.grid_move_tr_action)
         self.toolbar.addAction(self.grid_move_bl_action)
+        self.toolbar.addAction(self.open_queue_action)
 
     def _create_actions(self):
         self.select_visit_action = QtGui.QAction(self)
@@ -151,6 +160,10 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.grid_move_bl_action.triggered.connect(
             lambda: self.cs_panel.perform_grid_move(FiducialPosition.BL)
         )
+        self.open_queue_action = QtGui.QAction(self)
+        self.open_queue_action.setText("Q")
+        self.open_queue_action.setFont(QtGui.QFont(FONT, 10))
+        self.open_queue_action.triggered.connect(self.open_queue_window)
 
     def _setup_title(self):
         self.i19_label = QtWidgets.QLabel("I19: Fixed Target Serial Crystallography")
