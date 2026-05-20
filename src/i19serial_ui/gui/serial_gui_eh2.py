@@ -32,6 +32,7 @@ from i19serial_ui.log import (
 )
 from i19serial_ui.parameters.coordinates import FiducialPosition
 from i19serial_ui.parameters.general_utils import ApertureOptions
+from i19serial_ui.parameters.queue import QueueElement
 from i19serial_ui.parameters.wells_selection import WellsSelection
 
 WINDOW_SIZE = (600, 1200)
@@ -80,6 +81,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         # External UI widgets
         self.queue_window = CollectionQueueUI()
         self.selected_visit.connect(self.queue_window.on_visit_update)
+        self.run_queue = self.queue_window.run_queue
 
         # Create boxes with layouts
         # Title
@@ -105,8 +107,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.gui_logger = LOGGER
         self.LogHandler = GuiWindowLogHandler()
         self.gui_logger.addHandler(self.LogHandler)
-        # for logger in LOGGERS:
-        #     logger.addHandler(self.LogHandler)
 
     def _setup_blueapi_client(self):
         self._config = config_file_path(self.hutch)
@@ -116,22 +116,12 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.gui_logger.debug("CLOSING UI")
         if self.queue_window.isVisible():
             self.queue_window.close()
-        tidy_up_logging([self.gui_logger])  #  *LOGGERS])
+        tidy_up_logging([self.gui_logger])
         return super().closeEvent(a0)
 
     def open_queue_window(self):
         self.appendOutput("Opening queue window")
         self.queue_window.show()
-
-    def add_to_queue(self):
-        if not self.queue_window.isVisible():
-            # If queue window not already visible, open it
-            self.open_queue_window()
-        self.appendOutput("Add collection to queue")
-        # TODO finish this
-
-    def clear_queue(self):
-        pass
 
     def _create_toolbar(self):
         self.toolbar = QtWidgets.QToolBar(self)
@@ -173,8 +163,9 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             lambda: self.cs_panel.perform_grid_move(FiducialPosition.BL)
         )
         self.open_queue_action = QtGui.QAction(self)
-        self.open_queue_action.setText("Q")
-        self.open_queue_action.setFont(QtGui.QFont(FONT, 10))
+        self.open_queue_action.setIcon(create_image_icon(image_file_path("queue.png")))
+        # self.open_queue_action.setText("Q")
+        # self.open_queue_action.setFont(QtGui.QFont(FONT, 10))
         self.open_queue_action.triggered.connect(self.open_queue_window)
 
     def _setup_title(self):
@@ -239,11 +230,14 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         btn_layout = QtWidgets.QHBoxLayout()
 
         self.run_btn = self._create_button("Run Plan", self.run)
-
         self.abort_btn = self._create_button("Abort", self.abort)
+        self.queue_btn = self._create_button("Queue", self.add_to_queue)
+        self.clear_btn = self._create_button("Clear Queue", self.clear_queue)
 
         btn_layout.addWidget(self.run_btn)
         btn_layout.addWidget(self.abort_btn)
+        btn_layout.addWidget(self.queue_btn)
+        btn_layout.addWidget(self.clear_btn)
 
         self.run_btns_group.setLayout(btn_layout)
 
@@ -275,19 +269,60 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         title_layout = QtWidgets.QHBoxLayout()
         title_layout.addWidget(self.i19_label)
         main_layout = QtWidgets.QGridLayout()
-        main_layout.addLayout(title_layout, 0, 0)  # , 1, 2)
+        main_layout.addLayout(title_layout, 0, 0)
         main_layout.addWidget(self.top_group, 1, 0)
         main_layout.addWidget(self.cs_group, 2, 0)
         main_layout.addWidget(self.input_group, 3, 0)
         main_layout.addWidget(self.run_btns_group, 4, 0)
         main_layout.addWidget(self.bottom_group, 5, 0)
-        # main_layout.addWidget(self.bottom_group, 3, 1, 2, 1)
         return main_layout
 
     def appendOutput(self, msg: str, level: str = "INFO"):  # noqa: N802
         log_to_gui(self.gui_logger, msg, level)
 
+    def add_to_queue(self):
+        if not self.queue_window.isVisible():
+            # If queue window not already visible, open it
+            self.open_queue_window()
+        new_collection = self.read_input_and_create_new_queue_element()
+        self.queue_window.update_queue_table(new_collection)
+        self.run_queue = self.queue_window.run_queue
+        self.appendOutput("Collection added to the queue")
+        self.appendOutput(f"QUEUE: \n {self.run_queue}")
+
+    def clear_queue(self):
+        self.appendOutput("Clearing the queue ...", level="WARNING")
+        self.queue_window.clear_queue_table()
+        self.run_queue = self.queue_window.run_queue
+        self.appendOutput(f"Current queue: {self.run_queue}", level="DEBUG")
+
+    def read_input_and_create_new_queue_element(self) -> QueueElement:
+        parameters = self.read_all_parameters()
+        if not parameters:
+            self.appendOutput(
+                "Please fill in all parameters before adding to the queue"
+            )
+            return  # type: ignore
+        return QueueElement(
+            plan_name="run_serial_from_panda",
+            plan_params=parameters["parameters"],  # TODO
+        )
+
+    def finalise_collection_queue(self):
+        self.run_queue = self.queue_window.run_queue
+        if len(self.run_queue) == 0:
+            new_collection = self.read_input_and_create_new_queue_element()
+            self.run_queue.append(new_collection)
+
     def run(self):
+        # TODO THis will then become
+        # Finalise collection queue, run in a loop and
+        # have the client poll the worker status
+        # The polling should be done here I suspect -
+        # but even then may need a separate thread
+        # not to block... while state == "RUNNING", wait, otherwise print
+        # Will have to double check that
+        # Also run plan should return the task_id so state of things can be checked
         all_params = self.read_all_parameters()
         self.appendOutput("Start serial collection with the panda")
         self.appendOutput(f"With parameters: {all_params}")
@@ -319,38 +354,48 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         return WellsSelection(**wells_chosen)
 
     def read_all_parameters(self):
-        rotation_start = float(self.inputs.rotation_start.text())
-        num_images = int(self.inputs.num_images.text())
-        rotation_increment = float(self.inputs.image_width.text())
-        rotation_end = rotation_start + num_images + rotation_increment
-        detector_z = float(self.inputs.det_dist.text())
-        detector_two_theta = float(self.inputs.two_theta.text())
-        eh2_aperture = self.read_aperture_dropdown()
-        wells = self.read_wells()
+        params = {}
+        try:
+            rotation_start = float(self.inputs.rotation_start.text())
+            num_images = int(self.inputs.num_images.text())
+            rotation_increment = float(self.inputs.image_width.text())
+            rotation_end = rotation_start + num_images + rotation_increment
+            detector_z = float(self.inputs.det_dist.text())
+            detector_two_theta = float(self.inputs.two_theta.text())
+            eh2_aperture = self.read_aperture_dropdown()
+            wells = self.read_wells()
 
-        params = {
-            "parameters": {
-                "detector_distance_mm": detector_z,
-                "two_theta_deg": detector_two_theta,
-                "rot_axis_start": rotation_start,
-                "rot_axis_end": rotation_end,
-                "rot_axis_increment": rotation_increment,
-                "images_per_well": num_images,
-                "exposure_time_s": float(self.inputs.time_image.text()),
-                "aperture_request": eh2_aperture,
-                "hutch": "EH2",
-                "visit": Path(self.inputs.visit_path.text()),
-                "dataset": self.inputs.dataset.text(),
-                "filename_prefix": self.inputs.prefix.text(),
-                "image_width_deg": float(self.inputs.image_width.text()),
-                "transmission_fraction": float(self.inputs.transmission.text()),
-                "detector_type": "EIGER",
-                "wells_to_collect": get_run_position_coordinates(
-                    wells, self.cs_panel.coordinates
-                ),
-                "wells_series_len": wells.series_length,
+            params = {
+                "parameters": {
+                    "detector_distance_mm": detector_z,
+                    "two_theta_deg": detector_two_theta,
+                    "rot_axis_start": rotation_start,
+                    "rot_axis_end": rotation_end,
+                    "rot_axis_increment": rotation_increment,
+                    "images_per_well": num_images,
+                    "exposure_time_s": float(self.inputs.time_image.text()),
+                    "aperture_request": eh2_aperture,
+                    "hutch": "EH2",
+                    "visit": Path(self.inputs.visit_path.text()),
+                    "dataset": self.inputs.dataset.text(),
+                    "filename_prefix": self.inputs.prefix.text(),
+                    "image_width_deg": float(self.inputs.image_width.text()),
+                    "transmission_fraction": float(self.inputs.transmission.text()),
+                    "detector_type": "EIGER",
+                    "wells_to_collect": get_run_position_coordinates(
+                        wells, self.cs_panel.coordinates
+                    ),
+                    "wells_series_len": wells.series_length,
+                }
             }
-        }
+        except Exception as e:
+            self.appendOutput(
+                """Something went wrong while creating the parameters for the plan.
+                Please double check your inputs, something might be missing.
+                For full error message, see the logs.""",
+                level="ERROR",
+            )
+            LOGGER.exception(e)
         return params
 
 
