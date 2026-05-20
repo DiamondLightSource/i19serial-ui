@@ -8,7 +8,7 @@ from i19serial_ui.gui.widgets.queue.queue_table import QueueTable
 from i19serial_ui.log import LOGGER
 from i19serial_ui.parameters.queue import QueueElement
 
-QUEUE_WINDOW_SIZE = (1000, 400)
+QUEUE_WINDOW_SIZE = (800, 300)
 
 
 class CollectionQueueUI(QtWidgets.QWidget):
@@ -57,9 +57,9 @@ class CollectionQueueUI(QtWidgets.QWidget):
                 self.table.add_row(queue_item)
                 self.logger.info(f"Collection {queue_item} added to the queue")
             case "remove":
-                # first remove row from table
+                # UH OH
+                self.table.delete_row(queue_item)
                 self.run_queue.remove(queue_item)
-                # ugh, this will mean updating all the positions.
         self.logger.debug(f"Number of items in the queue: {len(self.run_queue)}")
 
     def clear_queue_table(self):
