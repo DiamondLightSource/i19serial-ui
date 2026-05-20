@@ -4,6 +4,8 @@ from PyQt6 import QtWidgets
 
 from i19serial_ui.parameters.queue import QueueElement
 
+DELETE_BUTTON_STYLE = "QPushButton {color: red; font-weight: bold}"
+
 
 class QueueTable(QtWidgets.QTableWidget):
     def __init__(

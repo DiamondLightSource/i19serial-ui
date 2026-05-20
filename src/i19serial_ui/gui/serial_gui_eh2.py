@@ -3,6 +3,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtCore import pyqtSignal
 
 from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
 from i19serial_ui.coordinate_system.utils import get_run_position_coordinates
@@ -46,7 +47,7 @@ border-colour:black"""
 
 
 class SerialGuiEH2(QtWidgets.QMainWindow):
-    current_visit: str = ""
+    selected_visit = pyqtSignal(str)
     hutch: HutchInUse = HutchInUse.EH2
 
     def __init__(self) -> None:
@@ -77,7 +78,8 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.backlight = BacklightBox(self.client, centralWidget)
 
         # External UI widgets
-        self.queue_window = CollectionQueueUI(self.current_visit)
+        self.queue_window = CollectionQueueUI()
+        self.selected_visit.connect(self.queue_window.on_visit_update)
 
         # Create boxes with layouts
         # Title
@@ -99,6 +101,17 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         # Toolbar
         self._create_toolbar()
 
+    def _setup_logger(self):
+        self.gui_logger = LOGGER
+        self.LogHandler = GuiWindowLogHandler()
+        self.gui_logger.addHandler(self.LogHandler)
+        # for logger in LOGGERS:
+        #     logger.addHandler(self.LogHandler)
+
+    def _setup_blueapi_client(self):
+        self._config = config_file_path(self.hutch)
+        self.client = SerialBlueapiClient(self._config)
+
     def closeEvent(self, a0):  # type: ignore # noqa: N802
         self.gui_logger.debug("CLOSING UI")
         if self.queue_window.isVisible():
@@ -110,16 +123,15 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.appendOutput("Opening queue window")
         self.queue_window.show()
 
-    def _setup_logger(self):
-        self.gui_logger = LOGGER
-        self.LogHandler = GuiWindowLogHandler()
-        self.gui_logger.addHandler(self.LogHandler)
-        # for logger in LOGGERS:
-        #     logger.addHandler(self.LogHandler)
+    def add_to_queue(self):
+        if not self.queue_window.isVisible():
+            # If queue window not already visible, open it
+            self.open_queue_window()
+        self.appendOutput("Add collection to queue")
+        # TODO finish this
 
-    def _setup_blueapi_client(self):
-        self._config = config_file_path(self.hutch)
-        self.client = SerialBlueapiClient(self._config)
+    def clear_queue(self):
+        pass
 
     def _create_toolbar(self):
         self.toolbar = QtWidgets.QToolBar(self)
@@ -257,6 +269,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             self.inputs.visit_path.setText(self.current_visit)
             _session = self.current_visit.split("/")[-1]
             self.client.update_session(_session)
+            self.selected_visit.emit(self.current_visit)
 
     def create_main_layout(self):
         title_layout = QtWidgets.QHBoxLayout()
