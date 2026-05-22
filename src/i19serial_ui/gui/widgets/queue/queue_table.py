@@ -1,4 +1,5 @@
 from PyQt6 import QtWidgets
+from PyQt6.QtCore import pyqtSignal, pyqtSlot
 
 from i19serial_ui.parameters.queue import QueueElement
 
@@ -8,6 +9,8 @@ DELETE_BTN_STYLE = "QPushButton {color: red; font-weight: bold}"
 
 class QueueTable(QtWidgets.QTableWidget):
     """A table widget to display the queued plans and remove them as needed."""
+
+    deleted_collection = pyqtSignal(dict)
 
     def __init__(
         self,
@@ -42,6 +45,10 @@ class QueueTable(QtWidgets.QTableWidget):
         self.setItem(row, 1, QtWidgets.QTableWidgetItem(item.element_label))
         # self.setItem(row, 1, QtWidgets.QTableWidgetItem(item.plan_name))
         self.setItem(row, 2, QtWidgets.QTableWidgetItem(str(item.plan_params)))  # FIXME
+
+    @pyqtSlot
+    def on_delete(self):
+        pass
 
     def add_row(self, new_item: QueueElement):
         self.queue.append(new_item)

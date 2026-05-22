@@ -65,5 +65,5 @@ class CollectionQueueUI(QtWidgets.QWidget):
     def clear_queue_table(self):
         while len(self.run_queue) > 0:
             _item_to_remove = self.run_queue[0]
-            # delete row
+            self.table.delete_row(_item_to_remove)
             self.run_queue.popleft()
