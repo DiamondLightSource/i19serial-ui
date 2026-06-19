@@ -22,7 +22,7 @@ class CollectionQueueUI(QtWidgets.QWidget):
         self.setWindowTitle("Collection Queue")
         self.logger = LOGGER
         self.run_queue: deque[QueueElement] = deque()
-        self.table = QueueTable(self)
+        self.table = QueueTable(self.run_queue, self)
         self._setup_layout()
 
     def _visit_layout(self):
