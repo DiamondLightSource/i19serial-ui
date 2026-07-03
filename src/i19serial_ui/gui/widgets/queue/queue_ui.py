@@ -83,3 +83,7 @@ class CollectionQueueUI(QtWidgets.QWidget):
             _item_to_remove = self.run_queue[0]
             self.table.delete_row(_item_to_remove)
             # self.run_queue.popleft()
+        while self.table.rowCount() > 0:
+            print("WHY IS SOMETHING STILL HERE?!?!?")
+            # if self.table.rowCount() > 0:
+            self.table.removeRow(0)
