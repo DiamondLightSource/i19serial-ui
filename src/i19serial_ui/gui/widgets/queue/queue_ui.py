@@ -1,8 +1,7 @@
 from collections import deque
-from typing import Literal
 
 from PyQt6 import QtGui, QtWidgets
-from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import Qt, pyqtSlot
 
 from i19serial_ui.gui.widgets.queue.queue_table import QueueTable
 from i19serial_ui.log import LOGGER
@@ -11,10 +10,11 @@ from i19serial_ui.parameters.queue import QueueElement
 QUEUE_WINDOW_SIZE = (800, 300)
 
 
+# WELL NOW I HAVE A DOUBLE QUEUE. BUT AT LEAST IT DELETES. SIGH
+
+
 class CollectionQueueUI(QtWidgets.QWidget):
     """A new window to handle/view to the queue."""
-
-    current_visit = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -23,6 +23,7 @@ class CollectionQueueUI(QtWidgets.QWidget):
         self.logger = LOGGER
         self.run_queue: deque[QueueElement] = deque()
         self.table = QueueTable(self.run_queue, self)
+        self.table.remove_item_request.connect(self.on_delete_click)
         self._setup_layout()
 
     def _visit_layout(self):
@@ -48,22 +49,37 @@ class CollectionQueueUI(QtWidgets.QWidget):
     def on_visit_update(self, new_visit: str):
         self.visit_txt.setText(new_visit)
 
-    def update_queue_table(
-        self, queue_item: QueueElement, action: Literal["add", "remove"] = "add"
-    ):
-        match action:
-            case "add":
-                self.run_queue.append(queue_item)
-                self.table.add_row(queue_item)
-                self.logger.info(f"Collection {queue_item} added to the queue")
-            case "remove":
-                # UH OH
-                self.table.delete_row(queue_item)
-                self.run_queue.remove(queue_item)
-        self.logger.debug(f"Number of items in the queue: {len(self.run_queue)}")
+    @pyqtSlot(QueueElement)
+    def on_delete_click(self, queue_item: QueueElement):
+        self.run_queue.remove(queue_item)
+        self.logger.info(f"Number of items left in the queue: {len(self.run_queue)}")
+
+    def add_to_queue_table(self, queue_item: QueueElement):
+        self.run_queue.append(queue_item)
+        print(queue_item.element_label, queue_item.index)
+        self.table.add_row(queue_item)
+        self.logger.info(f"Collection {queue_item} added to the queue")
+        self.logger.info(f"Number of items in the queue: {len(self.run_queue)}")
+
+    # def remove_from_queue(self, queue_item: QueueElement):
+    #     self.table
+
+    # def update_queue_table(
+    #     self, queue_item: QueueElement, action: Literal["add", "remove"] = "add"
+    # ):
+    #     match action:
+    #         case "add":
+    #             self.run_queue.append(queue_item)
+    #             self.table.add_row(queue_item)
+    #             self.logger.info(f"Collection {queue_item} added to the queue")
+    #         case "remove":
+    #             # UH OH
+    #             self.table.delete_row(queue_item)
+    #             self.run_queue.remove(queue_item)
+    #     self.logger.debug(f"Number of items in the queue: {len(self.run_queue)}")
 
     def clear_queue_table(self):
         while len(self.run_queue) > 0:
             _item_to_remove = self.run_queue[0]
             self.table.delete_row(_item_to_remove)
-            self.run_queue.popleft()
+            # self.run_queue.popleft()

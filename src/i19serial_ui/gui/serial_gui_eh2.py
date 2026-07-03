@@ -225,6 +225,14 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         button.clicked.connect(func)
         return button
 
+    def _display_queue(self):
+        if len(self.run_queue) == 0:
+            self.gui_logger.info("No items left in the queue!")
+            return
+        for n, item in enumerate(self.run_queue):
+            self.gui_logger.info(f"Item {n}: {item.plan_name}")
+        return
+
     def _create_collection_buttons_group(self):
         self.run_btns_group = QtWidgets.QGroupBox()
         btn_layout = QtWidgets.QHBoxLayout()
@@ -233,11 +241,14 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.abort_btn = self._create_button("Abort", self.abort)
         self.queue_btn = self._create_button("Queue", self.add_to_queue)
         self.clear_btn = self._create_button("Clear Queue", self.clear_queue)
+        # TODO DELETE JUST FOR TEST!
+        self.print_q_btn = self._create_button("Print Q", self._display_queue)
 
         btn_layout.addWidget(self.run_btn)
         btn_layout.addWidget(self.abort_btn)
         btn_layout.addWidget(self.queue_btn)
         btn_layout.addWidget(self.clear_btn)
+        btn_layout.addWidget(self.print_q_btn)
 
         self.run_btns_group.setLayout(btn_layout)
 
@@ -285,7 +296,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             # If queue window not already visible, open it
             self.open_queue_window()
         new_collection = self.read_input_and_create_new_queue_element()
-        self.queue_window.update_queue_table(new_collection)
+        self.queue_window.add_to_queue_table(new_collection)
         self.run_queue = self.queue_window.run_queue
         self.appendOutput("Collection added to the queue")
         self.appendOutput(f"QUEUE: \n {self.run_queue}")
@@ -303,9 +314,11 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
                 "Please fill in all parameters before adding to the queue"
             )
             return  # type: ignore
+        _idx = len(self.run_queue)
         return QueueElement(
             plan_name="run_serial_from_panda",
             plan_params=parameters["parameters"],  # TODO
+            index=_idx,  # -1
         )
 
     def finalise_collection_queue(self):
