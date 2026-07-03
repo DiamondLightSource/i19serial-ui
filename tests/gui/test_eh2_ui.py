@@ -59,7 +59,7 @@ def test_general_layout(mock_eh2_gui):
 
 def test_toolbar(mock_eh2_gui):
     assert isinstance(mock_eh2_gui.toolbar, QtWidgets.QToolBar)
-    assert len(mock_eh2_gui.toolbar.actions()) == 6
+    assert len(mock_eh2_gui.toolbar.actions()) == 7
 
 
 def test_grid_move_tl_action(mock_eh2_gui):
