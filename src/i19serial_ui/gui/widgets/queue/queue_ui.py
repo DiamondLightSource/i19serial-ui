@@ -10,9 +10,6 @@ from i19serial_ui.parameters.queue import QueueElement
 QUEUE_WINDOW_SIZE = (800, 300)
 
 
-# WELL NOW I HAVE A DOUBLE QUEUE. BUT AT LEAST IT DELETES. SIGH
-
-
 class CollectionQueueUI(QtWidgets.QWidget):
     """A new window to handle/view to the queue."""
 

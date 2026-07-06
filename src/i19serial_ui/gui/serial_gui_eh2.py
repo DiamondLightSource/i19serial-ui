@@ -35,7 +35,7 @@ from i19serial_ui.parameters.general_utils import ApertureOptions
 from i19serial_ui.parameters.queue import QueueElement
 from i19serial_ui.parameters.wells_selection import WellsSelection
 
-WINDOW_SIZE = (600, 1200)
+WINDOW_SIZE = (500, 1000)
 LOG_HANDLERS = []
 
 # Some properties
