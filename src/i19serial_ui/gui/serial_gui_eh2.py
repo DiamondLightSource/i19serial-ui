@@ -230,7 +230,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             self.gui_logger.info("No items left in the queue!")
             return
         for n, item in enumerate(self.run_queue):
-            self.gui_logger.info(f"Item {n}: {item.plan_name}")
+            self.gui_logger.info(f"Item {n}: {item.element_label}")
         return
 
     def _create_collection_buttons_group(self):
@@ -314,11 +314,9 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
                 "Please fill in all parameters before adding to the queue"
             )
             return  # type: ignore
-        _idx = len(self.run_queue)
         return QueueElement(
             plan_name="run_serial_from_panda",
             plan_params=parameters["parameters"],  # TODO
-            index=_idx,  # -1
         )
 
     def finalise_collection_queue(self):

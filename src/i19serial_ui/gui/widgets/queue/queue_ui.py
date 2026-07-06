@@ -53,7 +53,6 @@ class CollectionQueueUI(QtWidgets.QWidget):
 
     def add_to_queue_table(self, queue_item: QueueElement):
         self.run_queue.append(queue_item)
-        print(queue_item.element_label, queue_item.index)
         self.table.add_row(queue_item)
         self.logger.info(f"Collection {queue_item} added to the queue")
         self.logger.info(f"Number of items in the queue: {len(self.run_queue)}")
@@ -62,8 +61,3 @@ class CollectionQueueUI(QtWidgets.QWidget):
         while len(self.run_queue) > 0:
             _item_to_remove = self.run_queue[0]
             self.table.delete_row(_item_to_remove)
-            # self.run_queue.popleft()
-        while self.table.rowCount() > 0:
-            print("WHY IS SOMETHING STILL HERE?!?!?")
-            # if self.table.rowCount() > 0:
-            self.table.removeRow(0)

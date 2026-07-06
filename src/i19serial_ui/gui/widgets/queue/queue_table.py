@@ -60,7 +60,14 @@ class QueueTable(QtWidgets.QTableWidget):
             # Then fill all the cells one by one, depending on collection type
             self._fill_in_table(new_item, num_rows)
 
+    def _get_item_index_in_queue(self, label_to_delete: str):
+        idx = [
+            n for n, q in enumerate(self.queue) if q.element_label == label_to_delete
+        ]
+        return idx[0]
+
     def delete_row(self, item_to_delete: QueueElement):
-        LOGGER.warning(f"Will delete item: {item_to_delete}, {item_to_delete.index}")
-        self.removeRow(item_to_delete.index)
+        idx = self._get_item_index_in_queue(item_to_delete.element_label)
+        LOGGER.warning(f"Will delete item: {item_to_delete}, idx {idx}")
+        self.removeRow(idx)
         self.remove_item_request.emit(item_to_delete)
