@@ -1,6 +1,17 @@
+from enum import StrEnum
 from typing import Any
+from uuid import uuid4
 
+from pydantic import Field
 from pydantic.dataclasses import dataclass
+
+
+class ElementType(StrEnum):
+    COLLECTION = "collection"
+    VARIABLE = "variable"
+
+
+# I could also use uuid to give them an unique id and make things easier?
 
 
 @dataclass
@@ -8,10 +19,12 @@ class QueueElement:
     plan_name: str
     plan_params: dict[str, Any]
 
-    @property
-    def element_label(self):
-        return f"Run {self.plan_params['dataset']}"
-        # return f"Run {self.plan_name}"
+    element_type: ElementType = Field(default=ElementType.COLLECTION)
+    id: str = Field(default_factory=lambda: uuid4().hex)
 
-    # NOTE this will only work whle I have collections, as soon as I add variables
-    # there will be no dataset in parameters - so need something better
+    @property
+    def element_label(self) -> str:
+        if self.element_type == ElementType.COLLECTION:
+            return f"Run {self.plan_params['dataset']}"
+        else:
+            return f"Run {self.plan_name}"
