@@ -54,8 +54,8 @@ class CollectionQueueUI(QtWidgets.QWidget):
     def add_to_queue_table(self, queue_item: QueueElement):
         self.run_queue.append(queue_item)
         self.table.add_row(queue_item)
-        self.logger.info(f"Collection {queue_item} added to the queue")
-        self.logger.info(f"Number of items in the queue: {len(self.run_queue)}")
+        self.logger.info(f"{queue_item.element_label} added to the queue")
+        self.logger.debug(f"Number of items in the queue: {len(self.run_queue)}")
 
     def clear_queue_table(self):
         while len(self.run_queue) > 0:

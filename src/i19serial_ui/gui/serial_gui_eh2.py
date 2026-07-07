@@ -164,8 +164,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         )
         self.open_queue_action = QtGui.QAction(self)
         self.open_queue_action.setIcon(create_image_icon(image_file_path("queue.png")))
-        # self.open_queue_action.setText("Q")
-        # self.open_queue_action.setFont(QtGui.QFont(FONT, 10))
         self.open_queue_action.triggered.connect(self.open_queue_window)
 
     def _setup_title(self):
@@ -225,14 +223,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         button.clicked.connect(func)
         return button
 
-    def _display_queue(self):
-        if len(self.run_queue) == 0:
-            self.gui_logger.info("No items left in the queue!")
-            return
-        for n, item in enumerate(self.run_queue):
-            self.gui_logger.info(f"Item {n}: {item.element_label}")
-        return
-
     def _create_collection_buttons_group(self):
         self.run_btns_group = QtWidgets.QGroupBox()
         btn_layout = QtWidgets.QHBoxLayout()
@@ -241,14 +231,11 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.abort_btn = self._create_button("Abort", self.abort)
         self.queue_btn = self._create_button("Queue", self.add_to_queue)
         self.clear_btn = self._create_button("Clear Queue", self.clear_queue)
-        # TODO DELETE JUST FOR TEST!
-        self.print_q_btn = self._create_button("Print Q", self._display_queue)
 
         btn_layout.addWidget(self.run_btn)
         btn_layout.addWidget(self.abort_btn)
         btn_layout.addWidget(self.queue_btn)
         btn_layout.addWidget(self.clear_btn)
-        btn_layout.addWidget(self.print_q_btn)
 
         self.run_btns_group.setLayout(btn_layout)
 
