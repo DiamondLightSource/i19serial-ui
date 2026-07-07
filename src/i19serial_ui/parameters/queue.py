@@ -25,6 +25,6 @@ class QueueElement:
     @property
     def element_label(self) -> str:
         if self.element_type == ElementType.COLLECTION:
-            return f"Run {self.plan_params['dataset']}"
+            return f"Run collection {self.plan_params['dataset']}"
         else:
             return f"Run {self.plan_name}"

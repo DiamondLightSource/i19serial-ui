@@ -1,6 +1,5 @@
 import sys
 from collections.abc import Callable
-from pathlib import Path
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtCore import pyqtSignal
@@ -9,6 +8,7 @@ from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
 from i19serial_ui.coordinate_system.utils import get_run_position_coordinates
 from i19serial_ui.gui.ui_utils import (
     HutchInUse,
+    check_input_information,
     config_file_path,
     create_image_icon,
     get_data_main_path,
@@ -289,15 +289,37 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
     def appendOutput(self, msg: str, level: str = "INFO"):  # noqa: N802
         log_to_gui(self.gui_logger, msg, level)
 
+    def _check_dataset_name_exists(self, dataset: str) -> bool:
+        dset_exists: bool = False
+        for item in self.run_queue:
+            if item.plan_params["dataset"] == dataset:
+                dset_exists = True
+                break
+        return dset_exists
+
     def add_to_queue(self):
         if not self.queue_window.isVisible():
             # If queue window not already visible, open it
             self.open_queue_window()
-        new_collection = self.read_input_and_create_new_queue_element()
-        self.queue_window.add_to_queue_table(new_collection)
-        self.run_queue = self.queue_window.run_queue
-        self.appendOutput("Collection added to the queue")
-        self.appendOutput(f"QUEUE: \n {self.run_queue}")
+        try:
+            new_collection = self.read_input_and_create_new_queue_element()
+            if self._check_dataset_name_exists(new_collection.plan_params["dataset"]):
+                self.gui_logger.warning(
+                    f"""Collection not added to the queue:
+                    dataset {new_collection.plan_params["dataset"]} already exists.
+                    """
+                )
+                return
+                # raise ValueError("Dataset already exists in the queue")
+            self.queue_window.add_to_queue_table(new_collection)
+            self.run_queue = self.queue_window.run_queue
+            self.appendOutput("Collection added to the queue")
+            self.appendOutput(f"QUEUE: \n {self.run_queue}")
+        except Exception as e:
+            self.appendOutput(
+                "Couldn't add item to queue, please check logs.", level="ERROR"
+            )
+            self.gui_logger.exception(e)
 
     def clear_queue(self):
         self.appendOutput("Clearing the queue ...", level="WARNING")
@@ -311,10 +333,10 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             self.appendOutput(
                 "Please fill in all parameters before adding to the queue"
             )
-            return  # type: ignore
+            raise ValueError("Missing parameters")
         return QueueElement(
             plan_name="run_serial_from_panda",
-            plan_params=parameters["parameters"],  # TODO
+            plan_params=parameters["parameters"],  # FIXME
         )
 
     def finalise_collection_queue(self):
@@ -332,10 +354,13 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         # not to block... while state == "RUNNING", wait, otherwise print
         # Will have to double check that
         # Also run plan should return the task_id so state of things can be checked
-        all_params = self.read_all_parameters()
-        self.appendOutput("Start serial collection with the panda")
-        self.appendOutput(f"With parameters: {all_params}")
-        self.client.run_plan("run_serial_from_panda", all_params)
+        try:
+            all_params = self.read_all_parameters()
+            self.appendOutput("Start serial collection with the panda")
+            self.appendOutput(f"With parameters: {all_params}")
+            self.client.run_plan("run_serial_from_panda", all_params)
+        except Exception:
+            self.appendOutput("DO YOU FAIL NOW?!?!?")
 
     def abort(self):
         self.client.abort_task()
@@ -362,49 +387,60 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
 
         return WellsSelection(**wells_chosen)
 
+    def _get_collection_path(self) -> tuple[str, str, str]:
+        visit = self.inputs.visit_path.text()
+        dataset = self.inputs.dataset.text()
+        prefix = self.inputs.prefix.text()
+        _check = check_input_information(visit, dataset, prefix)
+        if not _check:
+            self.appendOutput("Please check visit, dataset and prefix are all set.")
+            raise ValueError("Visit, dataset or prefix not correctly set")
+        return (visit, dataset, prefix)
+
     def read_all_parameters(self):
         params = {}
-        try:
-            rotation_start = float(self.inputs.rotation_start.text())
-            num_images = int(self.inputs.num_images.text())
-            rotation_increment = float(self.inputs.image_width.text())
-            rotation_end = rotation_start + num_images + rotation_increment
-            detector_z = float(self.inputs.det_dist.text())
-            detector_two_theta = float(self.inputs.two_theta.text())
-            eh2_aperture = self.read_aperture_dropdown()
-            wells = self.read_wells()
+        # try:
+        _visit, _dataset, _prefix = self._get_collection_path()
+        rotation_start = float(self.inputs.rotation_start.text())
+        num_images = int(self.inputs.num_images.text())
+        rotation_increment = float(self.inputs.image_width.text())
+        rotation_end = rotation_start + num_images + rotation_increment
+        detector_z = float(self.inputs.det_dist.text())
+        detector_two_theta = float(self.inputs.two_theta.text())
+        eh2_aperture = self.read_aperture_dropdown()
+        wells = self.read_wells()
 
-            params = {
-                "parameters": {
-                    "detector_distance_mm": detector_z,
-                    "two_theta_deg": detector_two_theta,
-                    "rot_axis_start": rotation_start,
-                    "rot_axis_end": rotation_end,
-                    "rot_axis_increment": rotation_increment,
-                    "images_per_well": num_images,
-                    "exposure_time_s": float(self.inputs.time_image.text()),
-                    "aperture_request": eh2_aperture,
-                    "hutch": "EH2",
-                    "visit": Path(self.inputs.visit_path.text()),
-                    "dataset": self.inputs.dataset.text(),
-                    "filename_prefix": self.inputs.prefix.text(),
-                    "image_width_deg": float(self.inputs.image_width.text()),
-                    "transmission_fraction": float(self.inputs.transmission.text()),
-                    "detector_type": "EIGER",
-                    "wells_to_collect": get_run_position_coordinates(
-                        wells, self.cs_panel.coordinates
-                    ),
-                    "wells_series_len": wells.series_length,
-                }
+        params = {
+            "parameters": {
+                "detector_distance_mm": detector_z,
+                "two_theta_deg": detector_two_theta,
+                "rot_axis_start": rotation_start,
+                "rot_axis_end": rotation_end,
+                "rot_axis_increment": rotation_increment,
+                "images_per_well": num_images,
+                "exposure_time_s": float(self.inputs.time_image.text()),
+                "aperture_request": eh2_aperture,
+                "hutch": "EH2",  # Probably don't need
+                "visit": _visit,  # Probably don't need
+                "dataset": _dataset,
+                "filename_prefix": _prefix,
+                "image_width_deg": float(self.inputs.image_width.text()),
+                "transmission_fraction": float(self.inputs.transmission.text()),
+                "detector_type": "EIGER",
+                "wells_to_collect": get_run_position_coordinates(
+                    wells, self.cs_panel.coordinates
+                ),
+                "wells_series_len": wells.series_length,
             }
-        except Exception as e:
-            self.appendOutput(
-                """Something went wrong while creating the parameters for the plan.
-                Please double check your inputs, something might be missing.
-                For full error message, see the logs.""",
-                level="ERROR",
-            )
-            LOGGER.exception(e)
+        }
+        # except Exception as e:
+        #     self.appendOutput(
+        #         """Something went wrong while creating the parameters for the plan.
+        #         Please double check your inputs, something might be missing.
+        #         For full error message, see the logs.""",
+        #         level="ERROR",
+        #     )
+        #     LOGGER.exception(e)
         return params
 
 
