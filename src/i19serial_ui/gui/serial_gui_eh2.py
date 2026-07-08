@@ -223,14 +223,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         button.clicked.connect(func)
         return button
 
-    def _display_queue(self):
-        if len(self.run_queue) == 0:
-            self.gui_logger.info("No items left in the queue!")
-            return
-        for n, item in enumerate(self.run_queue):
-            self.gui_logger.info(f"Item {n}: {item.element_label}")
-        return
-
     def _create_collection_buttons_group(self):
         self.run_btns_group = QtWidgets.QGroupBox()
         btn_layout = QtWidgets.QHBoxLayout()
@@ -239,14 +231,11 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.abort_btn = self._create_button("Abort", self.abort)
         self.queue_btn = self._create_button("Queue", self.add_to_queue)
         self.clear_btn = self._create_button("Clear Queue", self.clear_queue)
-        # TODO DELETE JUST FOR TEST!
-        self.print_q_btn = self._create_button("Print Q", self._display_queue)
 
         btn_layout.addWidget(self.run_btn)
         btn_layout.addWidget(self.abort_btn)
         btn_layout.addWidget(self.queue_btn)
         btn_layout.addWidget(self.clear_btn)
-        btn_layout.addWidget(self.print_q_btn)
 
         self.run_btns_group.setLayout(btn_layout)
 
@@ -359,8 +348,11 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             self.appendOutput("Start serial collection with the panda")
             self.appendOutput(f"With parameters: {all_params}")
             self.client.run_plan("run_serial_from_panda", all_params)
-        except Exception:
-            self.appendOutput("DO YOU FAIL NOW?!?!?")
+        except Exception as e:
+            self.appendOutput(
+                "There was an issue running the collection, please check logs"
+            )
+            self.gui_logger.exception(e)
 
     def abort(self):
         self.client.abort_task()
@@ -399,7 +391,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
 
     def read_all_parameters(self):
         params = {}
-        # try:
         _visit, _dataset, _prefix = self._get_collection_path()
         rotation_start = float(self.inputs.rotation_start.text())
         num_images = int(self.inputs.num_images.text())
@@ -433,14 +424,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
                 "wells_series_len": wells.series_length,
             }
         }
-        # except Exception as e:
-        #     self.appendOutput(
-        #         """Something went wrong while creating the parameters for the plan.
-        #         Please double check your inputs, something might be missing.
-        #         For full error message, see the logs.""",
-        #         level="ERROR",
-        #     )
-        #     LOGGER.exception(e)
         return params
 
 
