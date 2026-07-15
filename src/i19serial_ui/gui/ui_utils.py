@@ -43,9 +43,7 @@ def create_image_icon(image_path: str) -> QIcon:
     return icon
 
 
-def check_input_information(
-    visit: str, dataset: str | None, prefix: str | None
-) -> bool:
+def parse_dataset_input(visit: str, dataset: str | None, prefix: str | None) -> bool:
     """Check that dataset and prefix have been passed and are unique."""
     # NOTE visit check is handled by the instrument session
     # NOTE Numtracker will take care to check access to visit, but for now...

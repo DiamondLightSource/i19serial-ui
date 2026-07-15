@@ -8,11 +8,11 @@ from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
 from i19serial_ui.coordinate_system.utils import get_run_position_coordinates
 from i19serial_ui.gui.ui_utils import (
     HutchInUse,
-    check_input_information,
     config_file_path,
     create_image_icon,
     get_data_main_path,
     image_file_path,
+    parse_dataset_input,
 )
 from i19serial_ui.gui.widgets import (
     BacklightBox,
@@ -23,7 +23,7 @@ from i19serial_ui.gui.widgets import (
     WellsSelectionPanel,
 )
 from i19serial_ui.gui.widgets.cs_panel import CoordinateSystemPanel
-from i19serial_ui.gui.widgets.queue.queue_ui import CollectionQueueUI
+from i19serial_ui.gui.widgets.queue.queue_ui import RunQueueUI
 from i19serial_ui.log import (
     LOGGER,
     GuiWindowLogHandler,
@@ -79,7 +79,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.backlight = BacklightBox(self.client, centralWidget)
 
         # External UI widgets
-        self.queue_window = CollectionQueueUI()
+        self.queue_window = RunQueueUI()
         self.selected_visit.connect(self.queue_window.on_visit_update)
         self.run_queue = self.queue_window.run_queue
 
@@ -383,7 +383,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         visit = self.inputs.visit_path.text()
         dataset = self.inputs.dataset.text()
         prefix = self.inputs.prefix.text()
-        _check = check_input_information(visit, dataset, prefix)
+        _check = parse_dataset_input(visit, dataset, prefix)
         if not _check:
             self.appendOutput("Please check visit, dataset and prefix are all set.")
             raise ValueError("Visit, dataset or prefix not correctly set")

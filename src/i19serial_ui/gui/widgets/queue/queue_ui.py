@@ -10,7 +10,7 @@ from i19serial_ui.parameters.queue import QueueElement
 QUEUE_WINDOW_SIZE = (800, 300)
 
 
-class CollectionQueueUI(QtWidgets.QWidget):
+class RunQueueUI(QtWidgets.QWidget):
     """A new window to handle/view to the queue."""
 
     def __init__(self):
