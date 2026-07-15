@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Any
 
-from blueapi.client.client import BlueapiClient
+from blueapi.client.client import BlueapiClient, WorkerState
 from blueapi.client.rest import BlueskyRemoteControlError, ServiceUnavailableError
 from blueapi.config import ApplicationConfig, ConfigLoader
 from blueapi.service.model import TaskRequest
@@ -61,6 +61,9 @@ class SerialBlueapiClient:
         except BlueskyRemoteControlError:
             # TO avoid GUI dying on double clicks
             log_to_gui(LOGGER, "Abort: Nothing seems to be running.")
+
+    def get_worker_state(self) -> WorkerState:
+        return self.client.state
 
     def run_plan(self, plan_name: str, plan_params: dict[str, Any]):
         if self._check_instrument_session():

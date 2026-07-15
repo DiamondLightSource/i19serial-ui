@@ -59,7 +59,7 @@ def test_general_layout(mock_eh2_gui):
 
 def test_toolbar(mock_eh2_gui):
     assert isinstance(mock_eh2_gui.toolbar, QtWidgets.QToolBar)
-    assert len(mock_eh2_gui.toolbar.actions()) == 6
+    assert len(mock_eh2_gui.toolbar.actions()) == 7
 
 
 def test_grid_move_tl_action(mock_eh2_gui):
@@ -188,9 +188,9 @@ def test_run_panda_and_read_all_parameters(
 
     inputs.series_length = make_text_mock(series_length)
 
-    inputs.visit_path = make_text_mock(".")
-    inputs.dataset = make_text_mock("")
-    inputs.prefix = make_text_mock("")
+    inputs.visit_path = make_text_mock("/some/path")
+    inputs.dataset = make_text_mock("001_test")
+    inputs.prefix = make_text_mock("test")
     inputs.transmission = make_text_mock(5.0)
 
     inputs.well_start = make_text_mock(well_list[0])
@@ -230,9 +230,9 @@ def test_run_panda_and_read_all_parameters(
             "exposure_time_s": mock_time_image,
             "aperture_request": mock_eh2_aperture,
             "hutch": "EH2",
-            "visit": Path("."),
-            "dataset": "",
-            "filename_prefix": "",
+            "visit": Path("/some/path").as_posix(),
+            "dataset": "001_test",
+            "filename_prefix": "test",
             "image_width_deg": 0.2,
             "transmission_fraction": 5.0,
             "detector_type": "EIGER",

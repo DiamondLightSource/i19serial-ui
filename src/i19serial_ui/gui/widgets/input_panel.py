@@ -66,8 +66,7 @@ class InputPanel(QtWidgets.QWidget):
             self._create_textbox_with_label(self.rotation_start, "Phi start (deg)", 0),
             1,
             0,
-        )  # For now just assumes phi rotation.
-        # TODO see https://github.com/DiamondLightSource/i19serial-ui/issues/25
+        )
         layout.addLayout(
             self._create_textbox_with_label(self.well_start, "Well start", 1), 1, 1
         )
