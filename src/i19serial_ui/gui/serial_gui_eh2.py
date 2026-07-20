@@ -1,8 +1,6 @@
 import sys
 from collections.abc import Callable
-from time import sleep
 
-from blueapi.worker import WorkerState
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtCore import pyqtSignal
 
