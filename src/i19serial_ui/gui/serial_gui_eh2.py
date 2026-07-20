@@ -1,10 +1,13 @@
 import sys
 from collections.abc import Callable
+from time import sleep
 
+from blueapi.worker import WorkerState
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtCore import pyqtSignal
 
 from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
+from i19serial_ui.blueapi_tools.state_poller import BlueapiStatePoller
 from i19serial_ui.coordinate_system.utils import get_run_position_coordinates
 from i19serial_ui.gui.ui_utils import (
     HutchInUse,
@@ -37,6 +40,8 @@ from i19serial_ui.parameters.wells_selection import WellsSelection
 
 WINDOW_SIZE = (500, 1000)
 LOG_HANDLERS = []
+
+POLL_TIME_S = 1.0
 
 # Some properties
 BG_COLOUR = "background-colour:(133,194,132)"
@@ -83,6 +88,9 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.selected_visit.connect(self.queue_window.on_visit_update)
         self.run_queue = self.queue_window.run_queue
 
+        # Thread for polling
+        self.pollThread = QtCore.QThread()
+
         # Create boxes with layouts
         # Title
         self._setup_title()
@@ -111,6 +119,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
     def _setup_blueapi_client(self):
         self._config = config_file_path(self.hutch)
         self.client = SerialBlueapiClient(self._config)
+        # self.poller = BlueapiStatePoller(self.client)
 
     def closeEvent(self, a0):  # type: ignore # noqa: N802
         self.gui_logger.debug("CLOSING UI")
@@ -333,8 +342,41 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         if len(self.run_queue) == 0:
             new_collection = self.read_input_and_create_new_queue_element()
             self.run_queue.append(new_collection)
+        print(self.run_queue)
+
+    def _run_single_task(self, queue_task: QueueElement):
+        self.appendOutput(f"{queue_task.element_label}")
+        # self.appendOutput(f"With parameters: {queue_task.plan_params}")
+        self.appendOutput(f"With time: {queue_task.plan_params['exposure_time_s']} s")
+        # self.client.run_plan(collection.plan_name, {"parameters": collection.plan_params})
+        self.client.run_plan(
+            "sleep", {"time": queue_task.plan_params["exposure_time_s"]}
+        )
+
+    # def _wait_for_task(self):
+    #     # NEED A SEPARATE THREAD FOR THIS!
+    #     while True:
+    #         current_state = self.client.get_worker_state()
+    #         if current_state == WorkerState.IDLE:
+    #             print("START NEXT TASK")
+    #             break
+    #         print("TASK STILL RUNNING")
+    #         sleep(POLL_TIME_S)
+
+    def _set_up_poller(self):
+        self.poller = BlueapiStatePoller(self.client)
+        self.poller.moveToThread(self.pollThread)
+        # Connect signals and slots
+        self.pollThread.started.connect(self.poller.start)
+        self.poller.finished.connect(self._on_task_finished)
+
+    def _on_task_finished(self):
+        self.pollThread.quit()
+        self.pollThread.wait()
+        self.appendOutput("Ready for next task")
 
     def run(self):
+        # UGH, ACHTUNG I ACTUALLY NEED FOR THIS TO BE DONE IN THE THREAD OR IT WON'T WAIT!!!
         # TODO THis will then become
         # Finalise collection queue, run in a loop and
         # have the client poll the worker status
@@ -347,7 +389,25 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             all_params = self.read_all_parameters()
             self.appendOutput("Start serial collection with the panda")
             self.appendOutput(f"With parameters: {all_params}")
-            self.client.run_plan("run_serial_from_panda", all_params)
+            # self.client.run_plan("run_serial_from_panda", all_params)
+            self.finalise_collection_queue()
+            # print(self.run_queue)
+            self._set_up_poller()
+            print(len(self.run_queue))
+            while len(self.run_queue) > 0:
+                task = self.run_queue.popleft()
+                print(task.plan_params["exposure_time_s"])
+                # PROBLEM IS THAT EVEN LIKE THIS IT DOESN'T STOP AND WAIT!
+                # self._run_single_task(task)
+                self.poller.set_new_task(task)
+                # print(self.poller.task)
+                self.pollThread.start()
+                # self.pollThread.wait()
+                # self._wait_for_task()
+                # self.queue_window.table.delete_row(task)
+            # THIS KEEPS JUST GOING THROUGH AND NOT WAITING FOR POLLING TO BE DONE
+            # I SUSPECT I WIL LNEED THE THREAD FOR THE WHOLE QUEUE. SIGH SOB
+            self.appendOutput("Run finished!")
         except Exception as e:
             self.appendOutput(
                 "There was an issue running the collection, please check logs"
@@ -357,6 +417,8 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
     def abort(self):
         self.client.abort_task()
         self.appendOutput("Abort")
+        if self.pollThread.isRunning():
+            self.poller.stop()
 
     def read_wells(self) -> WellsSelection:
         if self.wells.selection_checkbox.isChecked():

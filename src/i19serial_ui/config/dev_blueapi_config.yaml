@@ -1,14 +1,13 @@
 api:
-  url: https://i19-2-blueapi.diamond.ac.uk
+  url: http://localhost:8000
 env:
   sources:
     - kind: deviceManager
       module: dodal.beamlines.i19_2
     - kind: planFunctions
-      module: i19_bluesky.serial
+      module: dodal.plan_stubs
 stomp:
-  enabled: true
-  url: tcp://i19-2-control.diamond.ac.uk:61613
+  enabled: false
 logging:
   level: "INFO"
     # graylog:
