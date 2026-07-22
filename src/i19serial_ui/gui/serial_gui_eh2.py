@@ -39,7 +39,6 @@ from i19serial_ui.parameters.wells_selection import WellsSelection
 WINDOW_SIZE = (500, 1000)
 LOG_HANDLERS = []
 
-POLL_TIME_S = 1.0
 
 # Some properties
 BG_COLOUR = "background-colour:(133,194,132)"
@@ -117,7 +116,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
     def _setup_blueapi_client(self):
         self._config = config_file_path(self.hutch)
         self.client = SerialBlueapiClient(self._config)
-        # self.poller = BlueapiStatePoller(self.client)
 
     def closeEvent(self, a0):  # type: ignore # noqa: N802
         self.gui_logger.debug("CLOSING UI")
