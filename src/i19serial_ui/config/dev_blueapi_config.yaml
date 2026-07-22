@@ -2,8 +2,8 @@ api:
   url: http://localhost:8000
 env:
   sources:
-    - kind: deviceManager
-      module: dodal.beamlines.i19_2
+    # - kind: deviceManager
+    #   module: dodal.beamlines.i19_2
     - kind: planFunctions
       module: dodal.plan_stubs
 stomp:
