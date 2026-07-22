@@ -33,17 +33,19 @@ class BlueapiQueueRunner(QObject):
         finally:
             self._mutex.unlock()
 
-    def _wait_for_task(self):
+    def _wait_for_task(self, plan_name: str):
         while True:
             current_state = self._client.get_worker_state()
-            print(f"CURRENT STATE: {current_state}")
+            self.logger.debug(f"Current blueapi state: {current_state}")
             if current_state == WorkerState.IDLE:
-                print("CAN START NEXT TASK")
+                self.logger.info(f"Plan {plan_name} finished, can start next task")
                 break
             if current_state == WorkerState.ABORTING:
-                print("OOOPS PRESSED ABORT")
+                # May actually be overkill
+                self.logger.warning("Abort button pressed, will stop task")
                 break
-            print("TASK STILL RUNNING")
+            # TODO replace with progress bar maybe?
+            self.logger.info(f"Running {plan_name}")
             sleep(POLL_TIME_S)
 
     @pyqtSlot()
@@ -52,12 +54,19 @@ class BlueapiQueueRunner(QObject):
         try:
             while self._running and len(self.queue) > 0:
                 task = self.queue.popleft()
-                self.logger.info(f"RUN TASK with {task.plan_params['exposure_time_s']}")
-                self._client.run_plan(
-                    "sleep", {"time": task.plan_params["exposure_time_s"]}
-                )
-                self._wait_for_task()
+                self.logger.info(f"Start task {task.element_label}")
+                self.logger.info(f"With parameters: {task.plan_params}")
+                self._client.run_plan(task.plan_name, {"parameters": task.plan_params})
+                # TODO DEV
+                # self.logger.info(
+                #   f"RUN TASK with {task.plan_params['exposure_time_s']}"
+                # )
+                # self._client.run_plan(
+                #     "sleep", {"time": task.plan_params["exposure_time_s"]}
+                # )
+                self._wait_for_task(task.plan_name)
                 print("TASK NOW DONE - MOVING TO NEXT ONE")
+                self.task_done.emit(0)
         except Exception as e:
             self.logger.error("Queue failed. Please check logs for full error trace")
             self.logger.exception(e)

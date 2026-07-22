@@ -332,7 +332,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             raise ValueError("Missing parameters")
         return QueueElement(
             plan_name="run_serial_from_panda",
-            plan_params=parameters["parameters"],  # FIXME
+            plan_params=parameters,
         )
 
     def finalise_collection_queue(self):
@@ -343,33 +343,33 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
 
     def _run_single_task(self, queue_task: QueueElement):
         self.appendOutput(f"{queue_task.element_label}")
-        # self.appendOutput(f"With parameters: {queue_task.plan_params}")
-        self.appendOutput(f"With time: {queue_task.plan_params['exposure_time_s']} s")
-        # self.client.run_plan(
-        # collection.plan_name, {"parameters": collection.plan_params}
-        # )
+        self.appendOutput(f"With parameters: {queue_task.plan_params}")
         self.client.run_plan(
-            "sleep", {"time": queue_task.plan_params["exposure_time_s"]}
+            queue_task.plan_name, {"parameters": queue_task.plan_params}
         )
+        # TODO dev
+        # self.appendOutput(
+        #   f"With time: {queue_task.plan_params['exposure_time_s']} s"
+        # )
+        # self.client.run_plan(
+        #     "sleep", {"time": queue_task.plan_params["exposure_time_s"]}
+        # )
 
     def _set_up_queue_runner(self):
         self.queue_runner = BlueapiQueueRunner(self.client, self.run_queue)
         self.queue_runner.moveToThread(self.queueThread)
         self.queueThread.started.connect(self.queue_runner.start)
         self.queue_runner.finished.connect(self._on_run_end)
+        self.queue_runner.task_done.connect(self.queue_window.table.clear_finished_task)
 
     def _on_run_end(self):
         self.queueThread.quit()
         self.queueThread.wait()
-        self.clear_queue()
+        # self.clear_queue()
         self.appendOutput("Run queue finished!")
 
     def run(self):
         try:
-            all_params = self.read_all_parameters()
-            self.appendOutput("Start serial collection with the panda")
-            self.appendOutput(f"With parameters: {all_params}")
-            # self.client.run_plan("run_serial_from_panda", all_params)
             self.finalise_collection_queue()
             if len(self.run_queue) == 1:
                 task = self.run_queue.popleft()
@@ -436,27 +436,25 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         wells = self.read_wells()
 
         params = {
-            "parameters": {
-                "detector_distance_mm": detector_z,
-                "two_theta_deg": detector_two_theta,
-                "rot_axis_start": rotation_start,
-                "rot_axis_end": rotation_end,
-                "rot_axis_increment": rotation_increment,
-                "images_per_well": num_images,
-                "exposure_time_s": float(self.inputs.time_image.text()),
-                "aperture_request": eh2_aperture,
-                "hutch": "EH2",  # Probably don't need
-                "visit": _visit,  # Probably don't need
-                "dataset": _dataset,
-                "filename_prefix": _prefix,
-                "image_width_deg": float(self.inputs.image_width.text()),
-                "transmission_fraction": float(self.inputs.transmission.text()),
-                "detector_type": "EIGER",
-                "wells_to_collect": get_run_position_coordinates(
-                    wells, self.cs_panel.coordinates
-                ),
-                "wells_series_len": wells.series_length,
-            }
+            "detector_distance_mm": detector_z,
+            "two_theta_deg": detector_two_theta,
+            "rot_axis_start": rotation_start,
+            "rot_axis_end": rotation_end,
+            "rot_axis_increment": rotation_increment,
+            "images_per_well": num_images,
+            "exposure_time_s": float(self.inputs.time_image.text()),
+            "aperture_request": eh2_aperture,
+            "hutch": "EH2",  # Probably don't need
+            "visit": _visit,  # Probably don't need
+            "dataset": _dataset,
+            "filename_prefix": _prefix,
+            "image_width_deg": float(self.inputs.image_width.text()),
+            "transmission_fraction": float(self.inputs.transmission.text()),
+            "detector_type": "EIGER",
+            "wells_to_collect": get_run_position_coordinates(
+                wells, self.cs_panel.coordinates
+            ),
+            "wells_series_len": wells.series_length,
         }
         return params
 
