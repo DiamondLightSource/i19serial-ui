@@ -74,10 +74,11 @@ class SerialBlueapiClient:
                 log_to_gui(
                     LOGGER,
                     f"""Something went wrong running the {plan_name} plan,
-                    check out the logs for more information""",
+                    check out the blueapi logs for more information""",
                     level="ERROR",
                 )
                 LOGGER.exception(e)
+        # NOTE this message should not show until polling done...
         log_to_gui(LOGGER, "Run plan done", level="DEBUG")
 
     def run_plan_and_get_result(

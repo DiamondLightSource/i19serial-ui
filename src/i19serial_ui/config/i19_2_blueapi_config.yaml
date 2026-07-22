@@ -2,7 +2,7 @@ api:
   url: https://i19-2-blueapi.diamond.ac.uk
 env:
   sources:
-    - kind: dodal
+    - kind: deviceManager
       module: dodal.beamlines.i19_2
     - kind: planFunctions
       module: i19_bluesky.serial

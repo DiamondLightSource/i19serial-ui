@@ -27,6 +27,8 @@ def config_file_path(hutch: HutchInUse, filepath: Path = CONFIG_PATH) -> Path:  
     match hutch:
         case HutchInUse.EH2:
             full_path = filepath.joinpath("i19_2_blueapi_config.yaml")
+            # TODO DEV
+            # full_path = filepath.joinpath("dev_blueapi_config.yaml")
             return Path(full_path)  # type: ignore
         case HutchInUse.EH1:
             raise ValueError("No config file for EH1 yet")

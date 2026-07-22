@@ -1,5 +1,5 @@
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 from PyQt6 import QtWidgets
@@ -16,6 +16,7 @@ from i19serial_ui.gui.widgets import (
 )
 from i19serial_ui.parameters.coordinates import FiducialPosition
 from i19serial_ui.parameters.general_utils import BacklightOption
+from i19serial_ui.parameters.queue import QueueElement
 
 
 @pytest.fixture
@@ -246,3 +247,50 @@ def test_run_panda_and_read_all_parameters(
     mock_eh2_gui.client.run_plan.assert_called_once_with(
         "run_serial_from_panda", mock_params
     )
+
+
+@pytest.fixture
+def mock_queue_element() -> QueueElement:
+    mock_params = {
+        "detector_distance_mm": 150.0,
+        "two_theta_deg": 0.0,
+        "rot_axis_start": -20,
+        "rot_axis_end": -18,
+        "rot_axis_increment": 0.2,
+        "images_per_well": 10,
+        "exposure_time_s": 0.2,
+        "aperture_request": "20um",
+        "hutch": "EH2",
+        "visit": Path("/some/path").as_posix(),
+        "dataset": "001_test",
+        "filename_prefix": "test",
+        "image_width_deg": 0.2,
+        "transmission_fraction": 5.0,
+        "detector_type": "EIGER",
+        "wells_to_collect": {"01": (0, 0, 0)},
+        "wells_series_len": 1,
+    }
+    mock_collection = QueueElement("run_serial_from_panda", plan_params=mock_params)
+    return mock_collection
+
+
+def test_queue_button(mock_eh2_gui, mock_queue_element):
+    mock_eh2_gui.read_input_and_create_new_queue_element = MagicMock(
+        return_value=mock_queue_element
+    )
+
+    mock_eh2_gui.queue_window = MagicMock()
+    mock_eh2_gui.queue_window.isVisible.return_value = False
+    mock_eh2_gui.queue_btn.click()
+
+    mock_eh2_gui.queue_window.show.assert_called_once()
+    mock_eh2_gui.queue_window.add_to_queue_table.assert_called_once_with(
+        mock_queue_element
+    )
+
+
+def test_clear_queue_button(mock_eh2_gui):
+    mock_eh2_gui.queue_window = MagicMock()
+
+    mock_eh2_gui.clear_btn.click()
+    mock_eh2_gui.queue_window.clear_queue_table.assert_called_once()

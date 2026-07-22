@@ -68,3 +68,7 @@ class QueueTable(QtWidgets.QTableWidget):
         LOGGER.warning(f"Will delete item: {item_to_delete}, idx {idx}")
         self.removeRow(idx)
         self.remove_item_request.emit(item_to_delete)
+
+    def clear_finished_task(self, idx: int):
+        self.removeRow(idx)
+        # No need to emit because it shoudl already have been removed from queue

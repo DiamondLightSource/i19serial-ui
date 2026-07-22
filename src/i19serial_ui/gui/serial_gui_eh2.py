@@ -5,6 +5,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtCore import pyqtSignal
 
 from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
+from i19serial_ui.blueapi_tools.blueapi_queue import BlueapiQueueRunner
 from i19serial_ui.coordinate_system.utils import get_run_position_coordinates
 from i19serial_ui.gui.ui_utils import (
     HutchInUse,
@@ -37,6 +38,7 @@ from i19serial_ui.parameters.wells_selection import WellsSelection
 
 WINDOW_SIZE = (500, 1000)
 LOG_HANDLERS = []
+
 
 # Some properties
 BG_COLOUR = "background-colour:(133,194,132)"
@@ -82,6 +84,9 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.queue_window = RunQueueUI()
         self.selected_visit.connect(self.queue_window.on_visit_update)
         self.run_queue = self.queue_window.run_queue
+
+        # Thread for queue with polling
+        self.queueThread = QtCore.QThread()
 
         # Create boxes with layouts
         # Title
@@ -227,7 +232,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.run_btns_group = QtWidgets.QGroupBox()
         btn_layout = QtWidgets.QHBoxLayout()
 
-        self.run_btn = self._create_button("Run Plan", self.run)
+        self.run_btn = self._create_button("Run", self.run)
         self.abort_btn = self._create_button("Abort", self.abort)
         self.queue_btn = self._create_button("Queue", self.add_to_queue)
         self.clear_btn = self._create_button("Clear Queue", self.clear_queue)
@@ -325,7 +330,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             raise ValueError("Missing parameters")
         return QueueElement(
             plan_name="run_serial_from_panda",
-            plan_params=parameters["parameters"],  # FIXME
+            plan_params=parameters,
         )
 
     def finalise_collection_queue(self):
@@ -334,20 +339,45 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             new_collection = self.read_input_and_create_new_queue_element()
             self.run_queue.append(new_collection)
 
+    def _run_single_task(self, queue_task: QueueElement):
+        self.appendOutput(f"{queue_task.element_label}")
+        self.appendOutput(f"With parameters: {queue_task.plan_params}")
+        self.client.run_plan(
+            queue_task.plan_name, {"parameters": queue_task.plan_params}
+        )
+        # TODO dev
+        # self.appendOutput(
+        #   f"With time: {queue_task.plan_params['exposure_time_s']} s"
+        # )
+        # self.client.run_plan(
+        #     "sleep", {"time": queue_task.plan_params["exposure_time_s"]}
+        # )
+
+    def _set_up_queue_runner(self):
+        self.queue_runner = BlueapiQueueRunner(self.client, self.run_queue)
+        self.queue_runner.moveToThread(self.queueThread)
+        self.queueThread.started.connect(self.queue_runner.start)
+        self.queue_runner.finished.connect(self._on_run_end)
+        self.queue_runner.task_done.connect(self.queue_window.table.clear_finished_task)
+
+    def _on_run_end(self):
+        self.queueThread.quit()
+        self.queueThread.wait()
+        # self.clear_queue()
+        self.appendOutput("Run queue finished!")
+
     def run(self):
-        # TODO THis will then become
-        # Finalise collection queue, run in a loop and
-        # have the client poll the worker status
-        # The polling should be done here I suspect -
-        # but even then may need a separate thread
-        # not to block... while state == "RUNNING", wait, otherwise print
-        # Will have to double check that
-        # Also run plan should return the task_id so state of things can be checked
         try:
-            all_params = self.read_all_parameters()
-            self.appendOutput("Start serial collection with the panda")
-            self.appendOutput(f"With parameters: {all_params}")
-            self.client.run_plan("run_serial_from_panda", all_params)
+            self.finalise_collection_queue()
+            if len(self.run_queue) == 1:
+                task = self.run_queue.popleft()
+                self._run_single_task(task)
+                # Main issue here is that there is nothing
+                # announcing end of collection yet.
+            else:
+                print("Run in thread")
+                self._set_up_queue_runner()
+                self.queueThread.start()
         except Exception as e:
             self.appendOutput(
                 "There was an issue running the collection, please check logs"
@@ -356,7 +386,9 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
 
     def abort(self):
         self.client.abort_task()
-        self.appendOutput("Abort")
+        self.appendOutput("Aborting collection and stoping queue if running.")
+        if self.queueThread.isRunning():
+            self.queue_runner.stop()
 
     def read_wells(self) -> WellsSelection:
         if self.wells.selection_checkbox.isChecked():
@@ -402,27 +434,25 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         wells = self.read_wells()
 
         params = {
-            "parameters": {
-                "detector_distance_mm": detector_z,
-                "two_theta_deg": detector_two_theta,
-                "rot_axis_start": rotation_start,
-                "rot_axis_end": rotation_end,
-                "rot_axis_increment": rotation_increment,
-                "images_per_well": num_images,
-                "exposure_time_s": float(self.inputs.time_image.text()),
-                "aperture_request": eh2_aperture,
-                "hutch": "EH2",  # Probably don't need
-                "visit": _visit,  # Probably don't need
-                "dataset": _dataset,
-                "filename_prefix": _prefix,
-                "image_width_deg": float(self.inputs.image_width.text()),
-                "transmission_fraction": float(self.inputs.transmission.text()),
-                "detector_type": "EIGER",
-                "wells_to_collect": get_run_position_coordinates(
-                    wells, self.cs_panel.coordinates
-                ),
-                "wells_series_len": wells.series_length,
-            }
+            "detector_distance_mm": detector_z,
+            "two_theta_deg": detector_two_theta,
+            "rot_axis_start": rotation_start,
+            "rot_axis_end": rotation_end,
+            "rot_axis_increment": rotation_increment,
+            "images_per_well": num_images,
+            "exposure_time_s": float(self.inputs.time_image.text()),
+            "aperture_request": eh2_aperture,
+            "hutch": "EH2",  # Probably don't need
+            "visit": _visit,  # Probably don't need
+            "dataset": _dataset,
+            "filename_prefix": _prefix,
+            "image_width_deg": float(self.inputs.image_width.text()),
+            "transmission_fraction": float(self.inputs.transmission.text()),
+            "detector_type": "EIGER",
+            "wells_to_collect": get_run_position_coordinates(
+                wells, self.cs_panel.coordinates
+            ),
+            "wells_series_len": wells.series_length,
         }
         return params
 
