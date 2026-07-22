@@ -249,7 +249,7 @@ def test_run_panda_and_read_all_parameters(
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_queue_element() -> QueueElement:
     mock_params = {
         "detector_distance_mm": 150.0,
