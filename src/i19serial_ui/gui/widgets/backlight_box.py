@@ -8,6 +8,9 @@ from i19serial_ui.log import (
 )
 from i19serial_ui.parameters.general_utils import BacklightOption
 
+MOVE_BACKLIGHT_IN_PLAN = "move_backlight_in_via_ui"
+MOVE_BACKLIGHT_OUT_PLAN = "move_backlight_out"
+
 
 class BacklightBox(QtWidgets.QWidget):
     def __init__(
@@ -39,17 +42,17 @@ class BacklightBox(QtWidgets.QWidget):
 
     def on_click_move_backlight_out(self):
         LOGGER.info("Moving backlight out")
-        self.client.run_plan("move_backlight_out", {})
+        self.client.run_plan(MOVE_BACKLIGHT_OUT_PLAN, {})
 
     def on_click_move_backlight_in(self):
         params = {"option": BacklightOption.SLOW}
         LOGGER.info("Moving backlight in")
-        self.client.run_plan("move_backlight_in_via_ui", params)
+        self.client.run_plan(MOVE_BACKLIGHT_IN_PLAN, params)
 
     def on_click_move_backlight_in_quick(self):
         params = {"option": BacklightOption.QUICK}
         LOGGER.info("Moving backlight in quickly")
-        self.client.run_plan("move_backlight_in_via_ui", params)
+        self.client.run_plan(MOVE_BACKLIGHT_IN_PLAN, params)
 
     def create_backlight_layout(self):
         centre_layout = QtWidgets.QVBoxLayout()
@@ -57,17 +60,17 @@ class BacklightBox(QtWidgets.QWidget):
         lgt_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         lgt_label.setFont(QtGui.QFont("Arial", 10))
         centre_layout.addWidget(lgt_label)
-        centre_layout_bottom = QtWidgets.QVBoxLayout()
-        centre_layout_bottom.addWidget(self.in_button)
-        centre_layout_bottom.addWidget(self.in_quick_button)
-        centre_layout_bottom.addWidget(self.out_button)
-        self.in_button.setFixedWidth(75)
+        centre_layout_bottom = QtWidgets.QGridLayout()
+        centre_layout_bottom.addWidget(self.in_button, 0, 0)
+        centre_layout_bottom.addWidget(self.in_quick_button, 1, 0, 1, 2)
+        centre_layout_bottom.addWidget(self.out_button, 0, 1)
+        self.in_button.setFixedWidth(30)
         self.in_button.setFixedHeight(15)
-        self.in_quick_button.setFixedWidth(75)
+        self.in_quick_button.setFixedWidth(65)
         self.in_quick_button.setFixedHeight(15)
-        self.out_button.setFixedWidth(75)
+        self.out_button.setFixedWidth(30)
         self.out_button.setFixedHeight(15)
         centre_layout.addLayout(centre_layout_bottom)
-        centre_layout.setContentsMargins(12, 0, 12, 0)
+        centre_layout.setSpacing(10)
         centre_layout.addStretch()
         return centre_layout

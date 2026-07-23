@@ -74,7 +74,7 @@ def test_coordinates_text_fields_update_when_uploaded_from_json(mock_cs_panel):
         assert mock_cs_panel.bottom_left_z.text() == str(expected_bottom_left[2])
 
 
-def test_ipload_coordinates_fails(mock_cs_panel):
+def test_upload_coordinates_fails(mock_cs_panel):
     mock_cs_panel.logger = MagicMock()
     with (
         patch(

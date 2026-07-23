@@ -63,7 +63,7 @@ class PhiAdjust(QtWidgets.QWidget):
         self.phianglebox.setFixedWidth(50)  # Should be larger
         self.phiadjusterpositive.setFixedWidth(25)
         right_layout.addLayout(right_layout_bottom)
-        right_layout.setContentsMargins(12, 12, 12, 0)
+        right_layout.setSpacing(10)
         right_layout.addStretch()
         return right_layout
 
