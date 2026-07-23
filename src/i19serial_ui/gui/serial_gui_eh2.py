@@ -190,10 +190,10 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.top_group = QtWidgets.QGroupBox()
         top_layout = QtWidgets.QGridLayout()
 
-        self.ddb_label = QtWidgets.QLabel("Select aperture size:")
+        self.ddb_label = QtWidgets.QLabel("Select aperture:")
         self.ddb_label.setFont(QtGui.QFont(FONT, 10))
         self.ddb_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignTop)
-        self.aperturedropdown.setFixedWidth(100)
+        self.aperturedropdown.setFixedWidth(70)
 
         left_layout = QtWidgets.QVBoxLayout()
         left_layout.addWidget(self.ddb_label)
