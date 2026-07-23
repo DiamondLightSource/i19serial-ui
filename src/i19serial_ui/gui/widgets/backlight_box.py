@@ -8,6 +8,9 @@ from i19serial_ui.log import (
 )
 from i19serial_ui.parameters.general_utils import BacklightOption
 
+MOVE_BACKLIGHT_IN_PLAN = "move_backlight_in_via_ui"
+MOVE_BACKLIGHT_OUT_PLAN = "move_backlight_out"
+
 
 class BacklightBox(QtWidgets.QWidget):
     def __init__(
@@ -39,17 +42,17 @@ class BacklightBox(QtWidgets.QWidget):
 
     def on_click_move_backlight_out(self):
         LOGGER.info("Moving backlight out")
-        self.client.run_plan("move_backlight_out", {})
+        self.client.run_plan(MOVE_BACKLIGHT_OUT_PLAN, {})
 
     def on_click_move_backlight_in(self):
         params = {"option": BacklightOption.SLOW}
         LOGGER.info("Moving backlight in")
-        self.client.run_plan("move_backlight_in_via_ui", params)
+        self.client.run_plan(MOVE_BACKLIGHT_IN_PLAN, params)
 
     def on_click_move_backlight_in_quick(self):
         params = {"option": BacklightOption.QUICK}
         LOGGER.info("Moving backlight in quickly")
-        self.client.run_plan("move_backlight_in_via_ui", params)
+        self.client.run_plan(MOVE_BACKLIGHT_IN_PLAN, params)
 
     def create_backlight_layout(self):
         centre_layout = QtWidgets.QVBoxLayout()
@@ -68,6 +71,6 @@ class BacklightBox(QtWidgets.QWidget):
         self.out_button.setFixedWidth(30)
         self.out_button.setFixedHeight(15)
         centre_layout.addLayout(centre_layout_bottom)
-        centre_layout.setContentsMargins(12, 0, 12, 0)
+        centre_layout.setSpacing(10)
         centre_layout.addStretch()
         return centre_layout

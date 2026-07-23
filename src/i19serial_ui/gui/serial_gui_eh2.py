@@ -25,6 +25,7 @@ from i19serial_ui.gui.widgets import (
 )
 from i19serial_ui.gui.widgets.cs_panel import CoordinateSystemPanel
 from i19serial_ui.gui.widgets.queue.queue_ui import RunQueueUI
+from i19serial_ui.gui.widgets.sample_focus import SampleFocus
 from i19serial_ui.log import (
     LOGGER,
     GuiWindowLogHandler,
@@ -79,6 +80,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         )
         self.phi_rotator = PhiAdjust(self.client, centralWidget)
         self.backlight = BacklightBox(self.client, centralWidget)
+        self.focus = SampleFocus(self.client, centralWidget)
 
         # External UI widgets
         self.queue_window = RunQueueUI()
@@ -198,12 +200,13 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         left_layout = QtWidgets.QVBoxLayout()
         left_layout.addWidget(self.ddb_label)
         left_layout.addWidget(self.aperturedropdown)
-        left_layout.setContentsMargins(12, 12, 12, 0)
+        left_layout.setSpacing(10)
         left_layout.addStretch()
 
         top_layout.addLayout(left_layout, 0, 0)
         top_layout.addLayout(self.backlight.backlight_layout, 0, 1)
         top_layout.addLayout(self.phi_rotator.phirotator_layout, 0, 2)
+        top_layout.addLayout(self.focus.focus_layout, 0, 3)
         self.top_group.setMaximumHeight(100)
         self.top_group.setLayout(top_layout)
 
