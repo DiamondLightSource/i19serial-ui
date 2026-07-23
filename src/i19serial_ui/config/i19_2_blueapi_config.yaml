@@ -6,10 +6,14 @@ env:
       module: dodal.beamlines.i19_2
     - kind: planFunctions
       module: i19_bluesky.serial
+    # TODO remember to update i19-blueapi with this!!!
+    - kind: planFunctions
+      module: dodal.plan_stubs
 stomp:
   enabled: true
   url: tcp://i19-2-control.diamond.ac.uk:61613
 logging:
-  level: "INFO"
+  level:
+    "INFO"
     # graylog:
     #   enabled: True

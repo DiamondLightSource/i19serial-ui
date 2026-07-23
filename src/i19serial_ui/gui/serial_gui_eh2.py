@@ -172,7 +172,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.open_queue_action.triggered.connect(self.open_queue_window)
 
     def _setup_title(self):
-        self.i19_label = QtWidgets.QLabel("I19: Fixed Target Serial Crystallography")
+        self.i19_label = QtWidgets.QLabel("I19-2: Fixed Target Serial Crystallography")
         self.i19_label.setFont(QtGui.QFont(FONT, 13))
         self.i19_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
 
