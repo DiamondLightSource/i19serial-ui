@@ -230,7 +230,6 @@ def test_run_panda_and_read_all_parameters(
             "images_per_well": mock_num_images,
             "exposure_time_s": mock_time_image,
             "aperture_request": mock_eh2_aperture,
-            "hutch": "EH2",
             "visit": Path("/some/path").as_posix(),
             "dataset": "001_test",
             "filename_prefix": "test",
