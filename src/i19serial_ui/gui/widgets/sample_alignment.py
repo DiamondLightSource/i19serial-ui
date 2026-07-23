@@ -2,8 +2,6 @@ from PyQt6 import QtWidgets
 
 from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
 
-# from i19serial_ui.log import LOGGER
-
 # Wrapper around bps.mv from dodal.plan_stubs
 MOVE_PLAN = "move"
 

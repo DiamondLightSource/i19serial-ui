@@ -207,7 +207,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         top_layout.addLayout(self.backlight.backlight_layout, 0, 1)
         top_layout.addLayout(self.phi_rotator.phirotator_layout, 0, 2)
         top_layout.addLayout(self.focus.focus_layout, 0, 3)
-        self.top_group.setMaximumHeight(100)
+        self.top_group.setMaximumHeight(100)  # THIS MAY NEED TO BE INCREASED
         self.top_group.setLayout(top_layout)
 
     def _create_coordinate_system_group(self):
