@@ -442,7 +442,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             "images_per_well": num_images,
             "exposure_time_s": float(self.inputs.time_image.text()),
             "aperture_request": eh2_aperture,
-            "hutch": "EH2",  # Probably don't need
             "visit": _visit,  # Probably don't need
             "dataset": _dataset,
             "filename_prefix": _prefix,
