@@ -57,6 +57,7 @@ class SampleAlignment(QtWidgets.QWidget):
     def create_layout(self):
         stage_lbl = QtWidgets.QLabel()
         stage_lbl.setPixmap(QtGui.QPixmap(image_file_path("stage.png")))
+        stage_lbl.setScaledContents(True)
         layout = QtWidgets.QGridLayout()
         layout.addWidget(self.up_large, 0, 2)
         layout.addWidget(self.up_small, 1, 2)
