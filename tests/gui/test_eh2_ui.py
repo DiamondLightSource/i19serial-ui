@@ -175,7 +175,6 @@ def test_run_panda_and_read_all_parameters(
     mock_rotation_start = 0.0
     mock_num_images = 50
     mock_rotation_increment = 0.2
-    mock_rotation_end = mock_rotation_start + mock_num_images + mock_rotation_increment
     mock_time_image = 0.2
 
     inputs = mock_eh2_gui.inputs
@@ -225,7 +224,6 @@ def test_run_panda_and_read_all_parameters(
             "detector_distance_mm": mock_detector_z,
             "two_theta_deg": mock_detector_two_theta,
             "rot_axis_start": mock_rotation_start,
-            "rot_axis_end": mock_rotation_end,
             "rot_axis_increment": 0.2,
             "images_per_well": mock_num_images,
             "exposure_time_s": mock_time_image,
@@ -254,7 +252,6 @@ def mock_queue_element() -> QueueElement:
         "detector_distance_mm": 150.0,
         "two_theta_deg": 0.0,
         "rot_axis_start": -20,
-        "rot_axis_end": -18,
         "rot_axis_increment": 0.2,
         "images_per_well": 10,
         "exposure_time_s": 0.2,
