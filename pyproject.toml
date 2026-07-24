@@ -19,6 +19,7 @@ dependencies = [
     "aiohttp",
     "blueapi >= 1.12.0", # Minimum version to get plan result
     "scanspec",
+    "httpx",             # For numtracker query
 ] # Add project dependencies here, e.g. ["click", "numpy"]
 dynamic = ["version"]
 license.file = "LICENSE"
