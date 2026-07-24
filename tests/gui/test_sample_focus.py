@@ -8,7 +8,9 @@ from i19serial_ui.gui.widgets.sample_focus import SampleFocus
 
 @pytest.fixture
 def mock_focus(qtbot):
-    with patch("i19serial_ui.gui.widgets.cs_panel.SerialBlueapiClient") as mock_client:
+    with patch(
+        "i19serial_ui.gui.widgets.sample_focus.SerialBlueapiClient"
+    ) as mock_client:
         test_panel = SampleFocus(mock_client)
         qtbot.addWidget(test_panel)
         return test_panel

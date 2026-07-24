@@ -43,7 +43,7 @@ class SampleFocus(QtWidgets.QWidget):
 
     def _create_button(
         self, name: str, distance_mm: float, size: tuple[int, int] = (20, 30)
-    ):
+    ) -> QtWidgets.QPushButton:
         btn = QtWidgets.QPushButton(name)
         btn.setMaximumHeight(size[0])
         btn.setMaximumWidth(size[1])
