@@ -56,7 +56,8 @@ class SampleAlignment(QtWidgets.QWidget):
 
     def create_layout(self):
         stage_lbl = QtWidgets.QLabel()
-        stage_lbl.setPixmap(QtGui.QPixmap(image_file_path("stage.png")))
+        stage_lbl.setPixmap(QtGui.QPixmap(image_file_path("stages.png")))
+        stage_lbl.setMaximumSize(25, 25)
         stage_lbl.setScaledContents(True)
         layout = QtWidgets.QGridLayout()
         layout.addWidget(self.up_large, 0, 2)
@@ -68,6 +69,8 @@ class SampleAlignment(QtWidgets.QWidget):
         layout.addWidget(self.right_small, 2, 3)
         layout.addWidget(self.down_large, 4, 2)
         layout.addWidget(self.down_small, 3, 2)
+        layout.setHorizontalSpacing(1)
+        layout.setContentsMargins(10, 10, 10, 10)
         return layout
 
     def _get_btn_icon(self, icon_name: str) -> QtGui.QIcon:
@@ -80,7 +83,9 @@ class SampleAlignment(QtWidgets.QWidget):
     ) -> QtWidgets.QPushButton:
         icon_button = QtWidgets.QPushButton("")
         icon_button.setIcon(icon)
-        icon_button.setIconSize(QtCore.QSize(30, 30))
+        icon_button.setIconSize(QtCore.QSize(25, 25))
+        icon_button.setMaximumWidth(25)
+        icon_button.setMaximumHeight(25)
         icon_button.setFlat(True)
         icon_button.clicked.connect(
             lambda: self._on_click_run_move_plan(distance_mm, direction)
