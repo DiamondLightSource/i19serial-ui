@@ -433,7 +433,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         rotation_start = float(self.inputs.rotation_start.text())
         num_images = int(self.inputs.num_images.text())
         rotation_increment = float(self.inputs.image_width.text())
-        rotation_end = rotation_start + num_images + rotation_increment
         detector_z = float(self.inputs.det_dist.text())
         detector_two_theta = float(self.inputs.two_theta.text())
         eh2_aperture = self.read_aperture_dropdown()
@@ -443,7 +442,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             "detector_distance_mm": detector_z,
             "two_theta_deg": detector_two_theta,
             "rot_axis_start": rotation_start,
-            "rot_axis_end": rotation_end,
             "rot_axis_increment": rotation_increment,
             "images_per_well": num_images,
             "exposure_time_s": float(self.inputs.time_image.text()),
