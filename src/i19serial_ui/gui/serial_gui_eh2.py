@@ -24,6 +24,7 @@ from i19serial_ui.gui.widgets import (
     WellsSelectionPanel,
 )
 from i19serial_ui.gui.widgets.cs_panel import CoordinateSystemPanel
+from i19serial_ui.gui.widgets.login_dialog import LoginDialog
 from i19serial_ui.gui.widgets.queue.queue_ui import RunQueueUI
 from i19serial_ui.gui.widgets.sample_alignment import SampleAlignment
 from i19serial_ui.gui.widgets.sample_focus import SampleFocus
@@ -89,6 +90,8 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.selected_visit.connect(self.queue_window.on_visit_update)
         self.run_queue = self.queue_window.run_queue
 
+        self.login_dialog = LoginDialog(self.client)
+
         # Thread for queue with polling
         self.queueThread = QtCore.QThread()
 
@@ -125,12 +128,19 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.gui_logger.debug("CLOSING UI")
         if self.queue_window.isVisible():
             self.queue_window.close()
+        if self.login_dialog.isVisible():
+            self.login_dialog.close()
         tidy_up_logging([self.gui_logger])
+        print("PLEASE LOG OUT FROM BLUEAPI")
         return super().closeEvent(a0)
 
     def open_queue_window(self):
         self.appendOutput("Opening queue window")
         self.queue_window.show()
+
+    def open_login_dialog(self):
+        self.appendOutput("Opening login window")
+        self.login_dialog.show()
 
     def _create_toolbar(self):
         self.toolbar = QtWidgets.QToolBar(self)
@@ -144,6 +154,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.toolbar.addAction(self.grid_move_tr_action)
         self.toolbar.addAction(self.grid_move_bl_action)
         self.toolbar.addAction(self.open_queue_action)
+        self.toolbar.addAction(self.open_login_action)
 
     def _create_actions(self):
         self.select_visit_action = QtGui.QAction(self)
@@ -174,6 +185,10 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.open_queue_action = QtGui.QAction(self)
         self.open_queue_action.setIcon(create_image_icon(image_file_path("queue.png")))
         self.open_queue_action.triggered.connect(self.open_queue_window)
+
+        self.open_login_action = QtGui.QAction(self)
+        self.open_login_action.setIcon(create_image_icon(image_file_path("login.png")))
+        self.open_login_action.triggered.connect(self.open_login_dialog)
 
     def _setup_title(self):
         self.i19_label = QtWidgets.QLabel("I19-2: Fixed Target Serial Crystallography")
