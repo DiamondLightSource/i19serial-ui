@@ -27,31 +27,31 @@ class SampleAlignment(QtWidgets.QWidget):
         self.arrow_layout = self.create_layout()
 
     def init_arrow_buttons(self):
-        # Z direction
+        # X direction
         self.up_large = self._create_icon_button(
-            self._get_btn_icon("arrow_up_large.png"), 0.01, NudgeDirection.Z
+            self._get_btn_icon("arrow_up_large.png"), 0.01, NudgeDirection.X
         )
         self.up_small = self._create_icon_button(
-            self._get_btn_icon("arrow_up.png"), 0.002, NudgeDirection.Z
+            self._get_btn_icon("arrow_up.png"), 0.002, NudgeDirection.X
         )
         self.down_large = self._create_icon_button(
-            self._get_btn_icon("arrow_down_large.png"), -0.01, NudgeDirection.Z
+            self._get_btn_icon("arrow_down_large.png"), -0.01, NudgeDirection.X
         )
         self.down_small = self._create_icon_button(
-            self._get_btn_icon("arrow_down.png"), -0.002, NudgeDirection.Z
+            self._get_btn_icon("arrow_down.png"), -0.002, NudgeDirection.X
         )
-        # X firection
+        # Z firection
         self.right_large = self._create_icon_button(
-            self._get_btn_icon("arrow_right_large.png"), 0.01, NudgeDirection.X
+            self._get_btn_icon("arrow_right_large.png"), 0.01, NudgeDirection.Z
         )
         self.right_small = self._create_icon_button(
-            self._get_btn_icon("arrow_right.png"), 0.002, NudgeDirection.X
+            self._get_btn_icon("arrow_right.png"), 0.002, NudgeDirection.Z
         )
         self.left_large = self._create_icon_button(
-            self._get_btn_icon("arrow_left_large.png"), -0.01, NudgeDirection.X
+            self._get_btn_icon("arrow_left_large.png"), -0.01, NudgeDirection.Z
         )
         self.left_small = self._create_icon_button(
-            self._get_btn_icon("arrow_left.png"), -0.002, NudgeDirection.X
+            self._get_btn_icon("arrow_left.png"), -0.002, NudgeDirection.Z
         )
 
     def create_layout(self):
