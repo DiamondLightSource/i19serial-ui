@@ -7,7 +7,7 @@ from i19serial_ui.gui.ui_utils import create_image_icon, image_file_path
 from i19serial_ui.log import LOGGER
 
 # Wrapper around bps.mv from dodal.plan_stubs
-MOVE_PLAN = "move"
+MOVE_PLAN = "move_relative"
 
 
 class NudgeDirection(StrEnum):

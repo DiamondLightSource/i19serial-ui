@@ -31,7 +31,7 @@ def test_click_small_up_move(mock_align):
     mock_align.up_small.click()
 
     mock_align.client.run_plan.assert_called_once_with(
-        "move", {"moves": {expected_motor: expected_distance}}
+        "move_relative", {"moves": {expected_motor: expected_distance}}
     )
 
 
@@ -42,7 +42,7 @@ def test_click_large_up_move(mock_align):
     mock_align.up_large.click()
 
     mock_align.client.run_plan.assert_called_once_with(
-        "move", {"moves": {expected_motor: expected_distance}}
+        "move_relative", {"moves": {expected_motor: expected_distance}}
     )
 
 
@@ -53,7 +53,7 @@ def test_click_small_down_move(mock_align):
     mock_align.down_small.click()
 
     mock_align.client.run_plan.assert_called_once_with(
-        "move", {"moves": {expected_motor: expected_distance}}
+        "move_relative", {"moves": {expected_motor: expected_distance}}
     )
 
 
@@ -64,7 +64,7 @@ def test_click_large_down_move(mock_align):
     mock_align.down_large.click()
 
     mock_align.client.run_plan.assert_called_once_with(
-        "move", {"moves": {expected_motor: expected_distance}}
+        "move_relative", {"moves": {expected_motor: expected_distance}}
     )
 
 
@@ -75,7 +75,7 @@ def test_click_small_left_move(mock_align):
     mock_align.left_small.click()
 
     mock_align.client.run_plan.assert_called_once_with(
-        "move", {"moves": {expected_motor: expected_distance}}
+        "move_relative", {"moves": {expected_motor: expected_distance}}
     )
 
 
@@ -86,7 +86,7 @@ def test_click_large_left_move(mock_align):
     mock_align.left_large.click()
 
     mock_align.client.run_plan.assert_called_once_with(
-        "move", {"moves": {expected_motor: expected_distance}}
+        "move_relative", {"moves": {expected_motor: expected_distance}}
     )
 
 
@@ -97,7 +97,7 @@ def test_click_small_right_move(mock_align):
     mock_align.right_small.click()
 
     mock_align.client.run_plan.assert_called_once_with(
-        "move", {"moves": {expected_motor: expected_distance}}
+        "move_relative", {"moves": {expected_motor: expected_distance}}
     )
 
 
@@ -108,7 +108,7 @@ def test_click_large_right_move(mock_align):
     mock_align.right_large.click()
 
     mock_align.client.run_plan.assert_called_once_with(
-        "move", {"moves": {expected_motor: expected_distance}}
+        "move_relative", {"moves": {expected_motor: expected_distance}}
     )
 
 
@@ -122,5 +122,5 @@ def test_on_click_run_move_plan(
     mock_align._on_click_run_move_plan(0.1, nudge_direction)
 
     mock_align.client.run_plan.assert_called_once_with(
-        "move", {"moves": {expected_motor: 0.1}}
+        "move_relative", {"moves": {expected_motor: 0.1}}
     )
