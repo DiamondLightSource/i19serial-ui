@@ -2,6 +2,7 @@ from PyQt6 import QtGui, QtWidgets
 from PyQt6.QtCore import Qt
 
 from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
+from i19serial_ui.log import LOGGER
 
 DIALOG_SIZE = (150, 80)
 
@@ -14,6 +15,7 @@ class LoginDialog(QtWidgets.QWidget):
         super().__init__()
         self.resize(*DIALOG_SIZE)
         self.setWindowTitle("Blueapi login")
+        self.logger = LOGGER
         self.client = client
         self.create_layout()
 
@@ -31,4 +33,8 @@ class LoginDialog(QtWidgets.QWidget):
         self.setLayout(layout)
 
     def _on_click_trigger_login(self):
-        self.client.client.login()
+        try:
+            self.client.client.login()
+        except Exception as e:
+            self.logger.error("Login failed")
+            self.logger.exception(e)

@@ -42,6 +42,7 @@ from i19serial_ui.parameters.wells_selection import WellsSelection
 WINDOW_SIZE = (500, 1000)
 LOG_HANDLERS = []
 
+DEFAULT_LOGIN_MSG = "User not logged in"
 
 # Some properties
 BG_COLOUR = "background-colour:(133,194,132)"
@@ -194,6 +195,9 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.i19_label = QtWidgets.QLabel("I19-2: Fixed Target Serial Crystallography")
         self.i19_label.setFont(QtGui.QFont(FONT, 13))
         self.i19_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.login_msg = QtWidgets.QLabel(DEFAULT_LOGIN_MSG)
+        self.login_msg.setFont(QtGui.QFont(FONT, 10))
+        self.login_msg.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
 
     def _create_dropdown(self):
         self.aperturedropdown = QtWidgets.QComboBox()
@@ -292,6 +296,8 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
     def create_main_layout(self):
         title_layout = QtWidgets.QHBoxLayout()
         title_layout.addWidget(self.i19_label)
+        # Centrin gof this looks horrible - to rething placement
+        # title_layout.addWidget(self.login_msg)
         main_layout = QtWidgets.QGridLayout()
         main_layout.addLayout(title_layout, 0, 0)
         main_layout.addWidget(self.top_group, 1, 0)
