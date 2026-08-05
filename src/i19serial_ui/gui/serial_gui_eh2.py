@@ -357,7 +357,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             )
             raise ValueError("Missing parameters")
         return QueueElement(
-            plan_name="run_serial_from_panda",
+            plan_name="run_serial_with_panda",
             plan_params=parameters,
         )
 
