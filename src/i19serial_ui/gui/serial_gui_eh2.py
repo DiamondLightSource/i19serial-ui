@@ -234,6 +234,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
 
     def _create_coordinate_system_group(self):
         self.cs_group = QtWidgets.QGroupBox("Coordinate System")
+        self.cs_group.setMaximumHeight(180)
         self.cs_group.setLayout(self.cs_panel.cs_layout)
 
     def _create_collection_inputs_group(self):
