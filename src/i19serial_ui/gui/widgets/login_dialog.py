@@ -50,7 +50,7 @@ class LoginDialog(QtWidgets.QWidget):
         return token
 
     def _update_user_fedid(self) -> str:
-        return "boh"
+        return ""
 
     def _on_click_trigger_login(self):
         try:
@@ -58,5 +58,4 @@ class LoginDialog(QtWidgets.QWidget):
             self.user_fedid.emit(self._update_user_fedid())
         except Exception as e:
             log_to_gui(self.logger, "Login failed", level="ERROR")
-            self.logger.error("Login failed")
             self.logger.exception(e)

@@ -55,7 +55,6 @@ class RunQueueUI(QtWidgets.QWidget):
         self.run_queue.append(queue_item)
         self.table.add_row(queue_item)
         self.logger.info(f"{queue_item.element_label} added to the queue")
-        # self.logger.info(f"Number of items in the queue: {len(self.run_queue)}")
         log_to_gui(self.logger, f"Number of items in the queue: {len(self.run_queue)}")
 
     def clear_queue_table(self):
