@@ -1,6 +1,8 @@
 import base64
 from pathlib import Path
+from typing import Any
 
+import jwt
 from PyQt6 import QtGui, QtWidgets
 from PyQt6.QtCore import Qt, pyqtSignal
 
@@ -44,13 +46,24 @@ class LoginDialog(QtWidgets.QWidget):
         layout.addWidget(self.btn)
         self.setLayout(layout)
 
-    def load_token(self) -> str:
+    def _load_access_token(self) -> str:
         with open(self._token_path, "rb") as fh:
             token = base64.b64decode(fh.read()).decode("utf-8")
         return token
 
+    def _decode_access_token(self) -> dict[str, Any]:
+        # NOTE Proper way would be to get the jwt_uri from keycloak
+        # But since blueapi will do the verification and we just need to read the fedid
+        # this may just be enoug
+        token = self._load_access_token()
+        payload = jwt.decode(token, options={"verify_signature": False})
+        return payload
+
     def _update_user_fedid(self) -> str:
-        return ""
+        access_token = self._decode_access_token()
+        if not access_token:
+            raise ValueError("Could not get access token")
+        return access_token.get("fedid")  # type: ignore
 
     def _on_click_trigger_login(self):
         try:
