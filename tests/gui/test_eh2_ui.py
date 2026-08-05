@@ -49,7 +49,7 @@ def test_general_layout(mock_eh2_gui):
     assert mock_eh2_gui.general_layout is not None
     assert isinstance(mock_eh2_gui.general_layout, QtWidgets.QGridLayout)
     title = mock_eh2_gui.general_layout.children()[0]
-    assert isinstance(title, QtWidgets.QHBoxLayout)
+    assert isinstance(title, QtWidgets.QVBoxLayout)
     assert isinstance(mock_eh2_gui.top_group, QtWidgets.QGroupBox)
     assert isinstance(mock_eh2_gui.cs_group, QtWidgets.QGroupBox)
     assert isinstance(mock_eh2_gui.input_group, QtWidgets.QGroupBox)
