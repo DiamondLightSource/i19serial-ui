@@ -2,7 +2,7 @@ import sys
 from collections.abc import Callable
 
 from PyQt6 import QtCore, QtGui, QtWidgets
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal, pyqtSlot
 
 from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
 from i19serial_ui.blueapi_tools.blueapi_queue import BlueapiQueueRunner
@@ -92,6 +92,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.run_queue = self.queue_window.run_queue
 
         self.login_dialog = LoginDialog(self.client)
+        self.login_dialog.user_fedid.connect(self.on_user_login)
 
         # Thread for queue with polling
         self.queueThread = QtCore.QThread()
@@ -195,9 +196,13 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.i19_label = QtWidgets.QLabel("I19-2: Fixed Target Serial Crystallography")
         self.i19_label.setFont(QtGui.QFont(FONT, 13))
         self.i19_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.login_msg = QtWidgets.QLabel(DEFAULT_LOGIN_MSG)
-        self.login_msg.setFont(QtGui.QFont(FONT, 10))
-        self.login_msg.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
+        self.login_info = QtWidgets.QLabel(DEFAULT_LOGIN_MSG)
+        self.login_info.setFont(QtGui.QFont(FONT, 10))
+        self.login_info.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+
+    @pyqtSlot(str)
+    def on_user_login(self, user_fedid: str):
+        self.login_info.setText(f"Logged in as {user_fedid}")
 
     def _create_dropdown(self):
         self.aperturedropdown = QtWidgets.QComboBox()
@@ -295,10 +300,10 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             self.selected_visit.emit(self.current_visit)
 
     def create_main_layout(self):
-        title_layout = QtWidgets.QHBoxLayout()
+        title_layout = QtWidgets.QVBoxLayout()
         title_layout.addWidget(self.i19_label)
         # Centrin gof this looks horrible - to rething placement
-        # title_layout.addWidget(self.login_msg)
+        title_layout.addWidget(self.login_info)
         main_layout = QtWidgets.QGridLayout()
         main_layout.addLayout(title_layout, 0, 0)
         main_layout.addWidget(self.top_group, 1, 0)
@@ -336,7 +341,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             self.queue_window.add_to_queue_table(new_collection)
             self.run_queue = self.queue_window.run_queue
             self.appendOutput("Collection added to the queue")
-            self.appendOutput(f"QUEUE: \n {self.run_queue}")
+            self.appendOutput(f"QUEUE: \n {self.run_queue}", level="DEBUG")
         except Exception as e:
             self.appendOutput(
                 "Couldn't add item to queue, please check logs.", level="ERROR"
