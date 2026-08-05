@@ -4,7 +4,7 @@ from PyQt6 import QtGui, QtWidgets
 from PyQt6.QtCore import Qt, pyqtSlot
 
 from i19serial_ui.gui.widgets.queue.queue_table import QueueTable
-from i19serial_ui.log import LOGGER
+from i19serial_ui.log import LOGGER, log_to_gui
 from i19serial_ui.parameters.queue import QueueElement
 
 QUEUE_WINDOW_SIZE = (800, 300)
@@ -55,7 +55,8 @@ class RunQueueUI(QtWidgets.QWidget):
         self.run_queue.append(queue_item)
         self.table.add_row(queue_item)
         self.logger.info(f"{queue_item.element_label} added to the queue")
-        self.logger.debug(f"Number of items in the queue: {len(self.run_queue)}")
+        # self.logger.info(f"Number of items in the queue: {len(self.run_queue)}")
+        log_to_gui(self.logger, f"Number of items in the queue: {len(self.run_queue)}")
 
     def clear_queue_table(self):
         while len(self.run_queue) > 0:
