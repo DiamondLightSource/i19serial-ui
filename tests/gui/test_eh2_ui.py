@@ -242,7 +242,7 @@ def test_run_panda_and_read_all_parameters(
     }
     mock_eh2_gui.run_btn.click()
     mock_eh2_gui.client.run_plan.assert_called_once_with(
-        "run_serial_from_panda", mock_params
+        "run_serial_with_panda", mock_params
     )
 
 
