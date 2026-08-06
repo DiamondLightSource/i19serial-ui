@@ -48,14 +48,23 @@ def test_all_widgets_initialised(mock_eh2_gui):
 def test_general_layout(mock_eh2_gui):
     assert mock_eh2_gui.general_layout is not None
     assert isinstance(mock_eh2_gui.general_layout, QtWidgets.QGridLayout)
-    title = mock_eh2_gui.general_layout.children()[0]
-    assert isinstance(title, QtWidgets.QVBoxLayout)
     assert isinstance(mock_eh2_gui.top_group, QtWidgets.QGroupBox)
     assert isinstance(mock_eh2_gui.cs_group, QtWidgets.QGroupBox)
     assert isinstance(mock_eh2_gui.input_group, QtWidgets.QGroupBox)
     assert isinstance(mock_eh2_gui.cs_group, QtWidgets.QGroupBox)
     assert isinstance(mock_eh2_gui.run_btns_group, QtWidgets.QGroupBox)
     assert isinstance(mock_eh2_gui.bottom_group, QtWidgets.QGroupBox)
+
+
+def test_title_layout(mock_eh2_gui):
+    title_layout = mock_eh2_gui.general_layout.children()[0]
+    assert isinstance(title_layout, QtWidgets.QVBoxLayout)
+    title = title_layout.itemAt(0).widget()  # type: ignore
+    assert isinstance(title, QtWidgets.QLabel)
+    assert title.text() == "I19-2: Fixed Target Serial Crystallography"
+    login = title_layout.itemAt(1).widget()  # type: ignore
+    assert isinstance(login, QtWidgets.QLabel)
+    assert login.text() == "User not logged in"
 
 
 def test_toolbar(mock_eh2_gui):

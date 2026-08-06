@@ -42,6 +42,7 @@ from i19serial_ui.parameters.wells_selection import WellsSelection
 WINDOW_SIZE = (500, 1000)
 LOG_HANDLERS = []
 
+TITLE_MSG = "I19-2: Fixed Target Serial Crystallography"
 DEFAULT_LOGIN_MSG = "User not logged in"
 
 # Some properties
@@ -193,7 +194,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.open_login_action.triggered.connect(self.open_login_dialog)
 
     def _setup_title(self):
-        self.i19_label = QtWidgets.QLabel("I19-2: Fixed Target Serial Crystallography")
+        self.i19_label = QtWidgets.QLabel(TITLE_MSG)
         self.i19_label.setFont(QtGui.QFont(FONT, 13))
         self.i19_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.login_info = QtWidgets.QLabel(DEFAULT_LOGIN_MSG)
