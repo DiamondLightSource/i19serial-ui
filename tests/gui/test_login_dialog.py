@@ -24,11 +24,13 @@ def test_login_dialog(mock_login_dialog):
 
 def test_button_click_calls_blueapi_login(mock_login_dialog, qtbot):
     mock_login_dialog._update_user_fedid = MagicMock(return_value="abc1234")
+    mock_login_dialog.close = MagicMock()
     with qtbot.waitSignal(mock_login_dialog.user_fedid) as sig:
         mock_login_dialog.btn.click()
 
         mock_login_dialog.client.client.login.assert_called_once()
         assert sig.args[0] == "abc1234"
+        mock_login_dialog.close.assert_called_once()
 
 
 def test_update_fedid_raises_error_if_access_token_not_found(mock_login_dialog):

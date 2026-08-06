@@ -69,6 +69,7 @@ class LoginDialog(QtWidgets.QWidget):
         try:
             self.client.client.login()
             self.user_fedid.emit(self._update_user_fedid())
+            self.close()
         except Exception as e:
             log_to_gui(self.logger, "Login failed", level="ERROR")
             self.logger.exception(e)
