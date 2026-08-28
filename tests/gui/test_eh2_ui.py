@@ -48,8 +48,6 @@ def test_all_widgets_initialised(mock_eh2_gui):
 def test_general_layout(mock_eh2_gui):
     assert mock_eh2_gui.general_layout is not None
     assert isinstance(mock_eh2_gui.general_layout, QtWidgets.QGridLayout)
-    title = mock_eh2_gui.general_layout.children()[0]
-    assert isinstance(title, QtWidgets.QHBoxLayout)
     assert isinstance(mock_eh2_gui.top_group, QtWidgets.QGroupBox)
     assert isinstance(mock_eh2_gui.cs_group, QtWidgets.QGroupBox)
     assert isinstance(mock_eh2_gui.input_group, QtWidgets.QGroupBox)
@@ -58,9 +56,20 @@ def test_general_layout(mock_eh2_gui):
     assert isinstance(mock_eh2_gui.bottom_group, QtWidgets.QGroupBox)
 
 
+def test_title_layout(mock_eh2_gui):
+    title_layout = mock_eh2_gui.general_layout.children()[0]
+    assert isinstance(title_layout, QtWidgets.QVBoxLayout)
+    title = title_layout.itemAt(0).widget()  # type: ignore
+    assert isinstance(title, QtWidgets.QLabel)
+    assert title.text() == "I19-2: Fixed Target Serial Crystallography"
+    login = title_layout.itemAt(1).widget()  # type: ignore
+    assert isinstance(login, QtWidgets.QLabel)
+    assert login.text() == "User not logged in"
+
+
 def test_toolbar(mock_eh2_gui):
     assert isinstance(mock_eh2_gui.toolbar, QtWidgets.QToolBar)
-    assert len(mock_eh2_gui.toolbar.actions()) == 7
+    assert len(mock_eh2_gui.toolbar.actions()) == 8
 
 
 def test_grid_move_tl_action(mock_eh2_gui):
@@ -290,3 +299,22 @@ def test_clear_queue_button(mock_eh2_gui):
 
     mock_eh2_gui.clear_btn.click()
     mock_eh2_gui.queue_window.clear_queue_table.assert_called_once()
+
+
+@patch("i19serial_ui.gui.serial_gui_eh2.tidy_up_logging")
+def test_ui_close_event(mock_tidy_up, mock_eh2_gui):
+    mock_eh2_gui.login_dialog = MagicMock()
+    mock_eh2_gui.login_dialog.isVisible.return_value = False
+
+    mock_eh2_gui.queue_window = MagicMock()
+    mock_eh2_gui.queue_window.isVisible.return_value = True
+
+    mock_eh2_gui.close()
+
+    # Blueapi logout called
+    mock_eh2_gui.client.client.logout.assert_called_once()
+    # Open windows get closed
+    mock_eh2_gui.queue_window.close.assert_called_once()
+    mock_eh2_gui.login_dialog.close.assert_not_called()
+    # Log handlers tidied up
+    mock_tidy_up.assert_called_once()
