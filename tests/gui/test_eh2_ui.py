@@ -299,3 +299,22 @@ def test_clear_queue_button(mock_eh2_gui):
 
     mock_eh2_gui.clear_btn.click()
     mock_eh2_gui.queue_window.clear_queue_table.assert_called_once()
+
+
+@patch("i19serial_ui.gui.serial_gui_eh2.tidy_up_logging")
+def test_ui_close_event(mock_tidy_up, mock_eh2_gui):
+    mock_eh2_gui.login_dialog = MagicMock()
+    mock_eh2_gui.login_dialog.isVisible.return_value = False
+
+    mock_eh2_gui.queue_window = MagicMock()
+    mock_eh2_gui.queue_window.isVisible.return_value = True
+
+    mock_eh2_gui.close()
+
+    # Blueapi logout called
+    mock_eh2_gui.client.client.logout.assert_called_once()
+    # Open windows get closed
+    mock_eh2_gui.queue_window.close.assert_called_once()
+    mock_eh2_gui.login_dialog.close.assert_not_called()
+    # Log handlers tidied up
+    mock_tidy_up.assert_called_once()
