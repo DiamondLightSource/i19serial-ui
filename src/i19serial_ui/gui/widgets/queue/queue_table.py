@@ -48,6 +48,8 @@ class QueueTable(QtWidgets.QTableWidget):
         self.setItem(row, 1, QtWidgets.QTableWidgetItem(item.element_label))
         self.setItem(row, 2, QtWidgets.QTableWidgetItem(str(item.plan_params)))
 
+    # NOTE EVERYTHING BELOW THIS WOULD BE BEST IN THE WINDOW!
+    # Then it should be easier to remove/add things... I think
     def add_row(self, new_item: QueueElement):
         num_rows = self.rowCount()
         # NOTE Assumption here is that it's only ever updated by one
