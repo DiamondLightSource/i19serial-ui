@@ -20,7 +20,6 @@ class RunQueueUI(QtWidgets.QWidget):
         self.logger = LOGGER
         self.run_queue: deque[QueueElement] = deque()
         self.table = QueueTable(self)
-        # self.table.remove_item_request.connect(self.on_delete_click)
         self._setup_layout()
 
     def _visit_layout(self):
@@ -73,7 +72,6 @@ class RunQueueUI(QtWidgets.QWidget):
         self.logger.warning(f"Will delete item: {item_to_delete}, idx {idx}")
         self.table.removeRow(idx)
 
-    # @pyqtSlot(QueueElement)
     def on_delete_click(self, queue_item: QueueElement):
         self._delete_table_row(queue_item)
         self.run_queue.remove(queue_item)

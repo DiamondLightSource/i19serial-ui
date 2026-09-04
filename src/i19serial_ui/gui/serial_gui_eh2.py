@@ -352,9 +352,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             queue_task.plan_name, {"parameters": queue_task.plan_params}
         )
         # TODO dev
-        # self.appendOutput(
-        #   f"With time: {queue_task.plan_params['exposure_time_s']} s"
-        # )
+        # self.appendOutput(f"With time: {queue_task.plan_params['exposure_time_s']} s")
         # self.client.run_plan(
         #     "sleep", {"time": queue_task.plan_params["exposure_time_s"]}
         # )
