@@ -8,10 +8,8 @@ from pydantic.dataclasses import dataclass
 
 class ElementType(StrEnum):
     COLLECTION = "collection"
+    # NOTE this should become a list of "sleep", "temp", "laser" etc
     VARIABLE = "variable"
-
-
-# I could also use uuid to give them an unique id and make things easier?
 
 
 @dataclass
