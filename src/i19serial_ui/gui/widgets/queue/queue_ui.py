@@ -19,8 +19,7 @@ class RunQueueUI(QtWidgets.QWidget):
         self.setWindowTitle("Collection Queue")
         self.logger = LOGGER
         self.run_queue: deque[QueueElement] = deque()
-        self.table = QueueTable(self.run_queue, self)
-        self.table.remove_item_request.connect(self.on_delete_click)
+        self.table = QueueTable(self)
         self._setup_layout()
 
     def _visit_layout(self):
@@ -46,18 +45,39 @@ class RunQueueUI(QtWidgets.QWidget):
     def on_visit_update(self, new_visit: str):
         self.visit_txt.setText(new_visit)
 
-    @pyqtSlot(QueueElement)
-    def on_delete_click(self, queue_item: QueueElement):
-        self.run_queue.remove(queue_item)
-        self.logger.info(f"Number of items left in the queue: {len(self.run_queue)}")
+    def _add_table_row(self, new_item: QueueElement):
+        num_rows = self.table.rowCount()
+        # NOTE Assumption here is that it's only ever updated by one
+        if len(self.run_queue) > num_rows:
+            self.table.insertRow(num_rows)
+            # First create the button
+            _btn = self.table.create_delete_button()
+            _btn.clicked.connect(lambda: self.on_delete_click(new_item))
+            self.table.setCellWidget(num_rows, 0, _btn)
+            # Then fill all the cells one by one, depending on collection type
+            self.table.fill_in_table(new_item, num_rows)
 
     def add_to_queue_table(self, queue_item: QueueElement):
         self.run_queue.append(queue_item)
-        self.table.add_row(queue_item)
+        self._add_table_row(queue_item)
         self.logger.info(f"{queue_item.element_label} added to the queue")
         self.logger.debug(f"Number of items in the queue: {len(self.run_queue)}")
+
+    def _get_item_index_in_queue(self, id_to_delete: str):
+        idx = [n for n, q in enumerate(self.run_queue) if q.id == id_to_delete]
+        return idx[0]
+
+    def _delete_table_row(self, item_to_delete: QueueElement):
+        idx = self._get_item_index_in_queue(item_to_delete.id)
+        self.logger.warning(f"Will delete item: {item_to_delete}, idx {idx}")
+        self.table.removeRow(idx)
+
+    def on_delete_click(self, queue_item: QueueElement):
+        self._delete_table_row(queue_item)
+        self.run_queue.remove(queue_item)
+        self.logger.info(f"Number of items left in the queue: {len(self.run_queue)}")
 
     def clear_queue_table(self):
         while len(self.run_queue) > 0:
             _item_to_remove = self.run_queue[0]
-            self.table.delete_row(_item_to_remove)
+            self.on_delete_click(_item_to_remove)
