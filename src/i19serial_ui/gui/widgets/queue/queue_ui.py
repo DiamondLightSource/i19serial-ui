@@ -42,7 +42,9 @@ class RunQueueUI(QtWidgets.QWidget):
 
     def _connect_params_buttons(self):
         self.params_ui.queue_sleep.clicked.connect(
-            lambda: self.update_queue_with_parametric("sleep", self.params_ui.sleep_box)
+            lambda: self.update_queue_with_parametric(
+                "sleep", ElementType.SLEEP, self.params_ui.sleep_box
+            )
         )
         # TODO finish connecting
 
@@ -96,14 +98,17 @@ class RunQueueUI(QtWidgets.QWidget):
             self.on_delete_click(_item_to_remove)
 
     def update_queue_with_parametric(
-        self, plan_name: str, text_box: QtWidgets.QLineEdit
+        self, plan_name: str, param_type: ElementType, text_box: QtWidgets.QLineEdit
     ):
-        # TODO figure out plan params depending on which one is called
-        # For now just sleep
-        sleep_time = text_box.text()
+        # TODO add all others
+        match param_type:
+            case ElementType.SLEEP:
+                sleep_time = text_box.text()
+                plan_params = {"time": sleep_time}
+
         new_item = QueueElement(
             plan_name=plan_name,
-            plan_params={"time": sleep_time},
-            element_type=ElementType.VARIABLE,
+            plan_params=plan_params,
+            element_type=param_type,
         )
         self.add_to_queue_table(new_item)
