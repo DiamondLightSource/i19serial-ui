@@ -3,23 +3,29 @@ from collections import deque
 from PyQt6 import QtGui, QtWidgets
 from PyQt6.QtCore import Qt, pyqtSlot
 
+from i19serial_ui.gui.ui_utils import HutchInUse
+from i19serial_ui.gui.widgets.queue.parametric_vars_ui import ParametricVariablesUI
 from i19serial_ui.gui.widgets.queue.queue_table import QueueTable
 from i19serial_ui.log import LOGGER
-from i19serial_ui.parameters.queue import QueueElement
+from i19serial_ui.parameters.queue import ElementType, QueueElement
 
-QUEUE_WINDOW_SIZE = (800, 300)
+QUEUE_WINDOW_SIZE = (800, 400)
 
 
 class RunQueueUI(QtWidgets.QWidget):
     """A new window to handle/view to the queue."""
 
-    def __init__(self):
+    def __init__(self, hutch: HutchInUse):
         super().__init__()
         self.resize(*QUEUE_WINDOW_SIZE)
         self.setWindowTitle("Collection Queue")
         self.logger = LOGGER
+        self.hutch = hutch
         self.run_queue: deque[QueueElement] = deque()
+        # Widgets
         self.table = QueueTable(self)
+        self.params_ui = ParametricVariablesUI(self.hutch, self)
+        self._connect_params_buttons()
         self._setup_layout()
 
     def _visit_layout(self):
@@ -34,11 +40,17 @@ class RunQueueUI(QtWidgets.QWidget):
         vlayout.addWidget(self.visit_txt)
         return vlayout
 
+    def _connect_params_buttons(self):
+        self.params_ui.queue_sleep.clicked.connect(
+            lambda: self.update_queue_with_parametric("sleep", self.params_ui.sleep_box)
+        )
+
     def _setup_layout(self):
         main_layout = QtWidgets.QVBoxLayout()
         visit_layout = self._visit_layout()
         main_layout.addLayout(visit_layout)
         main_layout.addWidget(self.table)
+        main_layout.addLayout(self.params_ui.params_layout)
         self.setLayout(main_layout)
 
     @pyqtSlot(str)
@@ -81,3 +93,16 @@ class RunQueueUI(QtWidgets.QWidget):
         while len(self.run_queue) > 0:
             _item_to_remove = self.run_queue[0]
             self.on_delete_click(_item_to_remove)
+
+    def update_queue_with_parametric(
+        self, plan_name: str, text_box: QtWidgets.QLineEdit
+    ):
+        # TODO figure out plan params depending on which one is called
+        # For now just sleep
+        sleep_time = text_box.text()
+        new_item = QueueElement(
+            plan_name=plan_name,
+            plan_params={"time": sleep_time},
+            element_type=ElementType.VARIABLE,
+        )
+        self.add_to_queue_table(new_item)
