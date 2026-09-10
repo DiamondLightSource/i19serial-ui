@@ -32,9 +32,8 @@ def test_run_queue_ui(mock_queue_ui):
     assert mock_queue_ui.visit_txt.text() == ""
 
     assert isinstance(mock_queue_ui.table, QueueTable)
-    assert mock_queue_ui.layout().count() == 2
-
     assert isinstance(mock_queue_ui.params_ui, ParametricVariablesUI)
+    assert mock_queue_ui.layout().count() == 3
 
     assert isinstance(mock_queue_ui.layout(), QtWidgets.QVBoxLayout)
 
