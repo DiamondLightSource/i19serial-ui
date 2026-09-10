@@ -44,6 +44,7 @@ class RunQueueUI(QtWidgets.QWidget):
         self.params_ui.queue_sleep.clicked.connect(
             lambda: self.update_queue_with_parametric("sleep", self.params_ui.sleep_box)
         )
+        # TODO finish connecting
 
     def _setup_layout(self):
         main_layout = QtWidgets.QVBoxLayout()

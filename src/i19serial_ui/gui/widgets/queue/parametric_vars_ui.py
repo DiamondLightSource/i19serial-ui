@@ -96,6 +96,7 @@ class ParametricVariablesUI(QtWidgets.QWidget):
         )
         text_box.setFixedWidth(50)
         btn.setFixedWidth(50)
+        btn.setEnabled(False)
         pres_layout.addWidget(_pres_pic)
         pres_layout.addWidget(_pres_lbl)
         pres_layout.addWidget(text_box)
