@@ -1,6 +1,8 @@
 import pytest
 from PyQt6 import QtWidgets
 
+from i19serial_ui.gui.ui_utils import HutchInUse
+from i19serial_ui.gui.widgets.queue.parametric_vars_ui import ParametricVariablesUI
 from i19serial_ui.gui.widgets.queue.queue_table import QueueTable
 from i19serial_ui.gui.widgets.queue.queue_ui import RunQueueUI
 from i19serial_ui.parameters.queue import QueueElement
@@ -19,7 +21,7 @@ QUEUE = [
 
 @pytest.fixture
 def mock_queue_ui(qtbot):
-    queue_ui = RunQueueUI()
+    queue_ui = RunQueueUI(HutchInUse.EH2)
     qtbot.addWidget(queue_ui)
     return queue_ui
 
@@ -30,7 +32,8 @@ def test_run_queue_ui(mock_queue_ui):
     assert mock_queue_ui.visit_txt.text() == ""
 
     assert isinstance(mock_queue_ui.table, QueueTable)
-    assert mock_queue_ui.layout().count() == 2
+    assert isinstance(mock_queue_ui.params_ui, ParametricVariablesUI)
+    assert mock_queue_ui.layout().count() == 3
 
     assert isinstance(mock_queue_ui.layout(), QtWidgets.QVBoxLayout)
 

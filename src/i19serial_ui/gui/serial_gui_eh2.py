@@ -35,7 +35,7 @@ from i19serial_ui.log import (
 )
 from i19serial_ui.parameters.coordinates import FiducialPosition
 from i19serial_ui.parameters.general_utils import ApertureOptions
-from i19serial_ui.parameters.queue import QueueElement
+from i19serial_ui.parameters.queue import ElementType, QueueElement
 from i19serial_ui.parameters.wells_selection import WellsSelection
 
 WINDOW_SIZE = (500, 1000)
@@ -85,7 +85,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.sample_alignment = SampleAlignment(self.client, centralWidget)
 
         # External UI widgets
-        self.queue_window = RunQueueUI()
+        self.queue_window = RunQueueUI(self.hutch)
         self.selected_visit.connect(self.queue_window.on_visit_update)
         self.run_queue = self.queue_window.run_queue
 
@@ -292,7 +292,10 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
     def _check_dataset_name_exists(self, dataset: str) -> bool:
         dset_exists: bool = False
         for item in self.run_queue:
-            if item.plan_params["dataset"] == dataset:
+            if (
+                item.element_type == ElementType.COLLECTION
+                and item.plan_params["dataset"] == dataset
+            ):
                 dset_exists = True
                 break
         return dset_exists
