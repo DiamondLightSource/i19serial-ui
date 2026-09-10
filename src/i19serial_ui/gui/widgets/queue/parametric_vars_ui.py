@@ -13,20 +13,6 @@ class ParametricVariablesUI(QtWidgets.QWidget):
         self._hutch = hutch_in_use
         self.params_layout = self.create_layout()
 
-    # def _setup_eh2_variables(self):
-    #     self._sleep_box = QtWidgets.QLineEdit()
-    #     self._light_box = QtWidgets.QLineEdit()
-    #     self._temp_box = QtWidgets.QLineEdit()
-    #     self._pres1_box = QtWidgets.QLineEdit()
-    #     self._pres2_box = QtWidgets.QLineEdit()
-    #     self.text_boxes = [
-    #         self._sleep_box,
-    #         self._light_box,
-    #         self._temp_box,
-    #         self._pres1_box,
-    #         self._pres2_box,
-    #     ]
-
     def _create_label_with_pic(
         self, name: str, pic: str
     ) -> tuple[QtWidgets.QLabel, QtWidgets.QLabel]:
