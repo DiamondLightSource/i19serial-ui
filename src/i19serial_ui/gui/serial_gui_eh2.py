@@ -351,9 +351,17 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
     def _run_single_task(self, queue_task: QueueElement):
         self.appendOutput(f"{queue_task.element_label}")
         self.appendOutput(f"With parameters: {queue_task.plan_params}")
-        self.client.run_plan(
-            queue_task.plan_name, {"parameters": queue_task.plan_params}
-        )
+        # TODO workaround for variables, to be improved
+        if queue_task.element_type == ElementType.COLLECTION:
+            self.client.run_plan(
+                queue_task.plan_name, {"parameters": queue_task.plan_params}
+            )
+        else:
+            self.client.run_plan(queue_task.plan_name, queue_task.plan_params)
+            # FIXME Clearing the table won't actually work as we don't know when
+            # the plan finishes
+            # NOTE This will however not remove any variables from the queue window
+            # where they automatically end up (a sigle collection doesn't)
         # TODO dev
         # self.appendOutput(f"With time: {queue_task.plan_params['exposure_time_s']} s")
         # self.client.run_plan(

@@ -103,7 +103,7 @@ class RunQueueUI(QtWidgets.QWidget):
         # TODO add all others
         match param_type:
             case ElementType.SLEEP:
-                sleep_time = text_box.text()
+                sleep_time = float(text_box.text())
                 plan_params = {"time": sleep_time}
 
         new_item = QueueElement(
