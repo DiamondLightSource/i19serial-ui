@@ -350,6 +350,9 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
 
     def _run_single_collection(self, queue_task: QueueElement):
         # NOTE This should not run variables!
+        # There will still be a problem if they add to queue and then decide
+        # to run just one...
+        # Mumble mumble
         self.appendOutput(f"{queue_task.element_label}")
         self.appendOutput(f"With parameters: {queue_task.plan_params}")
         self.client.run_plan(
