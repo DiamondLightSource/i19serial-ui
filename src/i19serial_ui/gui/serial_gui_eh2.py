@@ -348,21 +348,13 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             new_collection = self.read_input_and_create_new_queue_element()
             self.run_queue.append(new_collection)
 
-    def _run_single_task(self, queue_task: QueueElement):
+    def _run_single_collection(self, queue_task: QueueElement):
+        # NOTE This should not run variables!
         self.appendOutput(f"{queue_task.element_label}")
         self.appendOutput(f"With parameters: {queue_task.plan_params}")
-        # TODO workaround for variables, to be improved
-        if queue_task.element_type == ElementType.COLLECTION:
-            self.client.run_plan(
-                queue_task.plan_name, {"parameters": queue_task.plan_params}
-            )
-        else:
-            self.client.run_plan(queue_task.plan_name, queue_task.plan_params)
-            # FIXME Clearing the table won't actually work as we don't know when
-            # the plan finishes
-            # NOTE This will however not remove any variables from the queue window
-            # where they automatically end up (a sigle collection doesn't)
-            # Although tbh is there even an application for running this on its own?
+        self.client.run_plan(
+            queue_task.plan_name, {"parameters": queue_task.plan_params}
+        )
         # TODO dev
         # self.appendOutput(f"With time: {queue_task.plan_params['exposure_time_s']} s")
         # self.client.run_plan(
@@ -385,9 +377,12 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
     def run(self):
         try:
             self.finalise_collection_queue()
-            if len(self.run_queue) == 1:
+            if (
+                len(self.run_queue) == 1
+                and self.run_queue[0].element_type == ElementType.COLLECTION
+            ):
                 task = self.run_queue.popleft()
-                self._run_single_task(task)
+                self._run_single_collection(task)
                 # Main issue here is that there is nothing
                 # announcing end of collection yet.
             else:
