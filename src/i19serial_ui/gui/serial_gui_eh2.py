@@ -362,6 +362,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             # the plan finishes
             # NOTE This will however not remove any variables from the queue window
             # where they automatically end up (a sigle collection doesn't)
+            # Although tbh is there even an application for running this on its own?
         # TODO dev
         # self.appendOutput(f"With time: {queue_task.plan_params['exposure_time_s']} s")
         # self.client.run_plan(
