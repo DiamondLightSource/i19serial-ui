@@ -7,7 +7,12 @@ from i19serial_ui.parameters.queue import ElementType, QueueElement
     "plan_name, params, kind, expected_label",
     [
         ("collection_plan", {"dataset": "test"}, "collection", "Run collection test"),
-        ("temperature_plan", {"temperature": 10}, "variable", "Run temperature_plan"),
+        (
+            "temperature_plan",
+            {"temperature": 10},
+            "temperature",
+            "Run temperature_plan",
+        ),
     ],
 )
 def test_queue_element(plan_name: str, params: dict, kind: str, expected_label: str):
