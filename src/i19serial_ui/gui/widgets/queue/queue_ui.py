@@ -46,6 +46,11 @@ class RunQueueUI(QtWidgets.QWidget):
                 "sleep", ElementType.SLEEP, self.params_ui.sleep_box
             )
         )
+        self.params_ui.queue_light.clicked.connect(
+            lambda: self.update_queue_with_parametric(
+                "run_laser_plan", ElementType.LASER, self.params_ui.light_box
+            )
+        )
         # TODO finish connecting
 
     def _setup_layout(self):
