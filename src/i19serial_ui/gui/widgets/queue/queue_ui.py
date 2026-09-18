@@ -105,6 +105,9 @@ class RunQueueUI(QtWidgets.QWidget):
             case ElementType.SLEEP:
                 sleep_time = float(text_box.text())
                 plan_params = {"time": sleep_time}
+            case ElementType.LASER:
+                exp_time = float(text_box.text())
+                plan_params = {"exposure_time_s": exp_time}
 
         new_item = QueueElement(
             plan_name=plan_name,
