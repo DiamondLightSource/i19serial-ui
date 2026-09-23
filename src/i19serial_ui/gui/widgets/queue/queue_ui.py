@@ -51,7 +51,11 @@ class RunQueueUI(QtWidgets.QWidget):
                 "run_laser_plan", ElementType.LASER, self.params_ui.light_box
             )
         )
-        # TODO finish connecting
+        self.params_ui.queue_temp.clicked.connect(
+            lambda: self.update_queue_with_parametric(
+                "run_temperature_ramp", ElementType.TEMPERATURE, self.params_ui.temp_box
+            )
+        )
 
     def _setup_layout(self):
         main_layout = QtWidgets.QVBoxLayout()
@@ -113,6 +117,9 @@ class RunQueueUI(QtWidgets.QWidget):
             case ElementType.LASER:
                 exp_time = float(text_box.text())
                 plan_params = {"exposure_time_s": exp_time}
+            case ElementType.TEMPERATURE:
+                target_temp = float(text_box.text())
+                plan_params = {"target_temp_in_k": target_temp}
 
         new_item = QueueElement(
             plan_name=plan_name,
