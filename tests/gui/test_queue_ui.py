@@ -55,6 +55,30 @@ def test_add_item_to_queue(mock_queue_ui):
     assert mock_queue_ui.table.item(0, 2).text() == str(new_item.plan_params)
 
 
+def test_add_sleep_to_queue(mock_queue_ui):
+    mock_queue_ui.params_ui.sleep_box.setText("2")
+    mock_queue_ui.params_ui.queue_sleep.click()
+
+    assert mock_queue_ui.table.item(0, 1).text() == "Run sleep"
+    assert mock_queue_ui.table.item(0, 2).text() == str({"time": 2.0})
+
+
+def test_add_laser_to_queue(mock_queue_ui):
+    mock_queue_ui.params_ui.light_box.setText("1")
+    mock_queue_ui.params_ui.queue_light.click()
+
+    assert mock_queue_ui.table.item(0, 1).text() == "Run run_laser_plan"
+    assert mock_queue_ui.table.item(0, 2).text() == str({"exposure_time_s": 1.0})
+
+
+def test_add_temperature_to_queue(mock_queue_ui):
+    mock_queue_ui.params_ui.temp_box.setText("320")
+    mock_queue_ui.params_ui.queue_temp.click()
+
+    assert mock_queue_ui.table.item(0, 1).text() == "Run run_temperature_ramp"
+    assert mock_queue_ui.table.item(0, 2).text() == str({"target_temp_in_k": 320.0})
+
+
 def test_clear_queue_table(mock_queue_ui):
     for item in QUEUE:
         mock_queue_ui.add_to_queue_table(item)
