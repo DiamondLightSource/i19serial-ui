@@ -1,3 +1,4 @@
+from collections import deque
 from pathlib import Path
 from unittest.mock import MagicMock, Mock, patch
 
@@ -268,6 +269,19 @@ def mock_queue_element() -> QueueElement:
     }
     mock_collection = QueueElement("run_serial_from_panda", plan_params=mock_params)
     return mock_collection
+
+
+@pytest.mark.parametrize(
+    "dset_name, expected_outcome", [("001_test", True), ("002_test", False)]
+)
+def test_check_dataset_not_already_in_queue(
+    dset_name, expected_outcome, mock_eh2_gui, mock_queue_element
+):
+    mock_eh2_gui.run_queue = deque([mock_queue_element])
+
+    res = mock_eh2_gui._check_dataset_name_exists(dset_name)
+
+    assert res == expected_outcome
 
 
 def test_queue_button(mock_eh2_gui, mock_queue_element):
