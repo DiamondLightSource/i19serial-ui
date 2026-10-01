@@ -9,7 +9,7 @@ from PyQt6.QtCore import QMutex, QObject, pyqtSignal, pyqtSlot
 
 from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
 from i19serial_ui.log import LOGGER
-from i19serial_ui.parameters.queue import QueueElement
+from i19serial_ui.parameters.queue import ElementType, QueueElement
 
 POLL_TIME_S = 1.0
 
@@ -56,7 +56,13 @@ class BlueapiQueueRunner(QObject):
                 task = self.queue.popleft()
                 self.logger.info(f"Start task {task.element_label}")
                 self.logger.info(f"With parameters: {task.plan_params}")
-                self._client.run_plan(task.plan_name, {"parameters": task.plan_params})
+                # TODO FIXME again workaround for variables, need a cleaner way!
+                if task.element_type == ElementType.COLLECTION:
+                    self._client.run_plan(
+                        task.plan_name, {"parameters": task.plan_params}
+                    )
+                else:
+                    self._client.run_plan(task.plan_name, task.plan_params)
                 # TODO DEV
                 # self.logger.info(
                 # f"RUN TASK with {task.plan_params['exposure_time_s']}"

@@ -8,8 +8,10 @@ from pydantic.dataclasses import dataclass
 
 class ElementType(StrEnum):
     COLLECTION = "collection"
-    # NOTE this should become a list of "sleep", "temp", "laser" etc
-    VARIABLE = "variable"
+    SLEEP = "sleep"
+    LASER = "laser"
+    TEMPERATURE = "temperature"
+    PRESSURE = "pressure"
 
 
 @dataclass
