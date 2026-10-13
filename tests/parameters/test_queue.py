@@ -6,7 +6,12 @@ from i19serial_ui.parameters.queue import ElementType, QueueElement
 @pytest.mark.parametrize(
     "plan_name, params, kind, expected_label",
     [
-        ("collection_plan", {"dataset": "test"}, "collection", "Run collection test"),
+        (
+            "collection_plan",
+            {"parameters": {"dataset": "test"}},
+            "collection",
+            "Run collection test",
+        ),
         (
             "temperature_plan",
             {"temperature": 10},

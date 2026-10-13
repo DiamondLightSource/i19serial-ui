@@ -10,11 +10,23 @@ from i19serial_ui.parameters.queue import QueueElement
 QUEUE = [
     QueueElement(
         plan_name="collection_plan",
-        plan_params={"dataset": "test1", "exposure_time_s": 0.1},
+        plan_params={
+            "parameters": {
+                "dataset": "test1",
+                "exposure_time_s": 0.1,
+                "wells_to_collect": {"1": (0, 0, 0)},
+            }
+        },
     ),
     QueueElement(
         plan_name="collection_plan",
-        plan_params={"dataset": "test2", "exposure_time_s": 0.1},
+        plan_params={
+            "parameters": {
+                "dataset": "test2",
+                "exposure_time_s": 0.1,
+                "wells_to_collect": {"1": (0, 0, 0)},
+            },
+        },
     ),
 ]
 
@@ -52,7 +64,7 @@ def test_add_item_to_queue(mock_queue_ui):
     btn = mock_queue_ui.table.cellWidget(0, 0)
     assert isinstance(btn, QtWidgets.QPushButton)
     assert mock_queue_ui.table.item(0, 1).text() == new_item.element_label
-    assert mock_queue_ui.table.item(0, 2).text() == str(new_item.plan_params)
+    assert mock_queue_ui.table.item(0, 2).text() == str(new_item.display_params())
 
 
 def test_add_sleep_to_queue(mock_queue_ui):

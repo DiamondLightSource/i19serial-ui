@@ -19,7 +19,13 @@ def test_queue_table(mock_queue_table):
 def test_fill_in_table(mock_queue_table):
     new_item = QueueElement(
         plan_name="collection_plan",
-        plan_params={"dataset": "test1", "exposure_time_s": 0.1},
+        plan_params={
+            "parameters": {
+                "dataset": "test1",
+                "exposure_time_s": 0.1,
+                "wells_to_collect": {"1": (0, 0, 0)},
+            }
+        },
     )
     mock_queue_table.insertRow(0)
     mock_queue_table.fill_in_table(new_item, 0)
@@ -27,7 +33,7 @@ def test_fill_in_table(mock_queue_table):
     assert mock_queue_table.rowCount() == 1
 
     assert mock_queue_table.item(0, 1).text() == new_item.element_label
-    assert mock_queue_table.item(0, 2).text() == str(new_item.plan_params)
+    assert mock_queue_table.item(0, 2).text() == str(new_item.display_params())
 
 
 def test_clear_finished_task_removes_row(mock_queue_table):
