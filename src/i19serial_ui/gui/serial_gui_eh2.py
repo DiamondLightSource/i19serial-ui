@@ -294,7 +294,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         for item in self.run_queue:
             if (
                 item.element_type == ElementType.COLLECTION
-                and item.plan_params["dataset"] == dataset
+                and item.plan_params["parameters"]["dataset"] == dataset
             ):
                 dset_exists = True
                 break
@@ -306,10 +306,11 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             self.open_queue_window()
         try:
             new_collection = self.read_input_and_create_new_queue_element()
-            if self._check_dataset_name_exists(new_collection.plan_params["dataset"]):
+            _dset_to_check = new_collection.plan_params["parameters"]["dataset"]
+            if self._check_dataset_name_exists(_dset_to_check):
                 self.gui_logger.warning(
                     f"""Collection not added to the queue:
-                    dataset {new_collection.plan_params["dataset"]} already exists.
+                    dataset {_dset_to_check} already exists.
                     """
                 )
                 return
@@ -354,10 +355,8 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         # to run just one...
         # Mumble mumble
         self.appendOutput(f"{queue_task.element_label}")
-        self.appendOutput(f"With parameters: {queue_task.plan_params}")
-        self.client.run_plan(
-            queue_task.plan_name, {"parameters": queue_task.plan_params}
-        )
+        self.appendOutput(f"With parameters: {queue_task.plan_params['parameters']}")
+        self.client.run_plan(queue_task.plan_name, queue_task.plan_params)
         # TODO dev
         # self.appendOutput(f"With time: {queue_task.plan_params['exposure_time_s']} s")
         # self.client.run_plan(
@@ -457,7 +456,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             "visit": _visit,  # Probably don't need
             "dataset": _dataset,
             "filename_prefix": _prefix,
-            "image_width_deg": float(self.inputs.image_width.text()),
             "transmission_fraction": float(self.inputs.transmission.text()),
             "detector_type": "EIGER",
             "wells_to_collect": get_run_position_coordinates(
@@ -465,7 +463,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             ),
             "wells_series_len": wells.series_length,
         }
-        return params
+        return {"parameters": params}
 
 
 def start_eh2_ui():

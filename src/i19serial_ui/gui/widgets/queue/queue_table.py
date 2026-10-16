@@ -2,7 +2,7 @@ from PyQt6 import QtWidgets
 
 from i19serial_ui.parameters.queue import QueueElement
 
-TABLE_LABELS = ["Remove", "Label", "Parameters"]
+TABLE_LABELS = ["Remove", "Run list", "Parameters"]
 DELETE_BTN_STYLE = "QPushButton {color: red; font-weight: bold}"
 
 
@@ -37,7 +37,7 @@ class QueueTable(QtWidgets.QTableWidget):
 
     def fill_in_table(self, item: QueueElement, row: int):
         self.setItem(row, 1, QtWidgets.QTableWidgetItem(item.element_label))
-        self.setItem(row, 2, QtWidgets.QTableWidgetItem(str(item.plan_params)))
+        self.setItem(row, 2, QtWidgets.QTableWidgetItem(str(item.display_params())))
 
     def clear_finished_task(self, idx: int):
         # Just needs to clear the table row
