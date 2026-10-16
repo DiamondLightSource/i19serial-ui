@@ -2,7 +2,9 @@ from PyQt6 import QtWidgets
 
 from i19serial_ui.log import GuiWindowLogHandler
 
-GREETING = "Hello crystallographer, let's do some science."
+GREETING = """Hello crystallographer, let's do some science.
+Please log in from the toolbar button using your fedid.
+"""
 
 
 class LogBox(QtWidgets.QWidget):

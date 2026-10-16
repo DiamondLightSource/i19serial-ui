@@ -24,6 +24,7 @@ class SampleAlignment(QtWidgets.QWidget):
         super().__init__(parent)
         self.client = blueapi_client
         self.init_arrow_buttons()
+        self.logger = LOGGER
         self.arrow_layout = self.create_layout()
 
     def init_arrow_buttons(self):
@@ -93,7 +94,7 @@ class SampleAlignment(QtWidgets.QWidget):
         return icon_button
 
     def _on_click_run_move_plan(self, distance_mm: float, direction: NudgeDirection):
-        LOGGER.info(f"Nudge {direction.value} sample by {distance_mm}")
+        self.logger.info(f"Nudge {direction.value} sample by {distance_mm}")
         match direction:
             case NudgeDirection.X:
                 self.client.run_plan(
