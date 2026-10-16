@@ -232,7 +232,6 @@ def test_run_panda_and_read_all_parameters(
             "visit": Path("/some/path").as_posix(),
             "dataset": "001_test",
             "filename_prefix": "test",
-            "image_width_deg": 0.2,
             "transmission_fraction": 5.0,
             "detector_type": "EIGER",
             "wells_to_collect": get_run_position_coordinates(
@@ -262,7 +261,6 @@ def mock_queue_element() -> QueueElement:
             "visit": Path("/some/path").as_posix(),
             "dataset": "001_test",
             "filename_prefix": "test",
-            "image_width_deg": 0.2,
             "transmission_fraction": 5.0,
             "detector_type": "EIGER",
             "wells_to_collect": {"01": (0, 0, 0)},

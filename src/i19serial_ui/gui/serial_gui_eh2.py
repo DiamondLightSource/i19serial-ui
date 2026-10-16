@@ -456,9 +456,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             "visit": _visit,  # Probably don't need
             "dataset": _dataset,
             "filename_prefix": _prefix,
-            "image_width_deg": float(
-                self.inputs.image_width.text()
-            ),  # TODO fix this in input params in i19-bluesky
             "transmission_fraction": float(self.inputs.transmission.text()),
             "detector_type": "EIGER",
             "wells_to_collect": get_run_position_coordinates(
