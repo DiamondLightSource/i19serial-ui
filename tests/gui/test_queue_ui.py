@@ -1,14 +1,39 @@
 import pytest
 from PyQt6 import QtWidgets
 
+from i19serial_ui.gui.ui_utils import HutchInUse
+from i19serial_ui.gui.widgets.queue.parametric_vars_ui import ParametricVariablesUI
 from i19serial_ui.gui.widgets.queue.queue_table import QueueTable
 from i19serial_ui.gui.widgets.queue.queue_ui import RunQueueUI
 from i19serial_ui.parameters.queue import QueueElement
 
+QUEUE = [
+    QueueElement(
+        plan_name="collection_plan",
+        plan_params={
+            "parameters": {
+                "dataset": "test1",
+                "exposure_time_s": 0.1,
+                "wells_to_collect": {"1": (0, 0, 0)},
+            }
+        },
+    ),
+    QueueElement(
+        plan_name="collection_plan",
+        plan_params={
+            "parameters": {
+                "dataset": "test2",
+                "exposure_time_s": 0.1,
+                "wells_to_collect": {"1": (0, 0, 0)},
+            },
+        },
+    ),
+]
+
 
 @pytest.fixture
 def mock_queue_ui(qtbot):
-    queue_ui = RunQueueUI()
+    queue_ui = RunQueueUI(HutchInUse.EH2)
     qtbot.addWidget(queue_ui)
     return queue_ui
 
@@ -19,7 +44,8 @@ def test_run_queue_ui(mock_queue_ui):
     assert mock_queue_ui.visit_txt.text() == ""
 
     assert isinstance(mock_queue_ui.table, QueueTable)
-    assert mock_queue_ui.layout().count() == 2
+    assert isinstance(mock_queue_ui.params_ui, ParametricVariablesUI)
+    assert mock_queue_ui.layout().count() == 3
 
     assert isinstance(mock_queue_ui.layout(), QtWidgets.QVBoxLayout)
 
@@ -28,13 +54,64 @@ def test_run_queue_ui(mock_queue_ui):
 
 
 def test_add_item_to_queue(mock_queue_ui):
-    new_item = QueueElement(
-        plan_name="collection_plan",
-        plan_params={"dataset": "test1", "exposure_time_s": 0.1},
-    )
+    new_item = QUEUE[0]
 
     mock_queue_ui.add_to_queue_table(new_item)
 
     assert len(mock_queue_ui.run_queue) == 1
-    assert len(mock_queue_ui.table.queue) == 1
     assert mock_queue_ui.table.rowCount() == 1
+
+    btn = mock_queue_ui.table.cellWidget(0, 0)
+    assert isinstance(btn, QtWidgets.QPushButton)
+    assert mock_queue_ui.table.item(0, 1).text() == new_item.element_label
+    assert mock_queue_ui.table.item(0, 2).text() == str(new_item.display_params())
+
+
+def test_add_sleep_to_queue(mock_queue_ui):
+    mock_queue_ui.params_ui.sleep_box.setText("2")
+    mock_queue_ui.params_ui.queue_sleep.click()
+
+    assert mock_queue_ui.table.item(0, 1).text() == "Run sleep"
+    assert mock_queue_ui.table.item(0, 2).text() == str({"time": 2.0})
+
+
+def test_add_laser_to_queue(mock_queue_ui):
+    mock_queue_ui.params_ui.light_box.setText("1")
+    mock_queue_ui.params_ui.queue_light.click()
+
+    assert mock_queue_ui.table.item(0, 1).text() == "Run run_laser_plan"
+    assert mock_queue_ui.table.item(0, 2).text() == str({"exposure_time_s": 1.0})
+
+
+def test_add_temperature_to_queue(mock_queue_ui):
+    mock_queue_ui.params_ui.temp_box.setText("320")
+    mock_queue_ui.params_ui.queue_temp.click()
+
+    assert mock_queue_ui.table.item(0, 1).text() == "Run run_temperature_ramp"
+    assert mock_queue_ui.table.item(0, 2).text() == str({"target_temp_in_k": 320.0})
+
+
+def test_clear_queue_table(mock_queue_ui):
+    for item in QUEUE:
+        mock_queue_ui.add_to_queue_table(item)
+
+    assert mock_queue_ui.table.rowCount() == 2
+    assert len(mock_queue_ui.run_queue) == 2
+
+    mock_queue_ui.clear_queue_table()
+
+    assert mock_queue_ui.table.rowCount() == 0
+    assert len(mock_queue_ui.run_queue) == 0
+
+
+def test_on_delete_click(mock_queue_ui):
+    for item in QUEUE:
+        mock_queue_ui.add_to_queue_table(item)
+
+    # Get btn of first row and click
+    delete_btn_1 = mock_queue_ui.table.cellWidget(0, 0)
+
+    delete_btn_1.click()  # type:ignore
+
+    assert mock_queue_ui.table.rowCount() == 1
+    assert len(mock_queue_ui.run_queue) == 1

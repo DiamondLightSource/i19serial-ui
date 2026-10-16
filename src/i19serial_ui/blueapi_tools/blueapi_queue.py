@@ -56,10 +56,10 @@ class BlueapiQueueRunner(QObject):
                 task = self.queue.popleft()
                 self.logger.info(f"Start task {task.element_label}")
                 self.logger.info(f"With parameters: {task.plan_params}")
-                self._client.run_plan(task.plan_name, {"parameters": task.plan_params})
+                self._client.run_plan(task.plan_name, task.plan_params)
                 # TODO DEV
                 # self.logger.info(
-                #   f"RUN TASK with {task.plan_params['exposure_time_s']}"
+                # f"RUN TASK with {task.plan_params['exposure_time_s']}"
                 # )
                 # self._client.run_plan(
                 #     "sleep", {"time": task.plan_params["exposure_time_s"]}

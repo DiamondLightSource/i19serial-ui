@@ -3,24 +3,29 @@ from collections import deque
 from PyQt6 import QtGui, QtWidgets
 from PyQt6.QtCore import Qt, pyqtSlot
 
+from i19serial_ui.gui.ui_utils import HutchInUse
+from i19serial_ui.gui.widgets.queue.parametric_vars_ui import ParametricVariablesUI
 from i19serial_ui.gui.widgets.queue.queue_table import QueueTable
 from i19serial_ui.log import LOGGER, log_to_gui
-from i19serial_ui.parameters.queue import QueueElement
+from i19serial_ui.parameters.queue import ElementType, QueueElement
 
-QUEUE_WINDOW_SIZE = (800, 300)
+QUEUE_WINDOW_SIZE = (800, 400)
 
 
 class RunQueueUI(QtWidgets.QWidget):
     """A new window to handle/view to the queue."""
 
-    def __init__(self):
+    def __init__(self, hutch: HutchInUse):
         super().__init__()
         self.resize(*QUEUE_WINDOW_SIZE)
         self.setWindowTitle("Collection Queue")
         self.logger = LOGGER
+        self.hutch = hutch
         self.run_queue: deque[QueueElement] = deque()
-        self.table = QueueTable(self.run_queue, self)
-        self.table.remove_item_request.connect(self.on_delete_click)
+        # Widgets
+        self.table = QueueTable(self)
+        self.params_ui = ParametricVariablesUI(self.hutch, self)
+        self._connect_params_buttons()
         self._setup_layout()
 
     def _visit_layout(self):
@@ -35,29 +40,90 @@ class RunQueueUI(QtWidgets.QWidget):
         vlayout.addWidget(self.visit_txt)
         return vlayout
 
+    def _connect_params_buttons(self):
+        self.params_ui.queue_sleep.clicked.connect(
+            lambda: self.update_queue_with_parametric(
+                "sleep", ElementType.SLEEP, self.params_ui.sleep_box
+            )
+        )
+        self.params_ui.queue_light.clicked.connect(
+            lambda: self.update_queue_with_parametric(
+                "run_laser_plan", ElementType.LASER, self.params_ui.light_box
+            )
+        )
+        self.params_ui.queue_temp.clicked.connect(
+            lambda: self.update_queue_with_parametric(
+                "run_temperature_ramp", ElementType.TEMPERATURE, self.params_ui.temp_box
+            )
+        )
+
     def _setup_layout(self):
         main_layout = QtWidgets.QVBoxLayout()
         visit_layout = self._visit_layout()
         main_layout.addLayout(visit_layout)
         main_layout.addWidget(self.table)
+        main_layout.addLayout(self.params_ui.params_layout)
         self.setLayout(main_layout)
 
     @pyqtSlot(str)
     def on_visit_update(self, new_visit: str):
         self.visit_txt.setText(new_visit)
 
-    @pyqtSlot(QueueElement)
-    def on_delete_click(self, queue_item: QueueElement):
-        self.run_queue.remove(queue_item)
-        self.logger.info(f"Number of items left in the queue: {len(self.run_queue)}")
+    def _add_table_row(self, new_item: QueueElement):
+        num_rows = self.table.rowCount()
+        # NOTE Assumption here is that it's only ever updated by one
+        if len(self.run_queue) > num_rows:
+            self.table.insertRow(num_rows)
+            # First create the button
+            _btn = self.table.create_delete_button()
+            _btn.clicked.connect(lambda: self.on_delete_click(new_item))
+            self.table.setCellWidget(num_rows, 0, _btn)
+            # Then fill all the cells one by one, depending on collection type
+            self.table.fill_in_table(new_item, num_rows)
 
     def add_to_queue_table(self, queue_item: QueueElement):
         self.run_queue.append(queue_item)
-        self.table.add_row(queue_item)
+        self._add_table_row(queue_item)
         self.logger.info(f"{queue_item.element_label} added to the queue")
         log_to_gui(self.logger, f"Number of items in the queue: {len(self.run_queue)}")
+
+    def _get_item_index_in_queue(self, id_to_delete: str):
+        idx = [n for n, q in enumerate(self.run_queue) if q.id == id_to_delete]
+        return idx[0]
+
+    def _delete_table_row(self, item_to_delete: QueueElement):
+        idx = self._get_item_index_in_queue(item_to_delete.id)
+        self.logger.warning(f"Will delete item: {item_to_delete}, idx {idx}")
+        self.table.removeRow(idx)
+
+    def on_delete_click(self, queue_item: QueueElement):
+        self._delete_table_row(queue_item)
+        self.run_queue.remove(queue_item)
+        self.logger.info(f"Number of items left in the queue: {len(self.run_queue)}")
 
     def clear_queue_table(self):
         while len(self.run_queue) > 0:
             _item_to_remove = self.run_queue[0]
-            self.table.delete_row(_item_to_remove)
+            self.on_delete_click(_item_to_remove)
+
+    def update_queue_with_parametric(
+        self, plan_name: str, param_type: ElementType, text_box: QtWidgets.QLineEdit
+    ):
+        # TODO add all others
+        match param_type:
+            case ElementType.SLEEP:
+                sleep_time = float(text_box.text())
+                plan_params = {"time": sleep_time}
+            case ElementType.LASER:
+                exp_time = float(text_box.text())
+                plan_params = {"exposure_time_s": exp_time}
+            case ElementType.TEMPERATURE:
+                target_temp = float(text_box.text())
+                plan_params = {"target_temp_in_k": target_temp}
+
+        new_item = QueueElement(
+            plan_name=plan_name,
+            plan_params=plan_params,
+            element_type=param_type,
+        )
+        self.add_to_queue_table(new_item)

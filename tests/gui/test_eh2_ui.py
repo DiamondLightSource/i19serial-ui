@@ -1,3 +1,4 @@
+from collections import deque
 from pathlib import Path
 from unittest.mock import MagicMock, Mock, patch
 
@@ -240,7 +241,6 @@ def test_run_panda_and_read_all_parameters(
             "visit": Path("/some/path").as_posix(),
             "dataset": "001_test",
             "filename_prefix": "test",
-            "image_width_deg": 0.2,
             "transmission_fraction": 5.0,
             "detector_type": "EIGER",
             "wells_to_collect": get_run_position_coordinates(
@@ -258,25 +258,39 @@ def test_run_panda_and_read_all_parameters(
 @pytest.fixture
 def mock_queue_element() -> QueueElement:
     mock_params = {
-        "detector_distance_mm": 150.0,
-        "two_theta_deg": 0.0,
-        "rot_axis_start": -20,
-        "rot_axis_increment": 0.2,
-        "images_per_well": 10,
-        "exposure_time_s": 0.2,
-        "aperture_request": "20um",
-        "hutch": "EH2",
-        "visit": Path("/some/path").as_posix(),
-        "dataset": "001_test",
-        "filename_prefix": "test",
-        "image_width_deg": 0.2,
-        "transmission_fraction": 5.0,
-        "detector_type": "EIGER",
-        "wells_to_collect": {"01": (0, 0, 0)},
-        "wells_series_len": 1,
+        "parameters": {
+            "detector_distance_mm": 150.0,
+            "two_theta_deg": 0.0,
+            "rot_axis_start": -20,
+            "rot_axis_increment": 0.2,
+            "images_per_well": 10,
+            "exposure_time_s": 0.2,
+            "aperture_request": "20um",
+            "hutch": "EH2",
+            "visit": Path("/some/path").as_posix(),
+            "dataset": "001_test",
+            "filename_prefix": "test",
+            "transmission_fraction": 5.0,
+            "detector_type": "EIGER",
+            "wells_to_collect": {"01": (0, 0, 0)},
+            "wells_series_len": 1,
+        }
     }
     mock_collection = QueueElement("run_serial_from_panda", plan_params=mock_params)
     return mock_collection
+
+
+@pytest.mark.parametrize(
+    "dset_name, expected_outcome", [("001_test", True), ("002_test", False)]
+)
+def test_check_dataset_not_already_in_queue(
+    dset_name, expected_outcome, mock_eh2_gui, mock_queue_element
+):
+    mock_eh2_gui.run_queue = deque([mock_queue_element])
+
+    res = mock_eh2_gui._check_dataset_name_exists(dset_name)
+
+    assert res == expected_outcome
 
 
 def test_queue_button(mock_eh2_gui, mock_queue_element):

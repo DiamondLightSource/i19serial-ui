@@ -11,8 +11,8 @@ from i19serial_ui.parameters.queue import QueueElement
 def mock_queue():
     return deque(
         [
-            QueueElement("serial_plan_1", {"dataset": "a"}),
-            QueueElement("serial_plan_2", {"dataset": "b"}),
+            QueueElement("serial_plan_1", {"parameters": {"dataset": "a"}}),
+            QueueElement("serial_plan_2", {"parameters": {"dataset": "b"}}),
         ]
     )
 
