@@ -11,7 +11,6 @@ DO_NOT_DISPLAY = [
     "dataset",
     "wells_to_collect",
     "detector_type",
-    "image_width_deg",
 ]
 
 
