@@ -34,16 +34,21 @@ class LoginDialog(QtWidgets.QWidget):
         return BLUAPI_CACHE_DIR.as_posix()
 
     def create_layout(self):
-        layout = QtWidgets.QVBoxLayout()
+        layout = QtWidgets.QGridLayout()  # .QVBoxLayout()
         lbl = QtWidgets.QLabel("Please log in to run")
         lbl.setFont(QtGui.QFont("Arial", 10))
         lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.btn = QtWidgets.QPushButton("LOGIN")
-        self.btn.setMaximumHeight(20)
-        self.btn.setMaximumWidth(50)
-        self.btn.clicked.connect(self._on_click_trigger_login)
-        layout.addWidget(lbl)
-        layout.addWidget(self.btn)
+        self.login_btn = QtWidgets.QPushButton("LOGIN")
+        self.login_btn.setMaximumHeight(20)
+        self.login_btn.setMaximumWidth(60)
+        self.login_btn.clicked.connect(self._on_click_trigger_login)
+        self.logout_btn = QtWidgets.QPushButton("LOGOUT")
+        self.logout_btn.setMaximumHeight(20)
+        self.logout_btn.setMaximumWidth(60)
+        self.logout_btn.clicked.connect(self._on_click_trigger_logout)
+        layout.addWidget(lbl, 0, 0, 1, 2)
+        layout.addWidget(self.login_btn, 1, 0)
+        layout.addWidget(self.logout_btn, 1, 1)
         self.setLayout(layout)
 
     def _load_access_token(self) -> str:
@@ -72,4 +77,13 @@ class LoginDialog(QtWidgets.QWidget):
             self.close()
         except Exception as e:
             log_to_gui(self.logger, "Login failed", level="ERROR")
+            self.logger.exception(e)
+
+    def _on_click_trigger_logout(self):
+        try:
+            self.client.client.logout()
+            self.user_fedid.emit("")
+            self.close()
+        except Exception as e:
+            log_to_gui(self.logger, "Logout failed", level="ERROR")
             self.logger.exception(e)
