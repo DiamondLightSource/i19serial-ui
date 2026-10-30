@@ -19,6 +19,7 @@ class SerialBlueapiClient:
         # See https://github.com/DiamondLightSource/i19serial-ui/issues/22
         self.instrument_session = session
         self.client = self._get_blueapi_client(config_file)
+        self._blueapi_config = self._load_config_from_file(config_file)
 
     def _load_config_from_file(self, config_file) -> ApplicationConfig:
         config_loader = ConfigLoader(ApplicationConfig)
@@ -31,8 +32,10 @@ class SerialBlueapiClient:
         return config_loader.load()
 
     def _get_blueapi_client(self, config_file) -> BlueapiClient:
-        config = self._load_config_from_file(config_file)
-        return BlueapiClient.from_config(config)
+        # self._blueapi_config = self._load_config_from_file(config_file)
+
+        _blueapi_config = self._load_config_from_file(config_file)
+        return BlueapiClient.from_config(_blueapi_config)
 
     def _create_task(self, plan_name: str, plan_params: dict[str, Any]) -> TaskRequest:
         return TaskRequest(
