@@ -2,7 +2,7 @@ import sys
 from collections.abc import Callable
 
 from PyQt6 import QtCore, QtGui, QtWidgets
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal, pyqtSlot
 
 from i19serial_ui.blueapi_tools.blueapi_client import SerialBlueapiClient
 from i19serial_ui.blueapi_tools.blueapi_queue import BlueapiQueueRunner
@@ -36,12 +36,14 @@ from i19serial_ui.log import (
 )
 from i19serial_ui.parameters.coordinates import FiducialPosition
 from i19serial_ui.parameters.general_utils import ApertureOptions
-from i19serial_ui.parameters.queue import QueueElement
+from i19serial_ui.parameters.queue import ElementType, QueueElement
 from i19serial_ui.parameters.wells_selection import WellsSelection
 
 WINDOW_SIZE = (500, 1000)
 LOG_HANDLERS = []
 
+TITLE_MSG = "I19-2: Fixed Target Serial Crystallography"
+DEFAULT_LOGIN_MSG = "User not logged in"
 
 # Some properties
 BG_COLOUR = "background-colour:(133,194,132)"
@@ -86,11 +88,12 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.sample_alignment = SampleAlignment(self.client, centralWidget)
 
         # External UI widgets
-        self.queue_window = RunQueueUI()
+        self.queue_window = RunQueueUI(self.hutch)
         self.selected_visit.connect(self.queue_window.on_visit_update)
         self.run_queue = self.queue_window.run_queue
 
         self.login_dialog = LoginDialog(self.client)
+        self.login_dialog.user_fedid.connect(self.on_user_login)
 
         # Thread for queue with polling
         self.queueThread = QtCore.QThread()
@@ -125,13 +128,13 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.client = SerialBlueapiClient(self._config)
 
     def closeEvent(self, a0):  # type: ignore # noqa: N802
-        self.gui_logger.debug("CLOSING UI")
+        self.gui_logger.debug("Closing UI and logging out of blueapi")
+        self.client.client.logout()
         if self.queue_window.isVisible():
             self.queue_window.close()
         if self.login_dialog.isVisible():
             self.login_dialog.close()
         tidy_up_logging([self.gui_logger])
-        print("PLEASE LOG OUT FROM BLUEAPI")
         return super().closeEvent(a0)
 
     def open_queue_window(self):
@@ -191,9 +194,16 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
         self.open_login_action.triggered.connect(self.open_login_dialog)
 
     def _setup_title(self):
-        self.i19_label = QtWidgets.QLabel("I19-2: Fixed Target Serial Crystallography")
+        self.i19_label = QtWidgets.QLabel(TITLE_MSG)
         self.i19_label.setFont(QtGui.QFont(FONT, 13))
         self.i19_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.login_info = QtWidgets.QLabel(DEFAULT_LOGIN_MSG)
+        self.login_info.setFont(QtGui.QFont(FONT, 10))
+        self.login_info.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+
+    @pyqtSlot(str)
+    def on_user_login(self, user_fedid: str):
+        self.login_info.setText(f"Logged in as {user_fedid}")
 
     def _create_dropdown(self):
         self.aperturedropdown = QtWidgets.QComboBox()
@@ -230,6 +240,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
 
     def _create_coordinate_system_group(self):
         self.cs_group = QtWidgets.QGroupBox("Coordinate System")
+        self.cs_group.setMaximumHeight(180)
         self.cs_group.setLayout(self.cs_panel.cs_layout)
 
     def _create_collection_inputs_group(self):
@@ -290,8 +301,10 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             self.selected_visit.emit(self.current_visit)
 
     def create_main_layout(self):
-        title_layout = QtWidgets.QHBoxLayout()
+        title_layout = QtWidgets.QVBoxLayout()
         title_layout.addWidget(self.i19_label)
+        # Centrin gof this looks horrible - to rething placement
+        title_layout.addWidget(self.login_info)
         main_layout = QtWidgets.QGridLayout()
         main_layout.addLayout(title_layout, 0, 0)
         main_layout.addWidget(self.top_group, 1, 0)
@@ -307,7 +320,10 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
     def _check_dataset_name_exists(self, dataset: str) -> bool:
         dset_exists: bool = False
         for item in self.run_queue:
-            if item.plan_params["dataset"] == dataset:
+            if (
+                item.element_type == ElementType.COLLECTION
+                and item.plan_params["parameters"]["dataset"] == dataset
+            ):
                 dset_exists = True
                 break
         return dset_exists
@@ -318,10 +334,11 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             self.open_queue_window()
         try:
             new_collection = self.read_input_and_create_new_queue_element()
-            if self._check_dataset_name_exists(new_collection.plan_params["dataset"]):
+            _dset_to_check = new_collection.plan_params["parameters"]["dataset"]
+            if self._check_dataset_name_exists(_dset_to_check):
                 self.gui_logger.warning(
                     f"""Collection not added to the queue:
-                    dataset {new_collection.plan_params["dataset"]} already exists.
+                    dataset {_dset_to_check} already exists.
                     """
                 )
                 return
@@ -329,7 +346,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             self.queue_window.add_to_queue_table(new_collection)
             self.run_queue = self.queue_window.run_queue
             self.appendOutput("Collection added to the queue")
-            self.appendOutput(f"QUEUE: \n {self.run_queue}")
+            self.appendOutput(f"QUEUE: \n {self.run_queue}", level="DEBUG")
         except Exception as e:
             self.appendOutput(
                 "Couldn't add item to queue, please check logs.", level="ERROR"
@@ -350,7 +367,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             )
             raise ValueError("Missing parameters")
         return QueueElement(
-            plan_name="run_serial_from_panda",
+            plan_name="run_serial_with_panda",
             plan_params=parameters,
         )
 
@@ -360,16 +377,16 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             new_collection = self.read_input_and_create_new_queue_element()
             self.run_queue.append(new_collection)
 
-    def _run_single_task(self, queue_task: QueueElement):
+    def _run_single_collection(self, queue_task: QueueElement):
+        # NOTE This should not run variables!
+        # There will still be a problem if they add to queue and then decide
+        # to run just one...
+        # Mumble mumble
         self.appendOutput(f"{queue_task.element_label}")
-        self.appendOutput(f"With parameters: {queue_task.plan_params}")
-        self.client.run_plan(
-            queue_task.plan_name, {"parameters": queue_task.plan_params}
-        )
+        self.appendOutput(f"With parameters: {queue_task.plan_params['parameters']}")
+        self.client.run_plan(queue_task.plan_name, queue_task.plan_params)
         # TODO dev
-        # self.appendOutput(
-        #   f"With time: {queue_task.plan_params['exposure_time_s']} s"
-        # )
+        # self.appendOutput(f"With time: {queue_task.plan_params['exposure_time_s']} s")
         # self.client.run_plan(
         #     "sleep", {"time": queue_task.plan_params["exposure_time_s"]}
         # )
@@ -390,9 +407,12 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
     def run(self):
         try:
             self.finalise_collection_queue()
-            if len(self.run_queue) == 1:
+            if (
+                len(self.run_queue) == 1
+                and self.run_queue[0].element_type == ElementType.COLLECTION
+            ):
                 task = self.run_queue.popleft()
-                self._run_single_task(task)
+                self._run_single_collection(task)
                 # Main issue here is that there is nothing
                 # announcing end of collection yet.
             else:
@@ -464,7 +484,6 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             "visit": _visit,  # Probably don't need
             "dataset": _dataset,
             "filename_prefix": _prefix,
-            "image_width_deg": float(self.inputs.image_width.text()),
             "transmission_fraction": float(self.inputs.transmission.text()),
             "detector_type": "EIGER",
             "wells_to_collect": get_run_position_coordinates(
@@ -472,7 +491,7 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
             ),
             "wells_series_len": wells.series_length,
         }
-        return params
+        return {"parameters": params}
 
 
 def start_eh2_ui():

@@ -108,13 +108,13 @@ class CoordinateSystemPanel(QtWidgets.QWidget):
             return
         if self._grid.grid_type is GridType.KAPTON400:
             xz_offset = calculate_kapton_xz_positions(stage_positions[0:3:2], position)
-            text_boxes[0].setText(str(xz_offset[0]))
-            text_boxes[1].setText(str(stage_positions[1]))
-            text_boxes[2].setText(str(xz_offset[1]))
+            text_boxes[0].setText(str(round(xz_offset[0], 3)))
+            text_boxes[1].setText(str(round(stage_positions[1], 3)))
+            text_boxes[2].setText(str(round(xz_offset[1], 3)))
         else:
-            text_boxes[0].setText(str(stage_positions[0]))
-            text_boxes[1].setText(str(stage_positions[1]))
-            text_boxes[2].setText(str(stage_positions[2]))
+            text_boxes[0].setText(str(round(stage_positions[0], 3)))
+            text_boxes[1].setText(str(round(stage_positions[1], 3)))
+            text_boxes[2].setText(str(round(stage_positions[2], 3)))
 
     def _setup_positions_layout(self):
         layout = QtWidgets.QGridLayout()
