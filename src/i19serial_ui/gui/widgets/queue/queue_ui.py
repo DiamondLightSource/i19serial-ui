@@ -6,7 +6,7 @@ from PyQt6.QtCore import Qt, pyqtSlot
 from i19serial_ui.gui.ui_utils import HutchInUse
 from i19serial_ui.gui.widgets.queue.parametric_vars_ui import ParametricVariablesUI
 from i19serial_ui.gui.widgets.queue.queue_table import QueueTable
-from i19serial_ui.log import LOGGER
+from i19serial_ui.log import LOGGER, log_to_gui
 from i19serial_ui.parameters.queue import ElementType, QueueElement
 
 QUEUE_WINDOW_SIZE = (800, 400)
@@ -85,7 +85,7 @@ class RunQueueUI(QtWidgets.QWidget):
         self.run_queue.append(queue_item)
         self._add_table_row(queue_item)
         self.logger.info(f"{queue_item.element_label} added to the queue")
-        self.logger.debug(f"Number of items in the queue: {len(self.run_queue)}")
+        log_to_gui(self.logger, f"Number of items in the queue: {len(self.run_queue)}")
 
     def _get_item_index_in_queue(self, id_to_delete: str):
         idx = [n for n, q in enumerate(self.run_queue) if q.id == id_to_delete]

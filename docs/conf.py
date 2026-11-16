@@ -73,6 +73,8 @@ nitpick_ignore = [
     ("py:class", "typing_extensions.Literal"),
 ]
 
+suppress_warnings = ["design.card_legacy"]
+
 # Both the class’ and the __init__ method’s docstring are concatenated and
 # inserted into the main body of the autoclass directive
 autoclass_content = "both"

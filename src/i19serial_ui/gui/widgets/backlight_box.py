@@ -66,11 +66,10 @@ class BacklightBox(QtWidgets.QWidget):
         centre_layout_bottom.addWidget(self.out_button, 0, 1)
         self.in_button.setFixedWidth(30)
         self.in_button.setFixedHeight(15)
-        self.in_quick_button.setFixedWidth(65)
+        self.in_quick_button.setFixedWidth(70)
         self.in_quick_button.setFixedHeight(15)
         self.out_button.setFixedWidth(30)
         self.out_button.setFixedHeight(15)
         centre_layout.addLayout(centre_layout_bottom)
-        centre_layout.setSpacing(10)
-        centre_layout.addStretch()
+        centre_layout.setSpacing(5)
         return centre_layout
