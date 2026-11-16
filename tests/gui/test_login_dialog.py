@@ -22,12 +22,24 @@ def test_login_dialog(mock_login_dialog):
     assert mock_login_dialog.layout().count() == 2
 
 
-def test_button_click_calls_blueapi_login(mock_login_dialog, qtbot):
+def test_on_click_trigger_login(mock_login_dialog, qtbot):
     mock_login_dialog._update_user_fedid = MagicMock(return_value="abc1234")
     mock_login_dialog.close = MagicMock()
+
     with qtbot.waitSignal(mock_login_dialog.user_fedid) as sig:
-        mock_login_dialog.auth_btn.click()
+        mock_login_dialog._on_click_trigger_login()
 
         mock_login_dialog.client.client.login.assert_called_once()
         assert sig.args[0] == "abc1234"
+        mock_login_dialog.close.assert_called_once()
+
+
+def test_on_click_trigger_logout(mock_login_dialog, qtbot):
+    mock_login_dialog.close = MagicMock()
+
+    with qtbot.waitSignal(mock_login_dialog.user_fedid) as sig:
+        mock_login_dialog._on_click_trigger_logout()
+
+        mock_login_dialog.client.client.logout.assert_called_once()
+        assert sig.args[0] == ""
         mock_login_dialog.close.assert_called_once()
