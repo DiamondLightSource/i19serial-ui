@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 from enum import StrEnum
 from importlib.resources import files
@@ -63,11 +64,11 @@ def parse_dataset_input(visit: str, dataset: str | None, prefix: str | None) -> 
             level="ERROR",
         )
         return False
-    # if os.path.isdir(f"{visit}/{dataset}"):
-    #     log_to_gui(
-    #         LOGGER,
-    #         "Data collection folder already exsists, please choose unique name",
-    #         level="ERROR",
-    #     )
-    #     return False
+    if os.path.isdir(f"{visit}/{dataset}"):
+        log_to_gui(
+            LOGGER,
+            "Data collection folder already exsists, please choose unique name",
+            level="ERROR",
+        )
+        return False
     return True
