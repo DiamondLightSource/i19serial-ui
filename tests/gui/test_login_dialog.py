@@ -22,6 +22,32 @@ def test_login_dialog(mock_login_dialog):
     assert mock_login_dialog.layout().count() == 2
 
 
+def test_refresh_login_state_to_login(mock_login_dialog, qtbot):
+    mock_login_dialog._update_user_fedid = MagicMock(return_value=None)
+    mock_login_dialog._on_click_trigger_login = MagicMock()
+
+    mock_login_dialog.show()
+
+    assert mock_login_dialog.auth_btn.text() == "LOGIN"
+    assert mock_login_dialog.lbl.text() == "Please log in to run"
+
+    mock_login_dialog.auth_btn.click()
+    mock_login_dialog._on_click_trigger_login.assert_called_once()
+
+
+def test_refresh_login_state_to_logout(mock_login_dialog, qtbot):
+    mock_login_dialog._update_user_fedid = MagicMock(return_value="abc12345")
+    mock_login_dialog._on_click_trigger_logout = MagicMock()
+
+    mock_login_dialog.show()
+
+    assert mock_login_dialog.auth_btn.text() == "LOGOUT"
+    assert mock_login_dialog.lbl.text() == "Logged in as abc12345"
+
+    mock_login_dialog.auth_btn.click()
+    mock_login_dialog._on_click_trigger_logout.assert_called_once()
+
+
 def test_on_click_trigger_login(mock_login_dialog, qtbot):
     mock_login_dialog._update_user_fedid = MagicMock(return_value="abc1234")
     mock_login_dialog.close = MagicMock()
