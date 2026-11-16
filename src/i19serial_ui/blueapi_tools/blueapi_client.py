@@ -18,8 +18,8 @@ class SerialBlueapiClient:
         # TODO Needs a callback for logging reasons, probably
         # See https://github.com/DiamondLightSource/i19serial-ui/issues/22
         self.instrument_session = session
-        self.client = self._get_blueapi_client(config_file)
         self._blueapi_config = self._load_config_from_file(config_file)
+        self.client = self._get_blueapi_client()
 
     def _load_config_from_file(self, config_file) -> ApplicationConfig:
         config_loader = ConfigLoader(ApplicationConfig)
@@ -31,11 +31,11 @@ class SerialBlueapiClient:
         config_loader.use_values_from_yaml(config_file)
         return config_loader.load()
 
-    def _get_blueapi_client(self, config_file) -> BlueapiClient:
-        # self._blueapi_config = self._load_config_from_file(config_file)
+    def _get_blueapi_client(self) -> BlueapiClient:
+        return BlueapiClient.from_config(self._blueapi_config)
 
-        _blueapi_config = self._load_config_from_file(config_file)
-        return BlueapiClient.from_config(_blueapi_config)
+    def get_blueapi_auth_token_path(self) -> Path | None:
+        return self._blueapi_config.auth_token_path
 
     def _create_task(self, plan_name: str, plan_params: dict[str, Any]) -> TaskRequest:
         return TaskRequest(
