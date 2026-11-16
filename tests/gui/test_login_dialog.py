@@ -69,3 +69,13 @@ def test_on_click_trigger_logout(mock_login_dialog, qtbot):
         mock_login_dialog.client.client.logout.assert_called_once()
         assert sig.args[0] == ""
         mock_login_dialog.close.assert_called_once()
+
+
+def test_get_session_manager_returns_none_if_never_been_logged_in(
+    mock_login_dialog, qtbot
+):
+    mock_login_dialog.client.get_blueapi_auth_token_path = MagicMock(return_value=None)
+
+    res = mock_login_dialog._get_session_manager()
+
+    assert not res

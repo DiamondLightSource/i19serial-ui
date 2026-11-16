@@ -30,7 +30,7 @@ class LoginDialog(QtWidgets.QWidget):
     def _get_session_manager(self) -> SessionManager | None:
         try:
             return SessionManager.from_cache(
-                auth_token_path=self.client._blueapi_config.auth_token_path  # noqa: SLF001
+                auth_token_path=self.client.get_blueapi_auth_token_path()
             )
         except Exception:
             # No cached session yet, i.e. user has never logged in
