@@ -45,7 +45,6 @@ class LoginDialog(QtWidgets.QWidget):
             # Logged In
             # Get fedid
             self.logger.info("Logged in")
-            self.user_logged_in = True
             return sm.decode_jwt(access_token).get(USER_ID_CLAIM)
 
     def create_layout(self):
@@ -86,6 +85,7 @@ class LoginDialog(QtWidgets.QWidget):
         try:
             self.client.client.login()
             self.user_fedid.emit(self._update_user_fedid())
+            self.user_logged_in = True
             self.close()
         except Exception as e:
             log_to_gui(self.logger, "Login failed", level="ERROR")
@@ -95,6 +95,7 @@ class LoginDialog(QtWidgets.QWidget):
         try:
             self.client.client.logout()
             self.user_fedid.emit("")
+            self.user_logged_in = False
             self.close()
         except Exception as e:
             log_to_gui(self.logger, "Logout failed", level="ERROR")
