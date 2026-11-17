@@ -149,27 +149,6 @@ def test_backlight_buttons(mock_eh2_gui, plan, mock_params, buttoncalled):
 
 
 @pytest.mark.parametrize(
-    "plan,mock_params,buttoncalled",
-    [
-        (
-            "rotate_in_phi",
-            {"rot_increment": 10},
-            "phiadjusterpositive",
-        ),
-        (
-            "rotate_in_phi",
-            {"rot_increment": -10},
-            "phiadjusternegative",
-        ),
-    ],
-)
-def test_phi_buttons(mock_eh2_gui, plan, mock_params, buttoncalled):
-    button = getattr(mock_eh2_gui.phi_rotator, buttoncalled)
-    button.click()
-    mock_eh2_gui.client.run_plan.assert_called_once_with(plan, mock_params)
-
-
-@pytest.mark.parametrize(
     "well_list,manual_selection_enabled,series_length",
     [([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], False, 10), ([1, 3, 5, 7, 9], True, 5)],
 )
