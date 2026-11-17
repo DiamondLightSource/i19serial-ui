@@ -305,6 +305,7 @@ def test_open_login_dialog_action(mock_eh2_gui):
 def test_ui_close_event(mock_tidy_up, mock_eh2_gui):
     mock_eh2_gui.login_dialog = MagicMock()
     mock_eh2_gui.login_dialog.isVisible.return_value = False
+    mock_eh2_gui.login_dialog.user_logged_in = True
 
     mock_eh2_gui.queue_window = MagicMock()
     mock_eh2_gui.queue_window.isVisible.return_value = True
