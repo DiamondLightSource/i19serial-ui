@@ -129,11 +129,13 @@ class SerialGuiEH2(QtWidgets.QMainWindow):
 
     def closeEvent(self, a0):  # type: ignore # noqa: N802
         self.gui_logger.debug("Closing UI and logging out of blueapi")
-        self.client.client.logout()
         if self.queue_window.isVisible():
             self.queue_window.close()
         if self.login_dialog.isVisible():
             self.login_dialog.close()
+        if self.login_dialog.user_logged_in:
+            print(self.login_dialog.user_logged_in)
+            self.client.client.logout()
         tidy_up_logging([self.gui_logger])
         return super().closeEvent(a0)
 

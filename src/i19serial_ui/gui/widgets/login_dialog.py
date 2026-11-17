@@ -25,6 +25,7 @@ class LoginDialog(QtWidgets.QWidget):
         self.setWindowTitle("Blueapi login")
         self.logger = LOGGER
         self.client = client
+        self.user_logged_in = False
         self.create_layout()
 
     def _get_session_manager(self) -> SessionManager | None:
@@ -84,6 +85,7 @@ class LoginDialog(QtWidgets.QWidget):
         try:
             self.client.client.login()
             self.user_fedid.emit(self._update_user_fedid())
+            self.user_logged_in = True
             self.close()
         except Exception as e:
             log_to_gui(self.logger, "Login failed", level="ERROR")
@@ -93,6 +95,7 @@ class LoginDialog(QtWidgets.QWidget):
         try:
             self.client.client.logout()
             self.user_fedid.emit("")
+            self.user_logged_in = False
             self.close()
         except Exception as e:
             log_to_gui(self.logger, "Logout failed", level="ERROR")

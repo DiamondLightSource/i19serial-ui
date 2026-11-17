@@ -58,6 +58,7 @@ def test_on_click_trigger_login(mock_login_dialog, qtbot):
         mock_login_dialog.client.client.login.assert_called_once()
         assert sig.args[0] == "abc1234"
         mock_login_dialog.close.assert_called_once()
+        assert mock_login_dialog.user_logged_in
 
 
 def test_on_click_trigger_logout(mock_login_dialog, qtbot):
@@ -69,6 +70,7 @@ def test_on_click_trigger_logout(mock_login_dialog, qtbot):
         mock_login_dialog.client.client.logout.assert_called_once()
         assert sig.args[0] == ""
         mock_login_dialog.close.assert_called_once()
+        assert not mock_login_dialog.user_logged_in
 
 
 def test_get_session_manager_returns_none_if_never_been_logged_in(
