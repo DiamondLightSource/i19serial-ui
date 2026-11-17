@@ -25,6 +25,7 @@ class LoginDialog(QtWidgets.QWidget):
         self.setWindowTitle("Blueapi login")
         self.logger = LOGGER
         self.client = client
+        self.user_logged_in = False
         self.create_layout()
 
     def _get_session_manager(self) -> SessionManager | None:
@@ -44,6 +45,7 @@ class LoginDialog(QtWidgets.QWidget):
             # Logged In
             # Get fedid
             self.logger.info("Logged in")
+            self.user_logged_in = True
             return sm.decode_jwt(access_token).get(USER_ID_CLAIM)
 
     def create_layout(self):
