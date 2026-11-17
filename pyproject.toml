@@ -19,6 +19,7 @@ dependencies = [
     "aiohttp",
     "blueapi == 1.21.1",
     "scanspec",
+    "httpx",             # For numtracker query
 ] # Add project dependencies here, e.g. ["click", "numpy"]
 dynamic = ["version"]
 license.file = "LICENSE"
